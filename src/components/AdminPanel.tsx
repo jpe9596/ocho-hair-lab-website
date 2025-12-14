@@ -3,7 +3,7 @@ import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, User, Phone, Envelope, Scissors, Trash } from "@phosphor-icons/react"
+import { Calendar, Clock, User, Phone, Envelope, Scissors, Trash, Bell } from "@phosphor-icons/react"
 import { formatAppointmentDate } from "@/lib/notifications"
 import { toast } from "sonner"
 
@@ -18,6 +18,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  reminderSent?: boolean
 }
 
 export function AdminPanel() {
@@ -84,7 +85,15 @@ export function AdminPanel() {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-xl mb-1">{appointment.name}</CardTitle>
+                      <div className="flex items-center gap-2 mb-1">
+                        <CardTitle className="text-xl">{appointment.name}</CardTitle>
+                        {appointment.reminderSent && (
+                          <Badge variant="secondary" className="flex items-center gap-1">
+                            <Bell size={12} weight="fill" />
+                            Reminder Sent
+                          </Badge>
+                        )}
+                      </div>
                       <CardDescription>
                         Booked {new Date(appointment.createdAt).toLocaleDateString()}
                       </CardDescription>

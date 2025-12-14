@@ -22,6 +22,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  reminderSent?: boolean
 }
 
 export function CustomerProfile() {

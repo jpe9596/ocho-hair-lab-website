@@ -55,11 +55,18 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Success criteria**: Only visible to owner; displays all appointment details; allows deletion; shows contact information
 
 ### Customer Profile Pages
-- **Functionality**: Dedicated interface where customers can access their appointments by entering email or phone number, view all bookings (upcoming and past), and cancel appointments
+- **Functionality**: Dedicated interface where customers can access their appointments by entering email or phone number, view all bookings (upcoming and past), reschedule appointments, and cancel appointments
 - **Purpose**: Empowers customers to self-manage their appointments and stay informed about upcoming services
 - **Trigger**: User clicks "My Appointments" in navigation or footer, or clicks "View" action in booking confirmation toast
-- **Progression**: Click "My Appointments" → Enter email or phone → View login form → Submit credentials → See personalized dashboard → Browse upcoming appointments with full details → View past appointment history → Cancel upcoming appointments if needed → Sign out when finished
-- **Success criteria**: Secure access via email/phone lookup; displays upcoming and past appointments separately; allows appointment cancellation with confirmation; smooth animations between states; easy navigation back to home
+- **Progression**: Click "My Appointments" → Enter email or phone → View login form → Submit credentials → See personalized dashboard → Browse upcoming appointments with full details → Reschedule or cancel appointments → View past appointment history → Sign out when finished
+- **Success criteria**: Secure access via email/phone lookup; displays upcoming and past appointments separately; allows appointment rescheduling and cancellation with confirmation; smooth animations between states; easy navigation back to home
+
+### Appointment Reminders
+- **Functionality**: Automated reminder system that sends SMS and email notifications to customers 24 hours before their scheduled appointments
+- **Purpose**: Reduces no-shows and keeps customers informed about upcoming appointments
+- **Trigger**: System automatically checks appointments every hour
+- **Progression**: System detects appointment within 24-hour window → Sends reminder SMS to customer → Sends notification SMS to salon staff → Updates appointment record → Displays reminder status in admin panel
+- **Success criteria**: Reminders sent exactly once per appointment at 24-hour mark; customers receive helpful reminder message; salon staff notified that reminder was sent; admin panel shows reminder status badge
 
 ## Edge Case Handling
 
@@ -75,6 +82,9 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Customer Profile Access**: No appointments found shows helpful error; supports lookup by email OR phone number
 - **Past Appointments Display**: Clearly separated from upcoming appointments with reduced opacity
 - **Appointment Cancellation**: Confirmation feedback via toast; immediately removed from customer view
+- **Appointment Rescheduling**: Reset reminder flag when rescheduled so new reminder will be sent
+- **Reminder Timing**: System checks appointments hourly; reminders only sent once per appointment
+- **Reminder After Reschedule**: Rescheduled appointments receive fresh reminders 24 hours before new time
 
 ## Design Direction
 

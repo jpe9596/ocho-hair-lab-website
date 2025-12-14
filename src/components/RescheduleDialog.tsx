@@ -21,6 +21,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  reminderSent?: boolean
 }
 
 interface RescheduleDialogProps {
@@ -89,7 +90,8 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
       date: date,
       time: time,
       stylist: stylist || "Any Available",
-      notes: notes
+      notes: notes,
+      reminderSent: false
     }
 
     setAppointments((current) =>

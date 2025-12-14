@@ -8,11 +8,15 @@ This application includes SMS notification functionality for appointment booking
 The booking system now sends SMS notifications to:
 1. **The customer** - Confirming their appointment request
 2. **The salon** (81 1615 3747) - Notifying staff of new bookings
+3. **24-hour reminders** - Automated reminders sent to customers and salon staff
 
 ### Features
 - SMS sent immediately when appointment is booked
 - Customer receives confirmation with appointment details
 - Salon staff receives booking notification with customer info
+- **Automated reminders sent 24 hours before appointments**
+- **Reminder status tracked and displayed in admin panel**
+- **Reminders reset when appointments are rescheduled**
 - Toast notifications confirm SMS delivery
 
 ## Twilio Setup Instructions
@@ -75,12 +79,12 @@ Use Twilio Functions to create a serverless endpoint:
 
 ## Message Templates
 
-### Customer Notification
+### Customer Notification (Booking)
 ```
 Hi {Name}! Your appointment request for {Service} on {Date} at {Time} has been received. We'll confirm within 24 hours. - Ocho Hair Lab
 ```
 
-### Salon Notification
+### Salon Notification (Booking)
 ```
 New appointment request:
 Name: {Name}
@@ -90,10 +94,26 @@ Time: {Time}
 Phone: {Phone}
 ```
 
+### Customer Reminder (24 hours before)
+```
+Hi {Name}! Reminder: You have a {Service} appointment tomorrow ({Date}) at {Time} with {Stylist}. We look forward to seeing you! - Ocho Hair Lab
+```
+
+### Salon Reminder Notification
+```
+Reminder sent to {Name} for tomorrow's appointment:
+Service: {Service}
+Time: {Time}
+Stylist: {Stylist}
+Customer Phone: {Phone}
+```
+
 ## Cost Considerations
 
 - **Mexico SMS costs**: Approximately $0.0400 USD per SMS segment
 - Each booking sends 2 SMS (customer + salon) = ~$0.08 USD per booking
+- Each reminder sends 2 SMS (customer + salon) = ~$0.08 USD per reminder
+- **Total per appointment**: ~$0.16 USD (booking confirmation + 24-hour reminder)
 - Twilio trial includes free credits to test
 
 ## Security Best Practices
@@ -130,5 +150,25 @@ For production:
 ✅ SMS notification structure implemented  
 ✅ Customer and salon notifications configured  
 ✅ Phone number validation in booking form  
+✅ 24-hour appointment reminders implemented  
+✅ Reminder tracking and status display in admin panel  
+✅ Automatic reminder reset on appointment reschedule  
 🔄 Using simulated SMS (replace with real Twilio API)  
 ⏳ Pending: Backend service for secure credential management
+
+## How Reminders Work
+
+The reminder system operates automatically in the background:
+
+1. **Automatic Checking**: The app checks for upcoming appointments every hour
+2. **24-Hour Window**: When an appointment is within 24 hours, a reminder is triggered
+3. **One-Time Sending**: Each appointment gets exactly one reminder (tracked via `reminderSent` flag)
+4. **Dual Notification**: Both customer and salon staff receive the reminder SMS
+5. **Visual Indicator**: Admin panel shows a badge for appointments that have received reminders
+6. **Reschedule Reset**: If an appointment is rescheduled, the reminder flag resets so a new reminder will be sent
+
+### Technical Details
+- Reminder checks run every 60 minutes via `setInterval`
+- Minimum 30-minute gap between consecutive checks to prevent duplicate sends
+- Reminders are sent for appointments scheduled 24 hours (or less) in the future
+- Past appointments are excluded from reminder checks

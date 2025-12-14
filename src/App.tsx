@@ -9,10 +9,13 @@ import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
 import { AdminPanel } from "@/components/AdminPanel"
 import { CustomerProfile } from "@/components/CustomerProfile"
+import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
   const [currentView, setCurrentView] = useState<"home" | "profile">("home")
+  
+  useAppointmentReminders()
 
   useEffect(() => {
     const handleHashChange = () => {

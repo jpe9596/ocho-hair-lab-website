@@ -27,6 +27,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  reminderSent?: boolean
 }
 
 const services = [
