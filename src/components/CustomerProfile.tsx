@@ -11,6 +11,16 @@ import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { RescheduleDialog } from "@/components/RescheduleDialog"
 import { BookingDialog } from "@/components/BookingDialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Appointment {
   id: string
@@ -37,6 +47,8 @@ export function CustomerProfile() {
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null)
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,11 +93,26 @@ export function CustomerProfile() {
     setRescheduleDialogOpen(true)
   }
 
-  const cancelAppointment = (id: string, service: string, date: Date, time: string) => {
-    setAppointments((current) => (current || []).filter(apt => apt.id !== id))
+  const handleCancelClick = (appointment: Appointment) => {
+    setAppointmentToCancel(appointment)
+    setCancelDialogOpen(true)
+  }
+
+  const confirmCancelAppointment = () => {
+    if (!appointmentToCancel) return
+
+    setAppointments((current) => (current || []).filter(apt => apt.id !== appointmentToCancel.id))
+    
+    const serviceName = appointmentToCancel.services && appointmentToCancel.services.length > 1
+      ? `${appointmentToCancel.services.length} services`
+      : appointmentToCancel.service
+
     toast.success("Appointment Cancelled", {
-      description: `Your ${service} appointment on ${formatAppointmentDate(date)} at ${time} has been cancelled.`
+      description: `Your ${serviceName} appointment on ${formatAppointmentDate(new Date(appointmentToCancel.date))} at ${appointmentToCancel.time} has been cancelled.`
     })
+
+    setCancelDialogOpen(false)
+    setAppointmentToCancel(null)
   }
 
   const customerAppointments = isLoggedIn && customerData
@@ -275,12 +302,7 @@ export function CustomerProfile() {
                                   variant="ghost"
                                   size="icon"
                                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  onClick={() => cancelAppointment(
-                                    appointment.id,
-                                    appointment.service,
-                                    new Date(appointment.date),
-                                    appointment.time
-                                  )}
+                                  onClick={() => handleCancelClick(appointment)}
                                 >
                                   <Trash size={20} weight="fill" />
                                 </Button>
@@ -418,6 +440,41 @@ export function CustomerProfile() {
         open={bookingDialogOpen} 
         onOpenChange={setBookingDialogOpen}
       />
+      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {appointmentToCancel && (
+                <div className="space-y-2">
+                  <p>Are you sure you want to cancel this appointment?</p>
+                  <div className="mt-4 p-4 bg-muted/50 rounded-lg space-y-2">
+                    <p className="font-medium">
+                      {appointmentToCancel.services && appointmentToCancel.services.length > 1 
+                        ? "Multiple Services" 
+                        : appointmentToCancel.service}
+                    </p>
+                    <p className="text-sm">
+                      {formatAppointmentDate(new Date(appointmentToCancel.date))} at {appointmentToCancel.time}
+                    </p>
+                    <p className="text-sm">with {appointmentToCancel.stylist}</p>
+                  </div>
+                  <p className="text-sm mt-4">This action cannot be undone.</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCancelAppointment}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Cancel Appointment
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
