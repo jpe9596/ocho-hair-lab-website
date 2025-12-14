@@ -79,8 +79,7 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 Staff Login
               </button>
               <Button onClick={handleProfileClick} size="sm">
-                <UserCircle className="mr-2" size={18} weight="fill" />
-                Customer Login
+                Book Appointment
               </Button>
             </div>
 
@@ -113,8 +112,7 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 Staff Login
               </button>
               <Button onClick={handleProfileClick} className="w-full">
-                <UserCircle className="mr-2" size={18} weight="fill" />
-                Customer Login
+                Book Appointment
               </Button>
             </div>
           </div>
@@ -123,8 +121,7 @@ export function Navigation({ onBookClick }: NavigationProps) {
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/95 backdrop-blur-md border-t border-border">
         <Button onClick={handleProfileClick} className="w-full" size="lg">
-          <UserCircle className="mr-2" size={20} weight="fill" />
-          Customer Login
+          Book Appointment
         </Button>
       </div>
     </>
