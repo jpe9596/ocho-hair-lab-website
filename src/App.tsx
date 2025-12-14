@@ -66,7 +66,14 @@ function App() {
       return (
         <>
           <StaffLogin
-            onLogin={(member) => setStaffMember(member)}
+            onLogin={(member) => {
+              if (member.isAdmin) {
+                window.location.hash = "#admin"
+                setCurrentView("admin")
+              } else {
+                setStaffMember(member)
+              }
+            }}
             onBack={() => {
               window.location.hash = ""
               setCurrentView("home")

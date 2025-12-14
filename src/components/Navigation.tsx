@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Calendar, List, X, ShieldCheck, UserCircle } from "@phosphor-icons/react"
+import { Calendar, List, X, UserCircle } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -10,7 +10,6 @@ interface NavigationProps {
 export function Navigation({ onBookClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,18 +17,6 @@ export function Navigation({ onBookClick }: NavigationProps) {
     }
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  useEffect(() => {
-    async function checkOwner() {
-      try {
-        const user = await window.spark.user()
-        setIsOwner(user?.isOwner || false)
-      } catch {
-        setIsOwner(false)
-      }
-    }
-    checkOwner()
   }, [])
 
   const scrollToSection = (id: string) => {
@@ -50,11 +37,6 @@ export function Navigation({ onBookClick }: NavigationProps) {
 
   const handleProfileClick = () => {
     window.location.hash = "#profile"
-    setIsMobileMenuOpen(false)
-  }
-
-  const handleAdminClick = () => {
-    window.location.hash = "#admin"
     setIsMobileMenuOpen(false)
   }
 
@@ -102,16 +84,6 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 <UserCircle size={18} weight="fill" />
                 Staff Login
               </button>
-              {isOwner && (
-                <button
-                  onClick={handleAdminClick}
-                  className="text-primary/80 hover:text-primary transition-colors font-medium flex items-center gap-2"
-                  title="Admin Dashboard"
-                >
-                  <ShieldCheck size={18} weight="fill" />
-                  Admin
-                </button>
-              )}
               <Button onClick={onBookClick} size="sm">
                 <Calendar className="mr-2" size={18} />
                 Book Now
@@ -152,15 +124,6 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 <UserCircle size={18} weight="fill" />
                 Staff Login
               </button>
-              {isOwner && (
-                <button
-                  onClick={handleAdminClick}
-                  className="block w-full text-left py-2 text-primary/80 hover:text-primary transition-colors font-medium flex items-center gap-2"
-                >
-                  <ShieldCheck size={18} weight="fill" />
-                  Admin Dashboard
-                </button>
-              )}
               <Button onClick={onBookClick} className="w-full">
                 <Calendar className="mr-2" size={18} />
                 Book Appointment
