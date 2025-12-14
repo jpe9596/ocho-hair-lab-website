@@ -35,13 +35,41 @@ interface Appointment {
   reminderSent?: boolean
 }
 
-const services = [
-  "Precision Cuts",
-  "Color Services",
-  "Balayage & Highlights",
-  "Deep Conditioning",
-  "Blowout Styling",
-  "Keratin Treatment"
+const serviceCategories = [
+  {
+    name: "Tinte",
+    items: [
+      "Retoque de Raiz",
+      "Full Head Tint",
+      "0% AMONIACO",
+      "Toner/Gloss"
+    ]
+  },
+  {
+    name: "Corte & Styling",
+    items: [
+      "Corte & Secado",
+      "Secado (short)",
+      "Secado (mm)",
+      "Secado (long)",
+      "Waves/peinado"
+    ]
+  },
+  {
+    name: "Bespoke Color",
+    items: [
+      "Balayage",
+      "Baby Lights",
+      "Selfie Contour"
+    ]
+  },
+  {
+    name: "Treatments",
+    items: [
+      "Posion Nº17",
+      "Posion Nº 8"
+    ]
+  }
 ]
 
 const stylists = [
@@ -248,10 +276,17 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
                   <SelectValue placeholder="Select a service" />
                 </SelectTrigger>
                 <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service} value={service}>
-                      {service}
-                    </SelectItem>
+                  {serviceCategories.map((category) => (
+                    <div key={category.name}>
+                      <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                        {category.name}
+                      </div>
+                      {category.items.map((service) => (
+                        <SelectItem key={service} value={service} className="pl-4">
+                          {service}
+                        </SelectItem>
+                      ))}
+                    </div>
                   ))}
                 </SelectContent>
               </Select>
