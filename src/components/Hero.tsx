@@ -25,7 +25,7 @@ export function Hero({ onBookClick }: HeroProps) {
         </div>
         
         <p className="text-xl md:text-2xl text-foreground/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-          Where artistry meets innovation. Experience premium hair care crafted to perfection.
+          Experts in blended color designs and low-maintenance hair. Damage-free extensions with plant-based products.
         </p>
         
         <Button 

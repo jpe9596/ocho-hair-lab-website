@@ -20,9 +20,9 @@ export function Contact() {
             </div>
             <h3 className="text-lg font-semibold mb-2">Location</h3>
             <p className="text-primary-foreground/80">
-              123 Beauty Avenue<br />
-              Downtown District<br />
-              New York, NY 10001
+              Río Hudson 414<br />
+              San Pedro Garza García<br />
+              66220, N.L.
             </p>
           </div>
 
@@ -61,7 +61,7 @@ export function Contact() {
 
         <div className="mt-16 text-center">
           <a 
-            href="https://instagram.com/ochohairlab" 
+            href="https://www.instagram.com/ochohairlab/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors text-lg"
