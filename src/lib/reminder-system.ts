@@ -47,7 +47,8 @@ export async function checkAndSendReminders(
           service: appointment.service,
           date: formatAppointmentDate(new Date(appointment.date)),
           time: appointment.time,
-          stylist: appointment.stylist
+          stylist: appointment.stylist,
+          appointmentId: appointment.id
         })
         
         onReminderSent(appointment.id)
@@ -67,8 +68,14 @@ export async function sendBookingConfirmation(data: {
   date: string
   time: string
   stylist: string
+  appointmentId: string
 }): Promise<void> {
-  const customerMessage = `Hi ${data.customerName}! Your appointment for ${data.service} on ${data.date} at ${data.time} with ${data.stylist} has been confirmed. We look forward to seeing you! - Ocho Hair Lab`
+  const cancelUrl = `${window.location.origin}/#cancel-${data.appointmentId}`
+  const customerMessage = `Hi ${data.customerName}! Your appointment for ${data.service} on ${data.date} at ${data.time} with ${data.stylist} has been confirmed. We look forward to seeing you!
+
+Need to cancel? Click here: ${cancelUrl}
+
+- Ocho Hair Lab`
   
   const salonMessage = `New appointment booked:
 Name: ${data.customerName}
@@ -91,8 +98,14 @@ async function sendReminderNotifications(data: {
   date: string
   time: string
   stylist: string
+  appointmentId: string
 }): Promise<void> {
-  const customerMessage = `Hi ${data.customerName}! Reminder: You have a ${data.service} appointment in 8 hours (${data.date}) at ${data.time} with ${data.stylist}. We look forward to seeing you! - Ocho Hair Lab`
+  const cancelUrl = `${window.location.origin}/#cancel-${data.appointmentId}`
+  const customerMessage = `Hi ${data.customerName}! Reminder: You have a ${data.service} appointment in 8 hours (${data.date}) at ${data.time} with ${data.stylist}. We look forward to seeing you!
+
+Need to cancel? Click here: ${cancelUrl}
+
+- Ocho Hair Lab`
   
   const salonMessage = `8-hour reminder sent to ${data.customerName} for upcoming appointment:
 Service: ${data.service}

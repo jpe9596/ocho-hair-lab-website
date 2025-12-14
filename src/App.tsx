@@ -13,12 +13,14 @@ import { CustomerProfile } from "@/components/CustomerProfile"
 import { AdminDashboard } from "@/components/AdminDashboard"
 import { StaffLogin, StaffMember } from "@/components/StaffLogin"
 import { StaffDashboard } from "@/components/StaffDashboard"
+import { CancelAppointment } from "@/components/CancelAppointment"
 import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin" | "staff" | "booking">("home")
+  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin" | "staff" | "booking" | "cancel">("home")
   const [staffMember, setStaffMember] = useState<StaffMember | null>(null)
+  const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(null)
   
   useAppointmentReminders()
 
@@ -28,17 +30,27 @@ function App() {
       if (hash === "#profile") {
         setCurrentView("profile")
         setStaffMember(null)
+        setCancelAppointmentId(null)
       } else if (hash === "#admin") {
         setCurrentView("admin")
         setStaffMember(null)
+        setCancelAppointmentId(null)
       } else if (hash === "#staff") {
         setCurrentView("staff")
+        setCancelAppointmentId(null)
       } else if (hash === "#booking") {
         setCurrentView("booking")
+        setStaffMember(null)
+        setCancelAppointmentId(null)
+      } else if (hash.startsWith("#cancel-")) {
+        const appointmentId = hash.replace("#cancel-", "")
+        setCancelAppointmentId(appointmentId)
+        setCurrentView("cancel")
         setStaffMember(null)
       } else {
         setCurrentView("home")
         setStaffMember(null)
+        setCancelAppointmentId(null)
       }
     }
 
@@ -46,6 +58,21 @@ function App() {
     window.addEventListener("hashchange", handleHashChange)
     return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
+
+  if (currentView === "cancel" && cancelAppointmentId) {
+    return (
+      <>
+        <CancelAppointment
+          appointmentId={cancelAppointmentId}
+          onBack={() => {
+            window.location.hash = ""
+            setCurrentView("home")
+          }}
+        />
+        <Toaster position="top-center" />
+      </>
+    )
+  }
 
   if (currentView === "booking") {
     return (

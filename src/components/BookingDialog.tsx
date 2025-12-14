@@ -186,7 +186,8 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
         service: servicesList,
         date: formatAppointmentDate(date),
         time: formData.time,
-        stylist: formData.stylist || "Any Available"
+        stylist: formData.stylist || "Any Available",
+        appointmentId: newAppointment.id
       })
 
       toast.success("Appointment Confirmed!", {

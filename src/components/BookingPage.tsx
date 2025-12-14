@@ -174,7 +174,8 @@ export function BookingPage() {
           service: newAppointment.services.join(", "),
           date: formatAppointmentDate(newAppointment.date),
           time: newAppointment.time,
-          stylist: newAppointment.stylist
+          stylist: newAppointment.stylist,
+          appointmentId: newAppointment.id
         })
         toast.success("Appointment booked successfully! Check your WhatsApp for confirmation.", {
           duration: 5000,
