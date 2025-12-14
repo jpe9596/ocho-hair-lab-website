@@ -20,9 +20,9 @@ export function Contact() {
             </div>
             <h3 className="text-lg font-semibold mb-2">Location</h3>
             <p className="text-primary-foreground/80">
-              Río Hudson 414<br />
-              San Pedro Garza García<br />
-              66220, N.L.
+              Urbox Plaza<br />
+              Río Hudson 414, Del Valle<br />
+              66220 San Pedro Garza García, N.L.
             </p>
           </div>
 
@@ -31,8 +31,8 @@ export function Contact() {
               <Phone size={32} weight="duotone" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Phone</h3>
-            <a href="tel:+15551234567" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-              (555) 123-4567
+            <a href="tel:+528116153747" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+              81 1615 3747
             </a>
           </div>
 
