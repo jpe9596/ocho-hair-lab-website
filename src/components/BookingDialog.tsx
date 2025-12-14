@@ -287,33 +287,47 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
           <div className="space-y-2">
             <Label>Preferred Date *</Label>
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(newDate) => {
-                setDate(newDate)
-                setFormData({ ...formData, time: "" })
-              }}
-              disabled={(checkDate) => {
-                if (checkDate < new Date()) return true
-                if (checkDate.getDay() === 0) return true
-                
-                if (!schedules || schedules.length === 0) return false
-                
-                const dateStr = checkDate.toISOString().split('T')[0]
-                const dayName = checkDate.toLocaleDateString('en-US', { weekday: 'long' })
-                
-                const anyOneWorking = schedules.some(schedule => {
-                  const isBlocked = schedule.blockedDates.includes(dateStr)
-                  const daySchedule = schedule.workingHours[dayName]
-                  const isWorking = daySchedule && daySchedule.isWorking
-                  return !isBlocked && isWorking
-                })
-                
-                return !anyOneWorking
-              }}
-              className="rounded-md border"
-            />
+            <div className="rounded-md border p-3 bg-card">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(newDate) => {
+                  setDate(newDate)
+                  setFormData({ ...formData, time: "" })
+                }}
+                disabled={(checkDate) => {
+                  const today = new Date()
+                  today.setHours(0, 0, 0, 0)
+                  if (checkDate < today) return true
+                  if (checkDate.getDay() === 0) return true
+                  
+                  if (!schedules || schedules.length === 0) return false
+                  
+                  const dateStr = checkDate.toISOString().split('T')[0]
+                  const dayName = checkDate.toLocaleDateString('en-US', { weekday: 'long' })
+                  
+                  const anyOneWorking = schedules.some(schedule => {
+                    const isBlocked = schedule.blockedDates.includes(dateStr)
+                    const daySchedule = schedule.workingHours[dayName]
+                    const isWorking = daySchedule && daySchedule.isWorking
+                    return !isBlocked && isWorking
+                  })
+                  
+                  return !anyOneWorking
+                }}
+                className="mx-auto"
+              />
+            </div>
+            {!date && (
+              <p className="text-xs text-muted-foreground">
+                Click a date to see available times
+              </p>
+            )}
+            {date && (
+              <p className="text-xs text-primary font-medium">
+                Selected: {date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -323,7 +337,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
               onValueChange={(value) => setFormData({ ...formData, time: value })}
               disabled={!date}
             >
-              <SelectTrigger id="time">
+              <SelectTrigger id="time" className="w-full">
                 <SelectValue placeholder={date ? "Select a time" : "Select a date first"} />
               </SelectTrigger>
               <SelectContent>
