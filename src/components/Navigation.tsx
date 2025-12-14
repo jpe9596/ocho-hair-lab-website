@@ -30,6 +30,7 @@ export function Navigation({ onBookClick }: NavigationProps) {
   const navLinks = [
     { label: "Home", id: "home" },
     { label: "Services", id: "services" },
+    { label: "Gallery", id: "gallery" },
     { label: "Team", id: "team" },
     { label: "Contact", id: "contact" },
   ]

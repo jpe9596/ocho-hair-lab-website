@@ -19,6 +19,13 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Progression**: View services grid → Select service card for details → See expanded information with pricing and duration → Option to book that service
 - **Success criteria**: All services clearly visible with complete information; users can easily understand what's offered
 
+### Gallery
+- **Functionality**: Visual portfolio showcasing salon work with Instagram integration, displaying before/after transformations, styling examples, and color work in an interactive grid
+- **Purpose**: Builds trust and inspires potential clients by demonstrating the quality and range of salon services through real examples
+- **Trigger**: User scrolls to gallery section or clicks "Gallery" navigation link
+- **Progression**: View image grid → Hover to see category label → Click image to open full-screen lightbox → View detailed photo and description → Close or navigate through gallery → Click Instagram link to see more on social media
+- **Success criteria**: Images load smoothly with lazy loading; lightbox provides smooth viewing experience; Instagram link drives social media engagement; mobile-responsive grid layout
+
 ### Appointment Booking
 - **Functionality**: Interactive form for scheduling salon appointments with service selection, date/time picking, contact information, and automated WhatsApp notifications via Twilio
 - **Purpose**: Converts website visitors into booked clients by streamlining the reservation process and providing instant WhatsApp confirmation
@@ -83,6 +90,8 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Mobile Responsiveness**: All sections adapt gracefully to mobile viewports with touch-friendly interactions
 - **Long Team Bios**: Truncate with "Read more" expansion to maintain layout consistency
 - **Missing Images**: Fallback to elegant placeholder patterns or gradients
+- **Gallery Image Loading**: Lazy loading for performance; skeleton states while images load; fallback to placeholder on error
+- **Lightbox Navigation**: Escape key closes lightbox; click outside image closes modal; smooth animations
 - **SMS Delivery Failures**: Graceful fallback to success message mentioning email confirmation if WhatsApp fails
 - **Non-owner Access**: Admin panel automatically hidden for regular visitors
 - **Phone Number Formatting**: Accept various phone formats with validation for WhatsApp delivery; automatically formats to international format with "whatsapp:" prefix
@@ -147,6 +156,8 @@ Animations should feel effortless and refined, enhancing the luxury experience w
   - **Separator**: Subtle dividers between sections using the beige tone
   - **Scroll-area**: For smooth scrolling service and team sections
   - **Toast (Sonner)**: Success confirmations for appointment bookings
+  - **Gallery Grid**: Responsive masonry-style grid for portfolio images with hover states
+  - **Lightbox Modal**: Full-screen image viewer with smooth animations using framer-motion
 
 - **Customizations**:
   - Custom hero section with logo image integration and gradient background
@@ -168,6 +179,8 @@ Animations should feel effortless and refined, enhancing the luxury experience w
   - Check or CheckCircle (for form success states)
   - MapPin (for location/contact)
   - Phone and Envelope (for contact methods)
+  - InstagramLogo (for gallery social media link)
+  - X (for closing modals and lightbox)
 
 - **Spacing**:
   - Section padding: py-20 md:py-32 for generous vertical breathing room
@@ -179,6 +192,8 @@ Animations should feel effortless and refined, enhancing the luxury experience w
 - **Mobile**:
   - Hero text scales down from 64px to 40px, maintaining impact
   - Service/team grids: 1 column on mobile, 2 on tablet (md:grid-cols-2), 3 on desktop (lg:grid-cols-3)
+  - Gallery grid: 1 column on mobile (sm:grid-cols-2 for tablets, lg:grid-cols-3 for desktop)
+  - Gallery lightbox: Full-screen on all devices with larger close button on mobile; swipe gestures for navigation
   - Navigation: Collapsible hamburger menu on mobile with slide-in drawer
   - Booking form: Single column layout on mobile with larger touch targets (min 44px)
   - Fixed mobile bottom bar with "Book Now" CTA for easy access while scrolling
