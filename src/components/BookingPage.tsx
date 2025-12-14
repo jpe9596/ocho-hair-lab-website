@@ -13,6 +13,7 @@ interface Customer {
   phone: string
   email: string
   name: string
+  password: string
 }
 
 interface Appointment {
@@ -32,8 +33,8 @@ interface Appointment {
 export function BookingPage() {
   const [customers] = useKV<Customer[]>("customers", [])
   const [appointments] = useKV<Appointment[]>("appointments", [])
-  const [loginData, setLoginData] = useState({ phone: "", email: "" })
-  const [signupData, setSignupData] = useState({ name: "", email: "", phone: "" })
+  const [loginData, setLoginData] = useState({ phone: "", email: "", password: "" })
+  const [signupData, setSignupData] = useState({ name: "", email: "", phone: "", password: "" })
   const [authenticatedCustomer, setAuthenticatedCustomer] = useState<Customer | null>(null)
   const [bookingOpen, setBookingOpen] = useState(false)
   const [newCustomers, setNewCustomers] = useKV<Customer[]>("customers", [])
@@ -42,7 +43,7 @@ export function BookingPage() {
     e.preventDefault()
     
     const customer = (customers || []).find(
-      c => c.phone === loginData.phone || c.email === loginData.email
+      c => (c.phone === loginData.phone || c.email === loginData.email) && c.password === loginData.password
     )
 
     if (customer) {
@@ -50,7 +51,7 @@ export function BookingPage() {
       setBookingOpen(true)
       toast.success(`Welcome back, ${customer.name}!`)
     } else {
-      toast.error("No account found. Please sign up first.")
+      toast.error("Invalid credentials. Please check your phone/email and password.")
     }
   }
 
@@ -69,7 +70,8 @@ export function BookingPage() {
     const newCustomer: Customer = {
       name: signupData.name,
       email: signupData.email,
-      phone: signupData.phone
+      phone: signupData.phone,
+      password: signupData.password
     }
 
     setNewCustomers((current) => [...(current || []), newCustomer])
@@ -147,6 +149,18 @@ export function BookingPage() {
                     </p>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">Password</Label>
+                    <Input
+                      id="login-password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      required
+                    />
+                  </div>
+
                   <Button type="submit" className="w-full" size="lg">
                     Continue to Booking
                   </Button>
@@ -190,6 +204,22 @@ export function BookingPage() {
                     />
                     <p className="text-xs text-muted-foreground">
                       We'll send appointment confirmations to +521 {signupData.phone || "XXXXXXXXXX"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Create Password *</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Create a secure password"
+                      value={signupData.password}
+                      onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                      required
+                      minLength={6}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Must be at least 6 characters
                     </p>
                   </div>
 

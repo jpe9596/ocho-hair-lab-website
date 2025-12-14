@@ -22,6 +22,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+interface Customer {
+  phone: string
+  email: string
+  name: string
+  password: string
+}
+
 interface Appointment {
   id: string
   name: string
@@ -40,8 +47,10 @@ interface Appointment {
 
 export function CustomerProfile() {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
+  const [customers] = useKV<Customer[]>("customers", [])
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
+  const [password, setPassword] = useState("")
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [customerData, setCustomerData] = useState<{ email: string; phone: string } | null>(null)
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
@@ -58,14 +67,30 @@ export function CustomerProfile() {
       return
     }
 
-    const customerAppointments = (appointments || []).filter(apt => 
-      (email && apt.email.toLowerCase() === email.toLowerCase()) ||
-      (phone && apt.phone.replace(/\D/g, '') === phone.replace(/\D/g, ''))
+    if (!password) {
+      toast.error("Please enter your password")
+      return
+    }
+
+    const customer = (customers || []).find(
+      c => ((email && c.email.toLowerCase() === email.toLowerCase()) ||
+            (phone && c.phone.replace(/\D/g, '') === phone.replace(/\D/g, ''))) &&
+           c.password === password
     )
 
-    setCustomerData({ email, phone })
+    if (!customer) {
+      toast.error("Invalid credentials. Please check your information and try again.")
+      return
+    }
+
+    setCustomerData({ email: customer.email, phone: customer.phone })
     setIsLoggedIn(true)
     
+    const customerAppointments = (appointments || []).filter(apt => 
+      (customer.email && apt.email.toLowerCase() === customer.email.toLowerCase()) ||
+      (customer.phone && apt.phone.replace(/\D/g, '') === customer.phone.replace(/\D/g, ''))
+    )
+
     if (customerAppointments.length === 0) {
       toast.success("Welcome to Ocho Hair Lab!", {
         description: "You can now book your first appointment"
@@ -82,6 +107,7 @@ export function CustomerProfile() {
     setCustomerData(null)
     setEmail("")
     setPhone("")
+    setPassword("")
   }
 
   const handleGoHome = () => {
@@ -183,6 +209,18 @@ export function CustomerProfile() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="(555) 123-4567"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="profile-password">Password</Label>
+                    <Input
+                      id="profile-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      required
                     />
                   </div>
 
