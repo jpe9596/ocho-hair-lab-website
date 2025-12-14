@@ -101,12 +101,20 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
       toast.success("Appointment Requested!", {
         description: `Confirmation sent via SMS and email. We'll see you on ${formatAppointmentDate(date)} at ${formData.time}!`,
-        icon: <PaperPlaneTilt size={20} weight="fill" />
+        icon: <PaperPlaneTilt size={20} weight="fill" />,
+        action: {
+          label: "View",
+          onClick: () => window.location.hash = "#profile"
+        }
       })
     } catch (error) {
       toast.success("Appointment Requested!", {
         description: `We'll confirm your ${formData.service} appointment via email shortly.`,
-        icon: <Check size={20} weight="bold" />
+        icon: <Check size={20} weight="bold" />,
+        action: {
+          label: "View",
+          onClick: () => window.location.hash = "#profile"
+        }
       })
     }
 

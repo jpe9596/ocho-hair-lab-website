@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { Navigation } from "@/components/Navigation"
 import { Hero } from "@/components/Hero"
@@ -8,9 +8,35 @@ import { Contact } from "@/components/Contact"
 import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
 import { AdminPanel } from "@/components/AdminPanel"
+import { CustomerProfile } from "@/components/CustomerProfile"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
+  const [currentView, setCurrentView] = useState<"home" | "profile">("home")
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash
+      if (hash === "#profile") {
+        setCurrentView("profile")
+      } else {
+        setCurrentView("home")
+      }
+    }
+
+    handleHashChange()
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [])
+
+  if (currentView === "profile") {
+    return (
+      <>
+        <CustomerProfile />
+        <Toaster position="top-center" />
+      </>
+    )
+  }
 
   return (
     <div id="home" className="min-h-screen">

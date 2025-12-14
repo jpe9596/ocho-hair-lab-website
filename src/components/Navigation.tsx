@@ -34,6 +34,11 @@ export function Navigation({ onBookClick }: NavigationProps) {
     { label: "Contact", id: "contact" },
   ]
 
+  const handleProfileClick = () => {
+    window.location.hash = "#profile"
+    setIsMobileMenuOpen(false)
+  }
+
   return (
     <>
       <nav className={cn(
@@ -60,6 +65,12 @@ export function Navigation({ onBookClick }: NavigationProps) {
                   {link.label}
                 </button>
               ))}
+              <button
+                onClick={handleProfileClick}
+                className="text-foreground/70 hover:text-foreground transition-colors font-medium"
+              >
+                My Appointments
+              </button>
               <Button onClick={onBookClick} size="sm">
                 <Calendar className="mr-2" size={18} />
                 Book Now
@@ -87,6 +98,12 @@ export function Navigation({ onBookClick }: NavigationProps) {
                   {link.label}
                 </button>
               ))}
+              <button
+                onClick={handleProfileClick}
+                className="block w-full text-left py-2 text-foreground/70 hover:text-foreground transition-colors font-medium"
+              >
+                My Appointments
+              </button>
               <Button onClick={onBookClick} className="w-full">
                 <Calendar className="mr-2" size={18} />
                 Book Appointment

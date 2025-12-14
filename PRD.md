@@ -54,6 +54,13 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Progression**: Owner views site → Admin panel appears below Team section → View all appointments sorted by date → Delete appointments if needed → Contact customers via phone/email
 - **Success criteria**: Only visible to owner; displays all appointment details; allows deletion; shows contact information
 
+### Customer Profile Pages
+- **Functionality**: Dedicated interface where customers can access their appointments by entering email or phone number, view all bookings (upcoming and past), and cancel appointments
+- **Purpose**: Empowers customers to self-manage their appointments and stay informed about upcoming services
+- **Trigger**: User clicks "My Appointments" in navigation or footer, or clicks "View" action in booking confirmation toast
+- **Progression**: Click "My Appointments" → Enter email or phone → View login form → Submit credentials → See personalized dashboard → Browse upcoming appointments with full details → View past appointment history → Cancel upcoming appointments if needed → Sign out when finished
+- **Success criteria**: Secure access via email/phone lookup; displays upcoming and past appointments separately; allows appointment cancellation with confirmation; smooth animations between states; easy navigation back to home
+
 ## Edge Case Handling
 
 - **No Services Available**: Display elegant empty state with message to check back soon
@@ -65,6 +72,9 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **SMS Delivery Failures**: Graceful fallback to success message mentioning email confirmation if SMS fails
 - **Non-owner Access**: Admin panel automatically hidden for regular visitors
 - **Phone Number Formatting**: Accept various phone formats with validation for SMS delivery
+- **Customer Profile Access**: No appointments found shows helpful error; supports lookup by email OR phone number
+- **Past Appointments Display**: Clearly separated from upcoming appointments with reduced opacity
+- **Appointment Cancellation**: Confirmation feedback via toast; immediately removed from customer view
 
 ## Design Direction
 
