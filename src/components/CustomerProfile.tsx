@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck, Plus, House } from "@phosphor-icons/react"
-import { formatAppointmentDate } from "@/lib/notifications"
+import { formatAppointmentDate, sendCancellationSMS } from "@/lib/notifications"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { RescheduleDialog } from "@/components/RescheduleDialog"
@@ -124,18 +124,32 @@ export function CustomerProfile() {
     setCancelDialogOpen(true)
   }
 
-  const confirmCancelAppointment = () => {
+  const confirmCancelAppointment = async () => {
     if (!appointmentToCancel) return
 
-    setAppointments((current) => (current || []).filter(apt => apt.id !== appointmentToCancel.id))
-    
     const serviceName = appointmentToCancel.services && appointmentToCancel.services.length > 1
       ? `${appointmentToCancel.services.length} services`
       : appointmentToCancel.service
 
-    toast.success("Appointment Cancelled", {
-      description: `Your ${serviceName} appointment on ${formatAppointmentDate(new Date(appointmentToCancel.date))} at ${appointmentToCancel.time} has been cancelled.`
-    })
+    setAppointments((current) => (current || []).filter(apt => apt.id !== appointmentToCancel.id))
+    
+    try {
+      await sendCancellationSMS({
+        to: appointmentToCancel.phone,
+        customerName: appointmentToCancel.name,
+        service: serviceName,
+        date: formatAppointmentDate(new Date(appointmentToCancel.date)),
+        time: appointmentToCancel.time
+      })
+
+      toast.success("Appointment Cancelled", {
+        description: `WhatsApp confirmation sent for your ${serviceName} appointment.`
+      })
+    } catch (error) {
+      toast.success("Appointment Cancelled", {
+        description: `Your ${serviceName} appointment on ${formatAppointmentDate(new Date(appointmentToCancel.date))} at ${appointmentToCancel.time} has been cancelled.`
+      })
+    }
 
     setCancelDialogOpen(false)
     setAppointmentToCancel(null)
