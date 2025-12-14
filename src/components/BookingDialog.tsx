@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,9 @@ import { toast } from "sonner"
 import { Check, PaperPlaneTilt } from "@phosphor-icons/react"
 import { sendBookingConfirmation } from "@/lib/reminder-system"
 import { formatAppointmentDate } from "@/lib/notifications"
+import { getAvailableTimeSlots, getAvailableStylistsForTime } from "@/lib/scheduling"
+import { StaffSchedule } from "@/components/StaffSchedule"
+import { Badge } from "@/components/ui/badge"
 
 interface BookingDialogProps {
   open: boolean
@@ -42,7 +45,6 @@ const services = [
 ]
 
 const stylists = [
-  "Any Available",
   "Maria Rodriguez",
   "Jessica Chen",
   "Alex Thompson",
@@ -56,6 +58,7 @@ const timeSlots = [
 
 export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
+  const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [date, setDate] = useState<Date>()
   const [formData, setFormData] = useState({
     name: "",
@@ -68,12 +71,60 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const availableTimeSlots = useMemo(() => {
+    if (!date || !formData.stylist || !schedules) return timeSlots
+    
+    if (formData.stylist === "Any Available") {
+      const allAvailableSlots = new Set<string>()
+      stylists.forEach(stylist => {
+        const slots = getAvailableTimeSlots(date, stylist, schedules, appointments || [])
+        slots.forEach(slot => allAvailableSlots.add(slot))
+      })
+      return Array.from(allAvailableSlots).sort((a, b) => {
+        const parseTime = (time: string) => {
+          const [t, period] = time.split(' ')
+          let [hours, mins] = t.split(':').map(Number)
+          if (period === 'PM' && hours !== 12) hours += 12
+          if (period === 'AM' && hours === 12) hours = 0
+          return hours * 60 + mins
+        }
+        return parseTime(a) - parseTime(b)
+      })
+    }
+    
+    return getAvailableTimeSlots(date, formData.stylist, schedules, appointments || [])
+  }, [date, formData.stylist, schedules, appointments])
+
+  const availableStylists = useMemo(() => {
+    if (!date || !formData.time || !schedules) return stylists
+    
+    const available = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
+    return available
+  }, [date, formData.time, schedules, appointments])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!date || !formData.name || !formData.email || !formData.phone || !formData.service || !formData.time) {
       toast.error("Please fill in all required fields")
       return
+    }
+
+    let finalStylist = formData.stylist || "Any Available"
+    
+    if (finalStylist === "Any Available" && schedules && schedules.length > 0) {
+      const available = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
+      if (available.length > 0) {
+        finalStylist = available[0]
+      }
+    }
+
+    if (formData.stylist && formData.stylist !== "Any Available" && schedules) {
+      const availableStylists = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
+      if (!availableStylists.includes(formData.stylist)) {
+        toast.error(`${formData.stylist} is not available at ${formData.time}. Please choose a different time.`)
+        return
+      }
     }
 
     setIsSubmitting(true)
@@ -84,7 +135,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       email: formData.email,
       phone: formData.phone,
       service: formData.service,
-      stylist: formData.stylist || "Any Available",
+      stylist: finalStylist,
       date: date,
       time: formData.time,
       notes: formData.notes,
@@ -144,7 +195,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
             Book Your Appointment
           </DialogTitle>
           <DialogDescription>
-            Fill out the form below to book your appointment. You'll receive an immediate confirmation and a reminder 8 hours before your appointment.
+            Select your preferred service, date, and time. Available times are based on stylist schedules. You'll receive an immediate confirmation and a reminder 8 hours before your appointment.
           </DialogDescription>
         </DialogHeader>
 
@@ -205,16 +256,30 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
             <div className="space-y-2">
               <Label htmlFor="stylist">Preferred Stylist</Label>
-              <Select value={formData.stylist} onValueChange={(value) => setFormData({ ...formData, stylist: value })}>
+              <Select 
+                value={formData.stylist} 
+                onValueChange={(value) => {
+                  setFormData({ ...formData, stylist: value, time: "" })
+                }}
+              >
                 <SelectTrigger id="stylist">
                   <SelectValue placeholder="Any available" />
                 </SelectTrigger>
                 <SelectContent>
-                  {stylists.map((stylist) => (
-                    <SelectItem key={stylist} value={stylist}>
-                      {stylist}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="Any Available">Any Available</SelectItem>
+                  {stylists.map((stylist) => {
+                    const isAvailable = !date || !formData.time || availableStylists.includes(stylist)
+                    return (
+                      <SelectItem key={stylist} value={stylist} disabled={!isAvailable}>
+                        <div className="flex items-center justify-between w-full">
+                          {stylist}
+                          {date && formData.time && !isAvailable && (
+                            <Badge variant="secondary" className="ml-2 text-xs">Unavailable</Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -225,26 +290,60 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
             <Calendar
               mode="single"
               selected={date}
-              onSelect={setDate}
-              disabled={(date) => date < new Date() || date.getDay() === 0}
+              onSelect={(newDate) => {
+                setDate(newDate)
+                setFormData({ ...formData, time: "" })
+              }}
+              disabled={(checkDate) => {
+                if (checkDate < new Date()) return true
+                if (checkDate.getDay() === 0) return true
+                
+                if (!schedules || schedules.length === 0) return false
+                
+                const dateStr = checkDate.toISOString().split('T')[0]
+                const dayName = checkDate.toLocaleDateString('en-US', { weekday: 'long' })
+                
+                const anyOneWorking = schedules.some(schedule => {
+                  const isBlocked = schedule.blockedDates.includes(dateStr)
+                  const daySchedule = schedule.workingHours[dayName]
+                  const isWorking = daySchedule && daySchedule.isWorking
+                  return !isBlocked && isWorking
+                })
+                
+                return !anyOneWorking
+              }}
               className="rounded-md border"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="time">Preferred Time *</Label>
-            <Select value={formData.time} onValueChange={(value) => setFormData({ ...formData, time: value })}>
+            <Select 
+              value={formData.time} 
+              onValueChange={(value) => setFormData({ ...formData, time: value })}
+              disabled={!date}
+            >
               <SelectTrigger id="time">
-                <SelectValue placeholder="Select a time" />
+                <SelectValue placeholder={date ? "Select a time" : "Select a date first"} />
               </SelectTrigger>
               <SelectContent>
-                {timeSlots.map((time) => (
+                {availableTimeSlots.length === 0 && date && (
+                  <div className="p-2 text-sm text-muted-foreground text-center">
+                    No times available for this date
+                  </div>
+                )}
+                {availableTimeSlots.map((time) => (
                   <SelectItem key={time} value={time}>
                     {time}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {date && formData.stylist && formData.stylist !== "Any Available" && availableTimeSlots.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Showing available times for {formData.stylist}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

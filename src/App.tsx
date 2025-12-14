@@ -8,6 +8,7 @@ import { Contact } from "@/components/Contact"
 import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
 import { AdminPanel } from "@/components/AdminPanel"
+import { StaffSchedule } from "@/components/StaffSchedule"
 import { CustomerProfile } from "@/components/CustomerProfile"
 import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
 
@@ -47,6 +48,7 @@ function App() {
       <Hero onBookClick={() => setBookingOpen(true)} />
       <Services />
       <Team />
+      <StaffSchedule />
       <AdminPanel />
       <Contact />
       <Footer />

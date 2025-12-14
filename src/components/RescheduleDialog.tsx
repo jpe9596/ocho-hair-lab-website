@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -6,9 +6,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
+import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { CalendarCheck, PaperPlaneTilt } from "@phosphor-icons/react"
 import { sendRescheduleSMS, formatAppointmentDate } from "@/lib/notifications"
+import { getAvailableTimeSlots, getAvailableStylistsForTime } from "@/lib/scheduling"
+import { StaffSchedule } from "@/components/StaffSchedule"
 
 interface Appointment {
   id: string
@@ -32,7 +35,6 @@ interface RescheduleDialogProps {
 }
 
 const stylists = [
-  "Any Available",
   "Maria Rodriguez",
   "Jessica Chen",
   "Alex Thompson",
@@ -46,6 +48,7 @@ const timeSlots = [
 
 export function RescheduleDialog({ open, onOpenChange, appointment }: RescheduleDialogProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
+  const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [date, setDate] = useState<Date>()
   const [time, setTime] = useState("")
   const [stylist, setStylist] = useState("")
@@ -60,6 +63,39 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
       setNotes(appointment.notes)
     }
   }, [appointment, open])
+
+  const availableTimeSlots = useMemo(() => {
+    if (!date || !stylist || !schedules || !appointment) return timeSlots
+    
+    if (stylist === "Any Available") {
+      const allAvailableSlots = new Set<string>()
+      stylists.forEach(s => {
+        const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
+        const slots = getAvailableTimeSlots(date, s, schedules, otherAppointments)
+        slots.forEach(slot => allAvailableSlots.add(slot))
+      })
+      return Array.from(allAvailableSlots).sort((a, b) => {
+        const parseTime = (time: string) => {
+          const [t, period] = time.split(' ')
+          let [hours, mins] = t.split(':').map(Number)
+          if (period === 'PM' && hours !== 12) hours += 12
+          if (period === 'AM' && hours === 12) hours = 0
+          return hours * 60 + mins
+        }
+        return parseTime(a) - parseTime(b)
+      })
+    }
+    
+    const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
+    return getAvailableTimeSlots(date, stylist, schedules, otherAppointments)
+  }, [date, stylist, schedules, appointments, appointment])
+
+  const availableStylists = useMemo(() => {
+    if (!date || !time || !schedules || !appointment) return stylists
+    
+    const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
+    return getAvailableStylistsForTime(date, time, schedules, otherAppointments)
+  }, [date, time, schedules, appointments, appointment])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,13 +120,32 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
       return
     }
 
+    let finalStylist = stylist || "Any Available"
+    
+    if (finalStylist === "Any Available" && schedules && schedules.length > 0) {
+      const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
+      const available = getAvailableStylistsForTime(date, time, schedules, otherAppointments)
+      if (available.length > 0) {
+        finalStylist = available[0]
+      }
+    }
+
+    if (stylist && stylist !== "Any Available" && schedules) {
+      const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
+      const availableStylists = getAvailableStylistsForTime(date, time, schedules, otherAppointments)
+      if (!availableStylists.includes(stylist)) {
+        toast.error(`${stylist} is not available at ${time}. Please choose a different time.`)
+        return
+      }
+    }
+
     setIsSubmitting(true)
 
     const updatedAppointment: Appointment = {
       ...appointment,
       date: date,
       time: time,
-      stylist: stylist || "Any Available",
+      stylist: finalStylist,
       notes: notes,
       reminderSent: false
     }
@@ -154,8 +209,28 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
             <Calendar
               mode="single"
               selected={date}
-              onSelect={setDate}
-              disabled={(date) => date < new Date() || date.getDay() === 0}
+              onSelect={(newDate) => {
+                setDate(newDate)
+                setTime("")
+              }}
+              disabled={(checkDate) => {
+                if (checkDate < new Date()) return true
+                if (checkDate.getDay() === 0) return true
+                
+                if (!schedules || schedules.length === 0) return false
+                
+                const dateStr = checkDate.toISOString().split('T')[0]
+                const dayName = checkDate.toLocaleDateString('en-US', { weekday: 'long' })
+                
+                const anyOneWorking = schedules.some(schedule => {
+                  const isBlocked = schedule.blockedDates.includes(dateStr)
+                  const daySchedule = schedule.workingHours[dayName]
+                  const isWorking = daySchedule && daySchedule.isWorking
+                  return !isBlocked && isWorking
+                })
+                
+                return !anyOneWorking
+              }}
               className="rounded-md border"
             />
           </div>
@@ -163,12 +238,21 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="reschedule-time">New Time *</Label>
-              <Select value={time} onValueChange={setTime}>
+              <Select 
+                value={time} 
+                onValueChange={setTime}
+                disabled={!date}
+              >
                 <SelectTrigger id="reschedule-time">
-                  <SelectValue placeholder="Select a time" />
+                  <SelectValue placeholder={date ? "Select a time" : "Select a date first"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {timeSlots.map((slot) => (
+                  {availableTimeSlots.length === 0 && date && (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      No times available for this date
+                    </div>
+                  )}
+                  {availableTimeSlots.map((slot) => (
                     <SelectItem key={slot} value={slot}>
                       {slot}
                     </SelectItem>
@@ -179,16 +263,31 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
 
             <div className="space-y-2">
               <Label htmlFor="reschedule-stylist">Preferred Stylist</Label>
-              <Select value={stylist} onValueChange={setStylist}>
+              <Select 
+                value={stylist} 
+                onValueChange={(value) => {
+                  setStylist(value)
+                  setTime("")
+                }}
+              >
                 <SelectTrigger id="reschedule-stylist">
                   <SelectValue placeholder="Any available" />
                 </SelectTrigger>
                 <SelectContent>
-                  {stylists.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="Any Available">Any Available</SelectItem>
+                  {stylists.map((s) => {
+                    const isAvailable = !date || !time || availableStylists.includes(s)
+                    return (
+                      <SelectItem key={s} value={s} disabled={!isAvailable}>
+                        <div className="flex items-center justify-between w-full">
+                          {s}
+                          {date && time && !isAvailable && (
+                            <Badge variant="secondary" className="ml-2 text-xs">Unavailable</Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
             </div>

@@ -68,6 +68,13 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Progression**: System detects appointment within 24-hour window → Sends reminder SMS to customer → Sends notification SMS to salon staff → Updates appointment record → Displays reminder status in admin panel
 - **Success criteria**: Reminders sent exactly once per appointment at 24-hour mark; customers receive helpful reminder message; salon staff notified that reminder was sent; admin panel shows reminder status badge
 
+### Staff Schedule Management
+- **Functionality**: Owner-only interface to configure stylist availability including working hours by day, break times, and blocked dates for time off
+- **Purpose**: Ensures customers can only book appointments when stylists are actually available, reducing scheduling conflicts and no-shows
+- **Trigger**: Owner navigates to Staff Schedule Management section (appears between Team and Admin Panel)
+- **Progression**: Select stylist from dropdown → Set working hours for each day of week with toggle switches → Add break times with start/end times → Block specific dates for vacation/time off using calendar picker → Changes save automatically → Booking system immediately reflects availability
+- **Success criteria**: Only visible to owner; each stylist has individual schedule; supports different hours per day; allows multiple break times; blocked dates prevent bookings; booking dialog only shows available time slots based on schedules; prevents double-booking
+
 ## Edge Case Handling
 
 - **No Services Available**: Display elegant empty state with message to check back soon
@@ -85,6 +92,10 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Appointment Rescheduling**: Reset reminder flag when rescheduled so new reminder will be sent
 - **Reminder Timing**: System checks appointments hourly; reminders only sent once per appointment
 - **Reminder After Reschedule**: Rescheduled appointments receive fresh reminders 24 hours before new time
+- **Stylist Unavailability**: Calendar disables dates when no stylists are working; time selector only shows available slots
+- **Schedule Conflicts**: Booking system prevents double-booking by checking existing appointments against stylist schedules
+- **Break Times**: Multiple break periods can be configured; appointments cannot be booked during breaks
+- **All Stylists Blocked**: If all stylists have a date blocked, that date is disabled in customer booking calendar
 
 ## Design Direction
 
