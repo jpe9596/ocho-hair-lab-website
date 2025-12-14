@@ -58,27 +58,11 @@ const servicePrices: Record<string, number> = {
 
 export function AdminAnalytics() {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
-  const [isOwner, setIsOwner] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: undefined,
     to: undefined,
   })
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
-
-  useEffect(() => {
-    async function checkOwner() {
-      try {
-        const user = await window.spark.user()
-        setIsOwner(user?.isOwner || false)
-      } catch {
-        setIsOwner(false)
-      } finally {
-        setLoading(false)
-      }
-    }
-    checkOwner()
-  }, [])
 
   const applyQuickFilter = (filterType: string) => {
     const now = new Date()
@@ -210,14 +194,6 @@ export function AdminAnalytics() {
   const deleteAppointment = (id: string) => {
     setAppointments((current) => (current || []).filter(apt => apt.id !== id))
     toast.success("Appointment deleted")
-  }
-
-  if (loading) {
-    return null
-  }
-
-  if (!isOwner) {
-    return null
   }
 
   const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (

@@ -8,14 +8,13 @@ import { Team } from "@/components/Team"
 import { Contact } from "@/components/Contact"
 import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
-import { AdminAnalytics } from "@/components/AdminAnalytics"
-import { StaffSchedule } from "@/components/StaffSchedule"
 import { CustomerProfile } from "@/components/CustomerProfile"
+import { AdminDashboard } from "@/components/AdminDashboard"
 import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<"home" | "profile">("home")
+  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin">("home")
   
   useAppointmentReminders()
 
@@ -24,6 +23,8 @@ function App() {
       const hash = window.location.hash
       if (hash === "#profile") {
         setCurrentView("profile")
+      } else if (hash === "#admin") {
+        setCurrentView("admin")
       } else {
         setCurrentView("home")
       }
@@ -43,6 +44,15 @@ function App() {
     )
   }
 
+  if (currentView === "admin") {
+    return (
+      <>
+        <AdminDashboard />
+        <Toaster position="top-center" />
+      </>
+    )
+  }
+
   return (
     <div id="home" className="min-h-screen">
       <Navigation onBookClick={() => setBookingOpen(true)} />
@@ -50,8 +60,6 @@ function App() {
       <Services />
       <Gallery />
       <Team />
-      <StaffSchedule />
-      <AdminAnalytics />
       <Contact />
       <Footer />
       <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} />

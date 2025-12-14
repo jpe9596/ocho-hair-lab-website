@@ -64,27 +64,11 @@ const DEFAULT_SCHEDULE: StaffSchedule["workingHours"] = {
 export function StaffSchedule() {
   const [schedules, setSchedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [selectedStylist, setSelectedStylist] = useState<string>("")
-  const [isOwner, setIsOwner] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [blockDateDialogOpen, setBlockDateDialogOpen] = useState(false)
   const [selectedBlockDates, setSelectedBlockDates] = useState<Date[]>([])
 
   useEffect(() => {
-    async function checkOwner() {
-      try {
-        const user = await window.spark.user()
-        setIsOwner(user?.isOwner || false)
-      } catch {
-        setIsOwner(false)
-      } finally {
-        setLoading(false)
-      }
-    }
-    checkOwner()
-  }, [])
-
-  useEffect(() => {
-    if (schedules && schedules.length === 0 && isOwner) {
+    if (schedules && schedules.length === 0) {
       const initialSchedules = STYLISTS.map(stylist => ({
         stylistName: stylist,
         workingHours: DEFAULT_SCHEDULE,
@@ -93,11 +77,7 @@ export function StaffSchedule() {
       }))
       setSchedules(initialSchedules)
     }
-  }, [schedules, isOwner, setSchedules])
-
-  if (loading || !isOwner) {
-    return null
-  }
+  }, [schedules, setSchedules])
 
   const currentSchedule = schedules?.find(s => s.stylistName === selectedStylist)
 
