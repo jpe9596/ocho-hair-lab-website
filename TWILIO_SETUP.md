@@ -1,174 +1,110 @@
-# Twilio SMS Integration Setup Guide
+# Twilio WhatsApp Integration Setup
 
-## Overview
-This application includes SMS notification functionality for appointment bookings using Twilio. Currently, the implementation uses a simulated version for development purposes. Follow this guide to integrate with actual Twilio services.
+This application uses Twilio's WhatsApp API to send appointment notifications to customers.
 
-## What's Currently Implemented
+## Configuration
 
-The booking system now sends SMS notifications to:
-1. **The customer** - Confirming their appointment request
-2. **The salon** (81 1615 3747) - Notifying staff of new bookings
-3. **24-hour reminders** - Automated reminders sent to customers and salon staff
-
-### Features
-- SMS sent immediately when appointment is booked
-- Customer receives confirmation with appointment details
-- Salon staff receives booking notification with customer info
-- **Automated reminders sent 24 hours before appointments**
-- **Reminder status tracked and displayed in admin panel**
-- **Reminders reset when appointments are rescheduled**
-- Toast notifications confirm SMS delivery
-
-## Twilio Setup Instructions
-
-### Step 1: Create a Twilio Account
-1. Go to [https://www.twilio.com/](https://www.twilio.com/)
-2. Sign up for a free trial or paid account
-3. Verify your phone number
-
-### Step 2: Get Your Twilio Credentials
-You'll need three pieces of information from your Twilio dashboard:
-
-1. **Account SID** - Found on your Twilio Console Dashboard
-2. **Auth Token** - Found on your Twilio Console Dashboard (click "Show" to reveal)
-3. **Twilio Phone Number** - Purchase a phone number from Twilio's Phone Numbers section
-   - Recommended: Get a Mexican phone number for local SMS delivery
-   - Make sure the number supports SMS capabilities
-
-### Step 3: Configure the Application
-
-Open `/src/lib/notifications.ts` and replace the placeholder values:
+All Twilio settings are located in `/src/lib/twilio-config.ts`:
 
 ```typescript
-// REPLACE THESE VALUES:
-const twilioData = {
-  to,
-  message,
-  from: 'YOUR_TWILIO_PHONE_NUMBER',  // e.g., '+525512345678'
-  accountSid: 'YOUR_ACCOUNT_SID',     // e.g., 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-  authToken: 'YOUR_AUTH_TOKEN'        // e.g., 'your_auth_token_here'
+export const TWILIO_CONFIG = {
+  accountSid: 'ACe7262fb35ec470497df636e736ba3d1a',
+  authToken: 'YOUR_AUTH_TOKEN',              // ⚠️ REPLACE WITH YOUR AUTH TOKEN
+  whatsappNumber: 'whatsapp:+14155238886',    // Twilio sandbox number
+  salonWhatsApp: 'whatsapp:+5218116153747',   // Salon's WhatsApp number
+  contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e'
 }
 ```
 
-### Step 4: Replace Simulation with Real API Calls
+## Required Steps
 
-To integrate with the actual Twilio API, you would typically need a backend service since API credentials shouldn't be exposed in browser code. Here are two options:
+### 1. Add Your Twilio Auth Token
 
-#### Option A: Backend Service (Recommended for Production)
-Create a server endpoint that:
-1. Receives appointment data from the frontend
-2. Calls Twilio's API server-side (keeping credentials secure)
-3. Returns success/failure to frontend
+Replace `'YOUR_AUTH_TOKEN'` in `/src/lib/twilio-config.ts` with your actual Twilio auth token.
 
-#### Option B: Twilio Functions (Serverless)
-Use Twilio Functions to create a serverless endpoint:
-1. Go to Twilio Console → Functions & Assets → Services
-2. Create a new Service
-3. Add a function that sends SMS
-4. Call this function from your frontend
+**To find your auth token:**
+1. Log in to your Twilio Console: https://console.twilio.com/
+2. Navigate to Account → API keys & tokens
+3. Copy your Auth Token
+4. Paste it in the configuration file
 
-### Step 5: Test Your Integration
+### 2. Phone Number Format
 
-**During Twilio Trial:**
-- You can only send SMS to verified phone numbers
-- Add test phone numbers in Twilio Console → Phone Numbers → Verified Caller IDs
+When customers book appointments, they should enter their phone number in international format without the "whatsapp:" prefix:
 
-**After Upgrading:**
-- You can send to any phone number
-- Monitor usage in Twilio Console → Monitor → Logs
+**Examples:**
+- ✅ `+5218124028082` (Mexico)
+- ✅ `+12125551234` (USA)
+- ❌ `whatsapp:+5218124028082` (will be added automatically)
 
-## Message Templates
+The system will automatically format the number with the "whatsapp:" prefix when sending messages.
 
-### Customer Notification (Booking)
-```
-Hi {Name}! Your appointment request for {Service} on {Date} at {Time} has been received. We'll confirm within 24 hours. - Ocho Hair Lab
-```
+### 3. WhatsApp Template (Optional)
 
-### Salon Notification (Booking)
-```
-New appointment request:
-Name: {Name}
-Service: {Service}
-Date: {Date}
-Time: {Time}
-Phone: {Phone}
-```
+The system includes support for Twilio's pre-approved WhatsApp templates. Your current template:
 
-### Customer Reminder (24 hours before)
-```
-Hi {Name}! Reminder: You have a {Service} appointment tomorrow ({Date}) at {Time} with {Stylist}. We look forward to seeing you! - Ocho Hair Lab
-```
+- **Content SID:** `HXb5b62575e6e4ff6129ad7c8efe1f983e`
+- **Variables:** 
+  - Variable 1: Date (e.g., "12/1")
+  - Variable 2: Time (e.g., "3pm")
 
-### Salon Reminder Notification
-```
-Reminder sent to {Name} for tomorrow's appointment:
-Service: {Service}
-Time: {Time}
-Stylist: {Stylist}
-Customer Phone: {Phone}
-```
+To use templates instead of plain text messages, you can modify the functions in the notification files.
 
-## Cost Considerations
+## How It Works
 
-- **Mexico SMS costs**: Approximately $0.0400 USD per SMS segment
-- Each booking sends 2 SMS (customer + salon) = ~$0.08 USD per booking
-- Each reminder sends 2 SMS (customer + salon) = ~$0.08 USD per reminder
-- **Total per appointment**: ~$0.16 USD (booking confirmation + 24-hour reminder)
-- Twilio trial includes free credits to test
+### Booking Confirmations
+When a customer books an appointment, the system sends:
+1. **To Customer:** Confirmation message with appointment details
+2. **To Salon:** Notification about the new booking
 
-## Security Best Practices
+### Appointment Reminders
+The system automatically checks for upcoming appointments and sends:
+- **8-hour reminder:** Sent automatically when an appointment is within 8 hours
+- Messages are sent to both the customer and the salon
 
-⚠️ **IMPORTANT**: Never commit actual Twilio credentials to version control!
+### Reschedule Notifications
+When a customer reschedules:
+1. **To Customer:** Confirmation of the new date/time
+2. **To Salon:** Notification about the reschedule
 
-For production:
-1. Use environment variables for credentials
-2. Implement a backend service to handle SMS
-3. Add rate limiting to prevent abuse
-4. Validate phone numbers before sending
+## Testing
 
-## Troubleshooting
+### Test in Development
+1. Book a test appointment through the website
+2. Check the browser console for message sending logs
+3. Verify WhatsApp messages are received
 
-### SMS Not Sending
-- Check that phone numbers include country code (e.g., +52 for Mexico)
-- Verify Twilio credentials are correct
-- Check Twilio Console → Monitor → Logs for error details
-- Ensure sufficient Twilio account balance
+### Common Issues
 
-### International SMS Issues
-- Some countries have restrictions on SMS
-- Verify the destination country allows SMS from Twilio
-- Consider using Twilio's Messaging Services for better deliverability
+**Problem:** Messages not sending
+- ✅ Verify auth token is correct
+- ✅ Check that phone numbers are in correct format (+country code + number)
+- ✅ Ensure Twilio account has sufficient balance
+- ✅ Check browser console for error messages
+
+**Problem:** "Not a valid WhatsApp capable number"
+- ✅ The recipient must have WhatsApp installed and active
+- ✅ In sandbox mode, recipients must join the sandbox first
+- ✅ Send "join [your-sandbox-keyword]" to +14155238886 from WhatsApp
+
+## Production Deployment
+
+For production use with your own WhatsApp Business number:
+
+1. Apply for a WhatsApp Business account through Twilio
+2. Update `whatsappNumber` in config with your approved number
+3. Get your templates approved by WhatsApp
+4. Replace sandbox number with your production number
+
+## Security Notes
+
+⚠️ **Important:** Never commit your auth token to version control!
+
+Consider using environment variables or a secure configuration management system for production deployments.
 
 ## Support
 
-- Twilio Documentation: [https://www.twilio.com/docs](https://www.twilio.com/docs)
-- Twilio Support: Available through Twilio Console
-- SMS API Reference: [https://www.twilio.com/docs/sms](https://www.twilio.com/docs/sms)
-
-## Current Status
-
-✅ SMS notification structure implemented  
-✅ Customer and salon notifications configured  
-✅ Phone number validation in booking form  
-✅ 24-hour appointment reminders implemented  
-✅ Reminder tracking and status display in admin panel  
-✅ Automatic reminder reset on appointment reschedule  
-🔄 Using simulated SMS (replace with real Twilio API)  
-⏳ Pending: Backend service for secure credential management
-
-## How Reminders Work
-
-The reminder system operates automatically in the background:
-
-1. **Automatic Checking**: The app checks for upcoming appointments every hour
-2. **24-Hour Window**: When an appointment is within 24 hours, a reminder is triggered
-3. **One-Time Sending**: Each appointment gets exactly one reminder (tracked via `reminderSent` flag)
-4. **Dual Notification**: Both customer and salon staff receive the reminder SMS
-5. **Visual Indicator**: Admin panel shows a badge for appointments that have received reminders
-6. **Reschedule Reset**: If an appointment is rescheduled, the reminder flag resets so a new reminder will be sent
-
-### Technical Details
-- Reminder checks run every 60 minutes via `setInterval`
-- Minimum 30-minute gap between consecutive checks to prevent duplicate sends
-- Reminders are sent for appointments scheduled 24 hours (or less) in the future
-- Past appointments are excluded from reminder checks
+For Twilio-specific issues:
+- Twilio Console: https://console.twilio.com/
+- Twilio Support: https://support.twilio.com/
+- WhatsApp Sandbox: https://www.twilio.com/docs/whatsapp/sandbox

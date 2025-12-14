@@ -20,11 +20,11 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Success criteria**: All services clearly visible with complete information; users can easily understand what's offered
 
 ### Appointment Booking
-- **Functionality**: Interactive form for scheduling salon appointments with service selection, date/time picking, contact information, and automated SMS notifications via Twilio
-- **Purpose**: Converts website visitors into booked clients by streamlining the reservation process and providing instant confirmation
+- **Functionality**: Interactive form for scheduling salon appointments with service selection, date/time picking, contact information, and automated WhatsApp notifications via Twilio
+- **Purpose**: Converts website visitors into booked clients by streamlining the reservation process and providing instant WhatsApp confirmation
 - **Trigger**: User clicks "Book Appointment" CTA button or completes service selection
-- **Progression**: Click booking CTA → Select desired service(s) → Choose preferred stylist (optional) → Pick date and time → Enter contact details (including phone for SMS) → Submit appointment request → Receive SMS confirmation → See confirmation toast
-- **Success criteria**: Form validates inputs, stores appointments in KV storage, sends SMS to customer and salon staff, provides clear confirmation feedback
+- **Progression**: Click booking CTA → Select desired service(s) → Choose preferred stylist (optional) → Pick date and time → Enter contact details (including WhatsApp number) → Submit appointment request → Receive WhatsApp confirmation → See confirmation toast
+- **Success criteria**: Form validates inputs, stores appointments in KV storage, sends WhatsApp messages to customer and salon staff via Twilio API, provides clear confirmation feedback
 
 ### Team Profiles
 - **Functionality**: Showcases the salon owner and stylists with photos, bios, and specialties
@@ -62,11 +62,11 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Success criteria**: Secure access via email/phone lookup; displays upcoming and past appointments separately; allows appointment rescheduling and cancellation with confirmation; smooth animations between states; easy navigation back to home
 
 ### Appointment Reminders
-- **Functionality**: Automated reminder system that sends SMS and email notifications to customers 24 hours before their scheduled appointments
-- **Purpose**: Reduces no-shows and keeps customers informed about upcoming appointments
+- **Functionality**: Automated reminder system that sends WhatsApp messages via Twilio to customers 8 hours before their scheduled appointments
+- **Purpose**: Reduces no-shows and keeps customers informed about upcoming appointments through their preferred WhatsApp messaging
 - **Trigger**: System automatically checks appointments every hour
-- **Progression**: System detects appointment within 24-hour window → Sends reminder SMS to customer → Sends notification SMS to salon staff → Updates appointment record → Displays reminder status in admin panel
-- **Success criteria**: Reminders sent exactly once per appointment at 24-hour mark; customers receive helpful reminder message; salon staff notified that reminder was sent; admin panel shows reminder status badge
+- **Progression**: System detects appointment within 8-hour window → Sends reminder WhatsApp message to customer → Sends notification WhatsApp to salon staff → Updates appointment record → Displays reminder status in admin panel
+- **Success criteria**: Reminders sent exactly once per appointment at 8-hour mark; customers receive helpful reminder message via WhatsApp; salon staff notified that reminder was sent; admin panel shows reminder status badge
 
 ### Staff Schedule Management
 - **Functionality**: Owner-only interface to configure stylist availability including working hours by day, break times, and blocked dates for time off
@@ -83,15 +83,15 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Mobile Responsiveness**: All sections adapt gracefully to mobile viewports with touch-friendly interactions
 - **Long Team Bios**: Truncate with "Read more" expansion to maintain layout consistency
 - **Missing Images**: Fallback to elegant placeholder patterns or gradients
-- **SMS Delivery Failures**: Graceful fallback to success message mentioning email confirmation if SMS fails
+- **SMS Delivery Failures**: Graceful fallback to success message mentioning email confirmation if WhatsApp fails
 - **Non-owner Access**: Admin panel automatically hidden for regular visitors
-- **Phone Number Formatting**: Accept various phone formats with validation for SMS delivery
+- **Phone Number Formatting**: Accept various phone formats with validation for WhatsApp delivery; automatically formats to international format with "whatsapp:" prefix
 - **Customer Profile Access**: No appointments found shows helpful error; supports lookup by email OR phone number
 - **Past Appointments Display**: Clearly separated from upcoming appointments with reduced opacity
 - **Appointment Cancellation**: Confirmation feedback via toast; immediately removed from customer view
 - **Appointment Rescheduling**: Reset reminder flag when rescheduled so new reminder will be sent
 - **Reminder Timing**: System checks appointments hourly; reminders only sent once per appointment
-- **Reminder After Reschedule**: Rescheduled appointments receive fresh reminders 24 hours before new time
+- **Reminder After Reschedule**: Rescheduled appointments receive fresh WhatsApp reminders 8 hours before new time
 - **Stylist Unavailability**: Calendar disables dates when no stylists are working; time selector only shows available slots
 - **Schedule Conflicts**: Booking system prevents double-booking by checking existing appointments against stylist schedules
 - **Break Times**: Multiple break periods can be configured; appointments cannot be booked during breaks
