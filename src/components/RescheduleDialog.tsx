@@ -21,6 +21,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  confirmationSent?: boolean
   reminderSent?: boolean
 }
 

@@ -9,6 +9,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  confirmationSent?: boolean
   reminderSent?: boolean
 }
 
@@ -17,7 +18,7 @@ interface ReminderRecord {
   sentAt: Date
 }
 
-const REMINDER_HOURS_BEFORE = 24
+const REMINDER_HOURS_BEFORE = 8
 
 export async function checkAndSendReminders(
   appointments: Appointment[],
@@ -57,6 +58,32 @@ export async function checkAndSendReminders(
   }
 }
 
+export async function sendBookingConfirmation(data: {
+  to: string
+  customerName: string
+  service: string
+  date: string
+  time: string
+  stylist: string
+}): Promise<void> {
+  const salonPhone = '+528116153747'
+  
+  const customerMessage = `Hi ${data.customerName}! Your appointment for ${data.service} on ${data.date} at ${data.time} with ${data.stylist} has been confirmed. We look forward to seeing you! - Ocho Hair Lab`
+  
+  const salonMessage = `New appointment booked:
+Name: ${data.customerName}
+Service: ${data.service}
+Date: ${data.date}
+Time: ${data.time}
+Stylist: ${data.stylist}
+Customer Phone: ${data.to}`
+
+  await Promise.all([
+    sendSMSViaTwilio(data.to, customerMessage),
+    sendSMSViaTwilio(salonPhone, salonMessage)
+  ])
+}
+
 async function sendReminderNotifications(data: {
   to: string
   customerName: string
@@ -67,9 +94,9 @@ async function sendReminderNotifications(data: {
 }): Promise<void> {
   const salonPhone = '+528116153747'
   
-  const customerMessage = `Hi ${data.customerName}! Reminder: You have a ${data.service} appointment tomorrow (${data.date}) at ${data.time} with ${data.stylist}. We look forward to seeing you! - Ocho Hair Lab`
+  const customerMessage = `Hi ${data.customerName}! Reminder: You have a ${data.service} appointment in 8 hours (${data.date}) at ${data.time} with ${data.stylist}. We look forward to seeing you! - Ocho Hair Lab`
   
-  const salonMessage = `Reminder sent to ${data.customerName} for tomorrow's appointment:
+  const salonMessage = `8-hour reminder sent to ${data.customerName} for upcoming appointment:
 Service: ${data.service}
 Time: ${data.time}
 Stylist: ${data.stylist}

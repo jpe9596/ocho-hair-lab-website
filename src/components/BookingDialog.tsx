@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 import { toast } from "sonner"
 import { Check, PaperPlaneTilt } from "@phosphor-icons/react"
-import { sendAppointmentSMS, formatAppointmentDate } from "@/lib/notifications"
+import { sendBookingConfirmation } from "@/lib/reminder-system"
+import { formatAppointmentDate } from "@/lib/notifications"
 
 interface BookingDialogProps {
   open: boolean
@@ -27,6 +28,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  confirmationSent?: boolean
   reminderSent?: boolean
 }
 
@@ -92,16 +94,17 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     setAppointments((current) => [...(current || []), newAppointment])
 
     try {
-      await sendAppointmentSMS({
+      await sendBookingConfirmation({
         to: formData.phone,
         customerName: formData.name,
         service: formData.service,
         date: formatAppointmentDate(date),
-        time: formData.time
+        time: formData.time,
+        stylist: formData.stylist || "Any Available"
       })
 
-      toast.success("Appointment Requested!", {
-        description: `Confirmation sent via SMS and email. We'll see you on ${formatAppointmentDate(date)} at ${formData.time}!`,
+      toast.success("Appointment Confirmed!", {
+        description: `Confirmation sent via SMS. You'll receive a reminder 8 hours before your appointment on ${formatAppointmentDate(date)} at ${formData.time}!`,
         icon: <PaperPlaneTilt size={20} weight="fill" />,
         action: {
           label: "View",
@@ -109,8 +112,8 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
         }
       })
     } catch (error) {
-      toast.success("Appointment Requested!", {
-        description: `We'll confirm your ${formData.service} appointment via email shortly.`,
+      toast.success("Appointment Booked!", {
+        description: `Your ${formData.service} appointment is scheduled. You'll receive a reminder 8 hours before.`,
         icon: <Check size={20} weight="bold" />,
         action: {
           label: "View",
@@ -141,7 +144,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
             Book Your Appointment
           </DialogTitle>
           <DialogDescription>
-            Fill out the form below and we'll confirm your appointment via email within 24 hours.
+            Fill out the form below to book your appointment. You'll receive an immediate confirmation and a reminder 8 hours before your appointment.
           </DialogDescription>
         </DialogHeader>
 

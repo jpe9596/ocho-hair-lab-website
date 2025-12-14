@@ -15,6 +15,7 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  confirmationSent?: boolean
   reminderSent?: boolean
 }
 
@@ -52,7 +53,7 @@ export function useAppointmentReminders() {
         if (appointment) {
           const iconElement = Bell({ size: 20, weight: "fill" })
           toast.success('Reminder Sent', {
-            description: `24-hour reminder sent to ${appointment.name} for ${appointment.service}`,
+            description: `8-hour reminder sent to ${appointment.name} for ${appointment.service}`,
             icon: iconElement
           })
         }
