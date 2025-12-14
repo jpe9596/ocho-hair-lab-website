@@ -9,7 +9,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Calendar, Clock, User, Phone, Envelope, Scissors, Trash, TrendUp, CurrencyCircleDollar, ChartBar, Users, CalendarCheck, Sparkle, CalendarBlank, X } from "@phosphor-icons/react"
 import { formatAppointmentDate } from "@/lib/notifications"
 import { toast } from "sonner"
-import { format } from "date-fns"
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, startOfDay, endOfDay } from "date-fns"
 
 interface Appointment {
   id: string
@@ -64,6 +64,7 @@ export function AdminAnalytics() {
     from: undefined,
     to: undefined,
   })
+  const [activeFilter, setActiveFilter] = useState<string | null>(null)
 
   useEffect(() => {
     async function checkOwner() {
@@ -78,6 +79,41 @@ export function AdminAnalytics() {
     }
     checkOwner()
   }, [])
+
+  const applyQuickFilter = (filterType: string) => {
+    const now = new Date()
+    let from: Date
+    let to: Date
+
+    switch (filterType) {
+      case "thisWeek":
+        from = startOfWeek(now, { weekStartsOn: 0 })
+        to = endOfWeek(now, { weekStartsOn: 0 })
+        break
+      case "thisMonth":
+        from = startOfMonth(now)
+        to = endOfMonth(now)
+        break
+      case "last30Days":
+        from = subDays(now, 30)
+        to = now
+        break
+      case "last7Days":
+        from = subDays(now, 7)
+        to = now
+        break
+      default:
+        return
+    }
+
+    setDateRange({ from: startOfDay(from), to: endOfDay(to) })
+    setActiveFilter(filterType)
+  }
+
+  const clearFilters = () => {
+    setDateRange({ from: undefined, to: undefined })
+    setActiveFilter(null)
+  }
 
   const filteredAppointments = useMemo(() => {
     if (!dateRange.from && !dateRange.to) {
@@ -290,7 +326,7 @@ export function AdminAnalytics() {
                         format(dateRange.from, "MMM d, yyyy")
                       )
                     ) : (
-                      <span>Filter by date range</span>
+                      <span>Custom date range</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -303,6 +339,7 @@ export function AdminAnalytics() {
                         from: range?.from,
                         to: range?.to,
                       })
+                      setActiveFilter(null)
                     }}
                     numberOfMonths={2}
                   />
@@ -313,12 +350,43 @@ export function AdminAnalytics() {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={() => setDateRange({ from: undefined, to: undefined })}
+                  onClick={clearFilters}
                 >
                   <X size={18} />
                 </Button>
               )}
             </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Button 
+              variant={activeFilter === "thisWeek" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyQuickFilter("thisWeek")}
+            >
+              This Week
+            </Button>
+            <Button 
+              variant={activeFilter === "thisMonth" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyQuickFilter("thisMonth")}
+            >
+              This Month
+            </Button>
+            <Button 
+              variant={activeFilter === "last7Days" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyQuickFilter("last7Days")}
+            >
+              Last 7 Days
+            </Button>
+            <Button 
+              variant={activeFilter === "last30Days" ? "default" : "outline"}
+              size="sm"
+              onClick={() => applyQuickFilter("last30Days")}
+            >
+              Last 30 Days
+            </Button>
           </div>
           
           {(dateRange.from || dateRange.to) && (
