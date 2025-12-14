@@ -10,11 +10,14 @@ import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
 import { CustomerProfile } from "@/components/CustomerProfile"
 import { AdminDashboard } from "@/components/AdminDashboard"
+import { StaffLogin, StaffMember } from "@/components/StaffLogin"
+import { StaffDashboard } from "@/components/StaffDashboard"
 import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin">("home")
+  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin" | "staff">("home")
+  const [staffMember, setStaffMember] = useState<StaffMember | null>(null)
   
   useAppointmentReminders()
 
@@ -23,10 +26,15 @@ function App() {
       const hash = window.location.hash
       if (hash === "#profile") {
         setCurrentView("profile")
+        setStaffMember(null)
       } else if (hash === "#admin") {
         setCurrentView("admin")
+        setStaffMember(null)
+      } else if (hash === "#staff") {
+        setCurrentView("staff")
       } else {
         setCurrentView("home")
+        setStaffMember(null)
       }
     }
 
@@ -48,6 +56,37 @@ function App() {
     return (
       <>
         <AdminDashboard />
+        <Toaster position="top-center" />
+      </>
+    )
+  }
+
+  if (currentView === "staff") {
+    if (!staffMember) {
+      return (
+        <>
+          <StaffLogin
+            onLogin={(member) => setStaffMember(member)}
+            onBack={() => {
+              window.location.hash = ""
+              setCurrentView("home")
+            }}
+          />
+          <Toaster position="top-center" />
+        </>
+      )
+    }
+
+    return (
+      <>
+        <StaffDashboard
+          staffMember={staffMember}
+          onLogout={() => {
+            setStaffMember(null)
+            window.location.hash = ""
+            setCurrentView("home")
+          }}
+        />
         <Toaster position="top-center" />
       </>
     )

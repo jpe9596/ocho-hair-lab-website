@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Calendar, List, X, ShieldCheck } from "@phosphor-icons/react"
+import { Calendar, List, X, ShieldCheck, UserCircle } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -58,6 +58,11 @@ export function Navigation({ onBookClick }: NavigationProps) {
     setIsMobileMenuOpen(false)
   }
 
+  const handleStaffLoginClick = () => {
+    window.location.hash = "#staff"
+    setIsMobileMenuOpen(false)
+  }
+
   return (
     <>
       <nav className={cn(
@@ -89,6 +94,13 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 className="text-foreground/70 hover:text-foreground transition-colors font-medium"
               >
                 My Appointments
+              </button>
+              <button
+                onClick={handleStaffLoginClick}
+                className="text-foreground/70 hover:text-foreground transition-colors font-medium flex items-center gap-2"
+              >
+                <UserCircle size={18} weight="fill" />
+                Staff Login
               </button>
               {isOwner && (
                 <button
@@ -132,6 +144,13 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 className="block w-full text-left py-2 text-foreground/70 hover:text-foreground transition-colors font-medium"
               >
                 My Appointments
+              </button>
+              <button
+                onClick={handleStaffLoginClick}
+                className="block w-full text-left py-2 text-foreground/70 hover:text-foreground transition-colors font-medium flex items-center gap-2"
+              >
+                <UserCircle size={18} weight="fill" />
+                Staff Login
               </button>
               {isOwner && (
                 <button
