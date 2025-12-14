@@ -1,52 +1,49 @@
-import { Scissors, Palette, Sparkle, Heart } from "@phosphor-icons/react"
+import { Scissors, Palette, Sparkle, Drop } from "@phosphor-icons/react"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 
-const services = [
+const serviceCategories = [
+  {
+    icon: Palette,
+    name: "Tinte",
+    description: "Color services tailored to enhance your natural beauty",
+    items: [
+      { name: "Retoque de Raiz", price: "$1,150" },
+      { name: "Full Head Tint", price: "$1,500" },
+      { name: "0% AMONIACO", price: "from $1,000" },
+      { name: "Toner/Gloss", price: "$450" }
+    ]
+  },
   {
     icon: Scissors,
-    name: "Precision Cuts",
-    description: "Expert haircuts tailored to your unique style and face shape",
-    duration: "45-60 min",
-    price: "$65+",
-    popular: true
-  },
-  {
-    icon: Palette,
-    name: "Color Services",
-    description: "From subtle highlights to bold transformations, we bring your vision to life",
-    duration: "2-4 hrs",
-    price: "$120+",
-    popular: true
+    name: "Corte & Styling",
+    description: "Expert cuts and styling for every look",
+    items: [
+      { name: "Corte & Secado", price: "$900" },
+      { name: "Secado (short)", price: "$350" },
+      { name: "Secado (mm)", price: "$500" },
+      { name: "Secado (long)", price: "$700" },
+      { name: "Waves/peinado", price: "from $350" }
+    ]
   },
   {
     icon: Sparkle,
-    name: "Balayage & Highlights",
-    description: "Hand-painted color techniques for natural, dimensional results",
-    duration: "3-4 hrs",
-    price: "$180+"
+    name: "Bespoke Color",
+    description: "Customized color techniques for unique results",
+    items: [
+      { name: "Balayage", price: "from $2,500" },
+      { name: "Baby Lights", price: "from $3,500" },
+      { name: "Selfie Contour", price: "$1,800" }
+    ]
   },
   {
-    icon: Heart,
-    name: "Deep Conditioning",
-    description: "Intensive treatments to restore health, shine, and vitality",
-    duration: "30-45 min",
-    price: "$45+"
-  },
-  {
-    icon: Sparkle,
-    name: "Blowout Styling",
-    description: "Professional styling for any occasion, leaving you camera-ready",
-    duration: "30-45 min",
-    price: "$55+"
-  },
-  {
-    icon: Palette,
-    name: "Keratin Treatment",
-    description: "Smooth, frizz-free hair that lasts for months",
-    duration: "2-3 hrs",
-    price: "$250+"
+    icon: Drop,
+    name: "Treatments",
+    description: "Restore and revitalize your hair",
+    items: [
+      { name: "Posion Nº17", price: "$300" },
+      { name: "Posion Nº 8", price: "$900" }
+    ]
   }
 ]
 
@@ -63,40 +60,40 @@ export function Services() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => {
-            const Icon = service.icon
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {serviceCategories.map((category, index) => {
+            const Icon = category.icon
             return (
               <motion.div
-                key={service.name}
+                key={category.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="p-6 md:p-8 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-card border-border relative overflow-hidden group">
+                <Card className="p-8 h-full hover:shadow-xl transition-all duration-300 bg-card border-border relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                   
                   <div className="relative">
-                    {service.popular && (
-                      <Badge className="mb-4 bg-accent text-accent-foreground">Popular</Badge>
-                    )}
-                    
-                    <div className="mb-4 inline-flex p-3 bg-secondary rounded-lg">
+                    <div className="mb-6 inline-flex p-3 bg-secondary rounded-lg">
                       <Icon size={32} className="text-primary" weight="duotone" />
                     </div>
                     
-                    <h3 className="text-2xl font-semibold mb-3 text-foreground">
-                      {service.name}
+                    <h3 className="text-2xl font-semibold mb-2 text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
+                      {category.name}
                     </h3>
                     
-                    <p className="text-foreground/70 mb-6 leading-relaxed">
-                      {service.description}
+                    <p className="text-foreground/60 mb-6 text-sm">
+                      {category.description}
                     </p>
                     
-                    <div className="flex items-center justify-between text-sm pt-4 border-t border-border">
-                      <span className="text-muted-foreground font-medium">{service.duration}</span>
-                      <span className="text-lg font-semibold text-primary">{service.price}</span>
+                    <div className="space-y-3 pt-4 border-t border-border">
+                      {category.items.map((item) => (
+                        <div key={item.name} className="flex items-center justify-between">
+                          <span className="text-foreground/80">{item.name}</span>
+                          <span className="font-semibold text-primary">{item.price}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </Card>
