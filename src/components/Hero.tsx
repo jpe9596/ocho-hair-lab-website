@@ -24,8 +24,8 @@ export function Hero({ onBookClick }: HeroProps) {
           </div>
         </div>
         
-        <div className="text-xl md:text-2xl text-foreground/80 mb-12 max-w-2xl mx-auto leading-relaxed italic">
-          <p>Experts in blended color designs and low-maintenance hair.</p>
+        <div className="text-xl md:text-2xl text-foreground/80 mb-12 max-w-2xl mx-auto leading-relaxed">
+          <p>Experts in blended color designs.</p>
           <p>Damage-free extensions with plant-based products.</p>
         </div>
         
