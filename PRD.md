@@ -20,11 +20,11 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Success criteria**: All services clearly visible with complete information; users can easily understand what's offered
 
 ### Appointment Booking
-- **Functionality**: Interactive form for scheduling salon appointments with service selection, date/time picking, and contact information
-- **Purpose**: Converts website visitors into booked clients by streamlining the reservation process
+- **Functionality**: Interactive form for scheduling salon appointments with service selection, date/time picking, contact information, and automated SMS notifications via Twilio
+- **Purpose**: Converts website visitors into booked clients by streamlining the reservation process and providing instant confirmation
 - **Trigger**: User clicks "Book Appointment" CTA button or completes service selection
-- **Progression**: Click booking CTA → Select desired service(s) → Choose preferred stylist (optional) → Pick date and time → Enter contact details → Submit appointment request → See confirmation message
-- **Success criteria**: Form validates inputs, stores appointments in KV storage, provides clear confirmation feedback
+- **Progression**: Click booking CTA → Select desired service(s) → Choose preferred stylist (optional) → Pick date and time → Enter contact details (including phone for SMS) → Submit appointment request → Receive SMS confirmation → See confirmation toast
+- **Success criteria**: Form validates inputs, stores appointments in KV storage, sends SMS to customer and salon staff, provides clear confirmation feedback
 
 ### Team Profiles
 - **Functionality**: Showcases the salon owner and stylists with photos, bios, and specialties
@@ -47,6 +47,13 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Progression**: Click nav item → Smooth scroll to target section → Section highlighted
 - **Success criteria**: Navigation remains accessible; smooth scrolling behavior; clear active section indication
 
+### Admin Dashboard
+- **Functionality**: Owner-only panel displaying all booked appointments with management capabilities
+- **Purpose**: Allows salon owner to view, track, and manage customer appointments
+- **Trigger**: Automatically displayed for app owner when logged in
+- **Progression**: Owner views site → Admin panel appears below Team section → View all appointments sorted by date → Delete appointments if needed → Contact customers via phone/email
+- **Success criteria**: Only visible to owner; displays all appointment details; allows deletion; shows contact information
+
 ## Edge Case Handling
 
 - **No Services Available**: Display elegant empty state with message to check back soon
@@ -55,6 +62,9 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Mobile Responsiveness**: All sections adapt gracefully to mobile viewports with touch-friendly interactions
 - **Long Team Bios**: Truncate with "Read more" expansion to maintain layout consistency
 - **Missing Images**: Fallback to elegant placeholder patterns or gradients
+- **SMS Delivery Failures**: Graceful fallback to success message mentioning email confirmation if SMS fails
+- **Non-owner Access**: Admin panel automatically hidden for regular visitors
+- **Phone Number Formatting**: Accept various phone formats with validation for SMS delivery
 
 ## Design Direction
 

@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 import { toast } from "sonner"
-import { Check } from "@phosphor-icons/react"
+import { Check, PaperPlaneTilt } from "@phosphor-icons/react"
+import { sendAppointmentSMS, formatAppointmentDate } from "@/lib/notifications"
 
 interface BookingDialogProps {
   open: boolean
@@ -62,14 +63,17 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     time: "",
     notes: ""
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!date || !formData.name || !formData.email || !formData.phone || !formData.service || !formData.time) {
       toast.error("Please fill in all required fields")
       return
     }
+
+    setIsSubmitting(true)
 
     const newAppointment: Appointment = {
       id: Date.now().toString(),
@@ -86,10 +90,25 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
     setAppointments((current) => [...(current || []), newAppointment])
 
-    toast.success("Appointment Requested!", {
-      description: `We'll confirm your ${formData.service} appointment via email shortly.`,
-      icon: <Check size={20} weight="bold" />
-    })
+    try {
+      await sendAppointmentSMS({
+        to: formData.phone,
+        customerName: formData.name,
+        service: formData.service,
+        date: formatAppointmentDate(date),
+        time: formData.time
+      })
+
+      toast.success("Appointment Requested!", {
+        description: `Confirmation sent via SMS and email. We'll see you on ${formatAppointmentDate(date)} at ${formData.time}!`,
+        icon: <PaperPlaneTilt size={20} weight="fill" />
+      })
+    } catch (error) {
+      toast.success("Appointment Requested!", {
+        description: `We'll confirm your ${formData.service} appointment via email shortly.`,
+        icon: <Check size={20} weight="bold" />
+      })
+    }
 
     setFormData({
       name: "",
@@ -101,6 +120,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       notes: ""
     })
     setDate(undefined)
+    setIsSubmitting(false)
     onOpenChange(false)
   }
 
@@ -227,11 +247,11 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
           </div>
 
           <div className="flex gap-4 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1" disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" className="flex-1">
-              Request Appointment
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? "Sending..." : "Request Appointment"}
             </Button>
           </div>
         </form>

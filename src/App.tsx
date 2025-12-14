@@ -7,6 +7,7 @@ import { Team } from "@/components/Team"
 import { Contact } from "@/components/Contact"
 import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
+import { AdminPanel } from "@/components/AdminPanel"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
@@ -17,6 +18,7 @@ function App() {
       <Hero onBookClick={() => setBookingOpen(true)} />
       <Services />
       <Team />
+      <AdminPanel />
       <Contact />
       <Footer />
       <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} />
