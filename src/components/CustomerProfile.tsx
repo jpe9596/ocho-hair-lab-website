@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck } from "@phosphor-icons/react"
+import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck, Plus } from "@phosphor-icons/react"
 import { formatAppointmentDate } from "@/lib/notifications"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { RescheduleDialog } from "@/components/RescheduleDialog"
+import { BookingDialog } from "@/components/BookingDialog"
 
 interface Appointment {
   id: string
@@ -34,6 +35,7 @@ export function CustomerProfile() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [customerData, setCustomerData] = useState<{ email: string; phone: string } | null>(null)
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
 
   const handleLogin = (e: React.FormEvent) => {
@@ -49,18 +51,18 @@ export function CustomerProfile() {
       (phone && apt.phone.replace(/\D/g, '') === phone.replace(/\D/g, ''))
     )
 
-    if (customerAppointments.length === 0) {
-      toast.error("No appointments found", {
-        description: "Please check your email or phone number and try again."
-      })
-      return
-    }
-
     setCustomerData({ email, phone })
     setIsLoggedIn(true)
-    toast.success("Welcome back!", {
-      description: `Found ${customerAppointments.length} appointment${customerAppointments.length > 1 ? 's' : ''}`
-    })
+    
+    if (customerAppointments.length === 0) {
+      toast.success("Welcome to Ocho Hair Lab!", {
+        description: "You can now book your first appointment"
+      })
+    } else {
+      toast.success("Welcome back!", {
+        description: `Found ${customerAppointments.length} appointment${customerAppointments.length > 1 ? 's' : ''}`
+      })
+    }
   }
 
   const handleLogout = () => {
@@ -175,10 +177,16 @@ export function CustomerProfile() {
                 {customerData?.email || customerData?.phone}
               </p>
             </div>
-            <Button onClick={handleLogout} variant="outline">
-              <SignOut className="mr-2" size={18} />
-              Sign Out
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setBookingDialogOpen(true)} variant="default">
+                <Plus className="mr-2" size={18} />
+                Book New
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                <SignOut className="mr-2" size={18} />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </motion.div>
 
@@ -195,7 +203,8 @@ export function CustomerProfile() {
                 <p className="text-muted-foreground mb-6">
                   You don't have any appointments scheduled yet.
                 </p>
-                <Button onClick={() => window.location.href = "/#home"}>
+                <Button onClick={() => setBookingDialogOpen(true)}>
+                  <Plus className="mr-2" size={18} />
                   Book Your First Appointment
                 </Button>
               </CardContent>
@@ -396,6 +405,10 @@ export function CustomerProfile() {
         open={rescheduleDialogOpen} 
         onOpenChange={setRescheduleDialogOpen}
         appointment={selectedAppointment}
+      />
+      <BookingDialog 
+        open={bookingDialogOpen} 
+        onOpenChange={setBookingDialogOpen}
       />
     </div>
   )

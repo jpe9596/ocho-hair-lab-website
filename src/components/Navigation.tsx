@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Calendar, List, X, UserCircle } from "@phosphor-icons/react"
+import { List, X, UserCircle } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
-  onBookClick: () => void
+  onBookClick?: () => void
 }
 
 export function Navigation({ onBookClick }: NavigationProps) {
@@ -72,21 +72,15 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 </button>
               ))}
               <button
-                onClick={handleProfileClick}
-                className="text-foreground/70 hover:text-foreground transition-colors font-medium"
-              >
-                My Appointments
-              </button>
-              <button
                 onClick={handleStaffLoginClick}
                 className="text-foreground/70 hover:text-foreground transition-colors font-medium flex items-center gap-2"
               >
                 <UserCircle size={18} weight="fill" />
                 Staff Login
               </button>
-              <Button onClick={onBookClick} size="sm">
-                <Calendar className="mr-2" size={18} />
-                Book Now
+              <Button onClick={handleProfileClick} size="sm">
+                <UserCircle className="mr-2" size={18} weight="fill" />
+                Customer Login
               </Button>
             </div>
 
@@ -112,21 +106,15 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 </button>
               ))}
               <button
-                onClick={handleProfileClick}
-                className="block w-full text-left py-2 text-foreground/70 hover:text-foreground transition-colors font-medium"
-              >
-                My Appointments
-              </button>
-              <button
                 onClick={handleStaffLoginClick}
                 className="block w-full text-left py-2 text-foreground/70 hover:text-foreground transition-colors font-medium flex items-center gap-2"
               >
                 <UserCircle size={18} weight="fill" />
                 Staff Login
               </button>
-              <Button onClick={onBookClick} className="w-full">
-                <Calendar className="mr-2" size={18} />
-                Book Appointment
+              <Button onClick={handleProfileClick} className="w-full">
+                <UserCircle className="mr-2" size={18} weight="fill" />
+                Customer Login
               </Button>
             </div>
           </div>
@@ -134,9 +122,9 @@ export function Navigation({ onBookClick }: NavigationProps) {
       </nav>
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/95 backdrop-blur-md border-t border-border">
-        <Button onClick={onBookClick} className="w-full" size="lg">
-          <Calendar className="mr-2" size={20} />
-          Book Now
+        <Button onClick={handleProfileClick} className="w-full" size="lg">
+          <UserCircle className="mr-2" size={20} weight="fill" />
+          Customer Login
         </Button>
       </div>
     </>

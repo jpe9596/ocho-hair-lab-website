@@ -101,8 +101,8 @@ function App() {
 
   return (
     <div id="home" className="min-h-screen">
-      <Navigation onBookClick={() => setBookingOpen(true)} />
-      <Hero onBookClick={() => setBookingOpen(true)} />
+      <Navigation />
+      <Hero />
       <Services />
       <Gallery />
       <Team />

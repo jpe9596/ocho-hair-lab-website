@@ -1,8 +1,8 @@
-import { Calendar } from "@phosphor-icons/react"
+import { UserCircle } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 
 interface HeroProps {
-  onBookClick: () => void
+  onBookClick?: () => void
 }
 
 export function Hero({ onBookClick }: HeroProps) {
@@ -31,11 +31,11 @@ export function Hero({ onBookClick }: HeroProps) {
         
         <Button 
           size="lg" 
-          onClick={onBookClick}
+          onClick={() => window.location.hash = "#profile"}
           className="text-lg px-8 py-6 hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
         >
-          <Calendar className="mr-2" size={24} />
-          Book Your Appointment
+          <UserCircle className="mr-2" size={24} weight="fill" />
+          Login to Book Appointment
         </Button>
       </div>
       
