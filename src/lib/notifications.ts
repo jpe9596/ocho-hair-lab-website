@@ -6,6 +6,16 @@ interface SMSNotificationData {
   time: string
 }
 
+interface RescheduleSMSData {
+  to: string
+  customerName: string
+  service: string
+  oldDate: string
+  oldTime: string
+  newDate: string
+  newTime: string
+}
+
 export async function sendAppointmentSMS(data: SMSNotificationData): Promise<boolean> {
   try {
     const salonPhone = '+528116153747'
@@ -27,6 +37,31 @@ Phone: ${data.to}`
     return true
   } catch (error) {
     console.error('Failed to send SMS notifications:', error)
+    return false
+  }
+}
+
+export async function sendRescheduleSMS(data: RescheduleSMSData): Promise<boolean> {
+  try {
+    const salonPhone = '+528116153747'
+    
+    const customerMessage = `Hi ${data.customerName}! Your ${data.service} appointment has been rescheduled from ${data.oldDate} at ${data.oldTime} to ${data.newDate} at ${data.newTime}. See you then! - Ocho Hair Lab`
+    
+    const salonMessage = `Appointment rescheduled:
+Name: ${data.customerName}
+Service: ${data.service}
+Previous: ${data.oldDate} at ${data.oldTime}
+New: ${data.newDate} at ${data.newTime}
+Phone: ${data.to}`
+
+    await Promise.all([
+      sendSMSViaTwilio(data.to, customerMessage),
+      sendSMSViaTwilio(salonPhone, salonMessage)
+    ])
+
+    return true
+  } catch (error) {
+    console.error('Failed to send reschedule SMS notifications:', error)
     return false
   }
 }

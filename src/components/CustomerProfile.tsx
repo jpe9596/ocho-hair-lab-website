@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut } from "@phosphor-icons/react"
+import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck } from "@phosphor-icons/react"
 import { formatAppointmentDate } from "@/lib/notifications"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
+import { RescheduleDialog } from "@/components/RescheduleDialog"
 
 interface Appointment {
   id: string
@@ -29,6 +30,8 @@ export function CustomerProfile() {
   const [phone, setPhone] = useState("")
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [customerData, setCustomerData] = useState<{ email: string; phone: string } | null>(null)
+  const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,6 +65,11 @@ export function CustomerProfile() {
     setCustomerData(null)
     setEmail("")
     setPhone("")
+  }
+
+  const handleReschedule = (appointment: Appointment) => {
+    setSelectedAppointment(appointment)
+    setRescheduleDialogOpen(true)
   }
 
   const cancelAppointment = (id: string, service: string, date: Date, time: string) => {
@@ -223,19 +231,29 @@ export function CustomerProfile() {
                                   {appointment.service}
                                 </CardTitle>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                onClick={() => cancelAppointment(
-                                  appointment.id,
-                                  appointment.service,
-                                  new Date(appointment.date),
-                                  appointment.time
-                                )}
-                              >
-                                <Trash size={20} weight="fill" />
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-primary hover:text-primary hover:bg-primary/10"
+                                  onClick={() => handleReschedule(appointment)}
+                                >
+                                  <CalendarCheck size={20} weight="fill" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  onClick={() => cancelAppointment(
+                                    appointment.id,
+                                    appointment.service,
+                                    new Date(appointment.date),
+                                    appointment.time
+                                  )}
+                                >
+                                  <Trash size={20} weight="fill" />
+                                </Button>
+                              </div>
                             </div>
                           </CardHeader>
                           <CardContent>
@@ -354,6 +372,11 @@ export function CustomerProfile() {
           </div>
         )}
       </div>
+      <RescheduleDialog 
+        open={rescheduleDialogOpen} 
+        onOpenChange={setRescheduleDialogOpen}
+        appointment={selectedAppointment}
+      />
     </div>
   )
 }
