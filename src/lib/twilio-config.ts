@@ -1,6 +1,6 @@
 export const TWILIO_CONFIG = {
   accountSid: 'ACe7262fb35ec470497df636e736ba3d1a',
-  authToken: 'YOUR_AUTH_TOKEN',
+  authToken: '340898d89e3226f78f1cf217f7c6717a',
   whatsappNumber: 'whatsapp:+14155238886',
   salonWhatsApp: 'whatsapp:+5218116153747',
   contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e'
