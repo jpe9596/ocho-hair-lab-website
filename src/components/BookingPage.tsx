@@ -134,7 +134,7 @@ export function BookingPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Or Email</Label>
+                    <Label htmlFor="login-email">Email</Label>
                     <Input
                       id="login-email"
                       type="email"
