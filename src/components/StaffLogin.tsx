@@ -22,7 +22,7 @@ const STAFF_CREDENTIALS: Record<string, { password: string; name: string; role: 
   "maria": {
     password: "supersecret",
     name: "Maria Rodriguez",
-    role: "Owner & Master Stylist",
+    role: "Master Stylist",
     isAdmin: false
   },
   "jessica": {
@@ -46,7 +46,7 @@ const STAFF_CREDENTIALS: Record<string, { password: string; name: string; role: 
   "owner@ocholab.com": {
     password: "owner123",
     name: "Admin",
-    role: "Owner",
+    role: "Admin",
     isAdmin: true
   }
 }

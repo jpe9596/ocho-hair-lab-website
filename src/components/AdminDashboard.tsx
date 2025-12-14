@@ -85,12 +85,6 @@ export function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {userInfo && (
-                <div className="hidden sm:block text-right mr-4">
-                  <p className="text-sm font-medium">{userInfo.login}</p>
-                  <p className="text-xs text-muted-foreground">Owner</p>
-                </div>
-              )}
               <Button 
                 variant="outline" 
                 onClick={() => window.location.hash = ""}
