@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar } from "@/components/ui/calendar"
+import { WeekCalendar } from "@/components/WeekCalendar"
 import { toast } from "sonner"
 import { Check, PaperPlaneTilt } from "@phosphor-icons/react"
 import { sendBookingConfirmation } from "@/lib/reminder-system"
@@ -290,9 +290,8 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
           <div className="space-y-2">
             <Label>Preferred Date *</Label>
-            <div className="rounded-md border p-3 bg-card">
-              <Calendar
-                mode="single"
+            <div className="rounded-md border p-4 bg-card">
+              <WeekCalendar
                 selected={date}
                 onSelect={(newDate) => {
                   setDate(newDate)
