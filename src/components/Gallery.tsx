@@ -6,57 +6,87 @@ import { Card } from "@/components/ui/card"
 const galleryImages = [
   {
     id: 1,
-    url: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=600&fit=crop&auto=format",
-    alt: "Balayage hair color transformation",
-    category: "Color"
+    url: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&h=800&fit=crop&q=80",
+    alt: "Beautiful blonde balayage transformation by Ocho Hair Lab",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 2,
-    url: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&h=600&fit=crop&auto=format",
-    alt: "Precision haircut and styling",
-    category: "Cut & Style"
+    url: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=800&fit=crop&q=80",
+    alt: "Dimensional brunette color with highlights",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 3,
-    url: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=600&fit=crop&auto=format",
-    alt: "Blonde highlights specialist work",
-    category: "Color"
+    url: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&h=800&fit=crop&q=80",
+    alt: "Gorgeous caramel balayage hair color",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 4,
-    url: "https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=600&h=600&fit=crop&auto=format",
-    alt: "Beautiful updo for special event",
-    category: "Special Events"
+    url: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=800&h=800&fit=crop&q=80",
+    alt: "Stunning hair extension transformation",
+    category: "Extensions",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 5,
-    url: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&h=600&fit=crop&auto=format",
-    alt: "Vibrant color transformation",
-    category: "Color"
+    url: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=800&h=800&fit=crop&q=80",
+    alt: "Beautiful blonde hair color blending",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 6,
-    url: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=600&h=600&fit=crop&auto=format",
-    alt: "Modern layered haircut",
-    category: "Cut & Style"
+    url: "https://images.unsplash.com/photo-1581619115184-c9683c873c97?w=800&h=800&fit=crop&q=80",
+    alt: "Perfect balayage color blend technique",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 7,
-    url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600&h=600&fit=crop&auto=format",
-    alt: "Elegant bridal hairstyle",
-    category: "Special Events"
+    url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&h=800&fit=crop&q=80",
+    alt: "Elegant bridal hairstyle and updo",
+    category: "Special Events",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 8,
-    url: "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=600&h=600&fit=crop&auto=format",
-    alt: "Curly hair styling expertise",
-    category: "Cut & Style"
+    url: "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=800&h=800&fit=crop&q=80",
+    alt: "Vibrant hair color transformation",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   },
   {
     id: 9,
-    url: "https://images.unsplash.com/photo-1581619115184-c9683c873c97?w=600&h=600&fit=crop&auto=format",
-    alt: "Dimensional balayage color",
-    category: "Color"
+    url: "https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=800&h=800&fit=crop&q=80",
+    alt: "Professional hair coloring and styling",
+    category: "Cut & Style",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
+  },
+  {
+    id: 10,
+    url: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=800&h=800&fit=crop&q=80",
+    alt: "Damage-free hair extensions application",
+    category: "Extensions",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
+  },
+  {
+    id: 11,
+    url: "https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=800&h=800&fit=crop&q=80",
+    alt: "Low-maintenance blended color design",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
+  },
+  {
+    id: 12,
+    url: "https://images.unsplash.com/photo-1595475207225-428b62bda831?w=800&h=800&fit=crop&q=80",
+    alt: "Beautiful hair transformation at Ocho Hair Lab",
+    category: "Color",
+    instagramUrl: "https://www.instagram.com/ochohairlab/"
   }
 ]
 
@@ -70,17 +100,20 @@ export function Gallery() {
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-primary" style={{ fontFamily: 'var(--font-display)' }}>
             Our Work
           </h2>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto mb-6">
+          <p className="text-xl text-foreground/70 max-w-2xl mx-auto mb-4">
             Explore our portfolio of transformations and creative styling
+          </p>
+          <p className="text-base text-foreground/60 max-w-2xl mx-auto mb-6">
+            See our real client transformations and daily updates on Instagram
           </p>
           <a
             href="https://www.instagram.com/ochohairlab/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors duration-200"
+            className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors duration-200 font-medium text-lg"
           >
-            <InstagramLogo size={24} weight="fill" />
-            <span className="font-medium">Follow us @ochohairlab</span>
+            <InstagramLogo size={28} weight="fill" />
+            <span>View Real Photos @ochohairlab</span>
           </a>
         </div>
 
