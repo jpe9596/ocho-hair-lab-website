@@ -8,7 +8,7 @@ import { Team } from "@/components/Team"
 import { Contact } from "@/components/Contact"
 import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
-import { AdminPanel } from "@/components/AdminPanel"
+import { AdminAnalytics } from "@/components/AdminAnalytics"
 import { StaffSchedule } from "@/components/StaffSchedule"
 import { CustomerProfile } from "@/components/CustomerProfile"
 import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
@@ -51,7 +51,7 @@ function App() {
       <Gallery />
       <Team />
       <StaffSchedule />
-      <AdminPanel />
+      <AdminAnalytics />
       <Contact />
       <Footer />
       <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} />
