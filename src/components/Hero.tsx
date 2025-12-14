@@ -35,7 +35,7 @@ export function Hero({ onBookClick }: HeroProps) {
           className="text-lg px-8 py-6 hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
         >
           <UserCircle className="mr-2" size={24} weight="fill" />
-          Login to Book Appointment
+          Book Appointment
         </Button>
       </div>
       
