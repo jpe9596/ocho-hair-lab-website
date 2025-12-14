@@ -226,15 +226,18 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number *</Label>
+            <Label htmlFor="phone">Phone Number (Mexico) *</Label>
             <Input
               id="phone"
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="(555) 123-4567"
+              placeholder="81 1615 3747"
               required
             />
+            <p className="text-xs text-muted-foreground">
+              Enter your 10-digit Mexico phone number. We'll send WhatsApp confirmations to +52 {formData.phone || "XXXXXXXXXX"}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

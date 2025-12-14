@@ -6,11 +6,30 @@ export const TWILIO_CONFIG = {
   contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e'
 } as const
 
+function formatMexicoPhoneNumber(phone: string): string {
+  let cleaned = phone.replace(/\D/g, '')
+  
+  if (cleaned.startsWith('52')) {
+    return `+${cleaned}`
+  }
+  
+  if (cleaned.length === 10) {
+    return `+52${cleaned}`
+  }
+  
+  if (cleaned.startsWith('1') && cleaned.length === 11) {
+    return `+52${cleaned.substring(1)}`
+  }
+  
+  return `+52${cleaned}`
+}
+
 export async function sendWhatsAppMessage(
   to: string,
   message: string
 ): Promise<void> {
-  const formattedTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
+  const formattedNumber = formatMexicoPhoneNumber(to)
+  const formattedTo = `whatsapp:${formattedNumber}`
   
   try {
     const params = new URLSearchParams()
@@ -48,7 +67,8 @@ export async function sendWhatsAppTemplate(
   to: string,
   variables: { date: string; time: string }
 ): Promise<void> {
-  const formattedTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
+  const formattedNumber = formatMexicoPhoneNumber(to)
+  const formattedTo = `whatsapp:${formattedNumber}`
   
   try {
     const params = new URLSearchParams()
