@@ -31,7 +31,7 @@ function Calendar({
         table: "w-full border-collapse",
         head_row: "hidden",
         head_cell: "hidden",
-        row: "flex w-full mt-2",
+        row: "flex w-full mt-2 pb-2 border-b border-border/40 last:border-0",
         cell: cn(
           "relative p-0 text-center text-sm flex-1 focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-range-end)]:rounded-r-md",
           props.mode === "range"
