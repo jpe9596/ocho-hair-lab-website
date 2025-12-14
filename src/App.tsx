@@ -8,6 +8,7 @@ import { Team } from "@/components/Team"
 import { Contact } from "@/components/Contact"
 import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
+import { BookingPage } from "@/components/BookingPage"
 import { CustomerProfile } from "@/components/CustomerProfile"
 import { AdminDashboard } from "@/components/AdminDashboard"
 import { StaffLogin, StaffMember } from "@/components/StaffLogin"
@@ -16,7 +17,7 @@ import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin" | "staff">("home")
+  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin" | "staff" | "booking">("home")
   const [staffMember, setStaffMember] = useState<StaffMember | null>(null)
   
   useAppointmentReminders()
@@ -32,6 +33,9 @@ function App() {
         setStaffMember(null)
       } else if (hash === "#staff") {
         setCurrentView("staff")
+      } else if (hash === "#booking") {
+        setCurrentView("booking")
+        setStaffMember(null)
       } else {
         setCurrentView("home")
         setStaffMember(null)
@@ -42,6 +46,15 @@ function App() {
     window.addEventListener("hashchange", handleHashChange)
     return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
+
+  if (currentView === "booking") {
+    return (
+      <>
+        <BookingPage />
+        <Toaster position="top-center" />
+      </>
+    )
+  }
 
   if (currentView === "profile") {
     return (

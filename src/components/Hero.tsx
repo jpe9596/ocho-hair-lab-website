@@ -31,7 +31,7 @@ export function Hero({ onBookClick }: HeroProps) {
         
         <Button 
           size="lg" 
-          onClick={() => window.location.hash = "#profile"}
+          onClick={() => window.location.hash = "#booking"}
           className="text-lg px-8 py-6 hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
         >
           <UserCircle className="mr-2" size={24} weight="fill" />
