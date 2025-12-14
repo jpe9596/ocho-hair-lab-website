@@ -113,7 +113,7 @@ export function Gallery() {
             className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors duration-200 font-medium text-lg"
           >
             <InstagramLogo size={28} weight="fill" />
-            <span>View Real Photos @ochohairlab</span>
+            <span>@ochohairlab</span>
           </a>
         </div>
 
