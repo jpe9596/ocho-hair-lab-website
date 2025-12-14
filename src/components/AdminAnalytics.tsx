@@ -4,9 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Clock, User, Phone, Envelope, Scissors, Trash, TrendUp, CurrencyCircleDollar, ChartBar, Users, CalendarCheck, Sparkle } from "@phosphor-icons/react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { Calendar, Clock, User, Phone, Envelope, Scissors, Trash, TrendUp, CurrencyCircleDollar, ChartBar, Users, CalendarCheck, Sparkle, CalendarBlank, X } from "@phosphor-icons/react"
 import { formatAppointmentDate } from "@/lib/notifications"
 import { toast } from "sonner"
+import { format } from "date-fns"
 
 interface Appointment {
   id: string
@@ -57,6 +60,10 @@ export function AdminAnalytics() {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [isOwner, setIsOwner] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  })
 
   useEffect(() => {
     async function checkOwner() {
@@ -72,9 +79,42 @@ export function AdminAnalytics() {
     checkOwner()
   }, [])
 
+  const filteredAppointments = useMemo(() => {
+    if (!dateRange.from && !dateRange.to) {
+      return appointments || []
+    }
+
+    return (appointments || []).filter(apt => {
+      const aptDate = new Date(apt.date)
+      aptDate.setHours(0, 0, 0, 0)
+
+      if (dateRange.from && dateRange.to) {
+        const from = new Date(dateRange.from)
+        from.setHours(0, 0, 0, 0)
+        const to = new Date(dateRange.to)
+        to.setHours(23, 59, 59, 999)
+        return aptDate >= from && aptDate <= to
+      }
+
+      if (dateRange.from) {
+        const from = new Date(dateRange.from)
+        from.setHours(0, 0, 0, 0)
+        return aptDate >= from
+      }
+
+      if (dateRange.to) {
+        const to = new Date(dateRange.to)
+        to.setHours(23, 59, 59, 999)
+        return aptDate <= to
+      }
+
+      return true
+    })
+  }, [appointments, dateRange])
+
   const { pastAppointments, upcomingAppointments } = useMemo(() => {
     const now = new Date()
-    const allAppointments = appointments || []
+    const allAppointments = filteredAppointments
     
     const past = allAppointments.filter(apt => {
       const aptDate = new Date(apt.date)
@@ -87,12 +127,12 @@ export function AdminAnalytics() {
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
     return { pastAppointments: past, upcomingAppointments: upcoming }
-  }, [appointments])
+  }, [filteredAppointments])
 
   const serviceStats = useMemo(() => {
     const stats = new Map<string, ServiceStats>()
     
-    appointments?.forEach(apt => {
+    filteredAppointments.forEach(apt => {
       const services = apt.services || [apt.service]
       services.forEach(service => {
         const existing = stats.get(service) || { name: service, count: 0, revenue: 0 }
@@ -103,12 +143,12 @@ export function AdminAnalytics() {
     })
 
     return Array.from(stats.values()).sort((a, b) => b.count - a.count)
-  }, [appointments])
+  }, [filteredAppointments])
 
   const stylistStats = useMemo(() => {
     const stats = new Map<string, StylistStats>()
     
-    appointments?.forEach(apt => {
+    filteredAppointments.forEach(apt => {
       const existing = stats.get(apt.stylist) || { name: apt.stylist, appointments: 0, revenue: 0 }
       existing.appointments += 1
       
@@ -121,15 +161,15 @@ export function AdminAnalytics() {
     })
 
     return Array.from(stats.values()).sort((a, b) => b.revenue - a.revenue)
-  }, [appointments])
+  }, [filteredAppointments])
 
   const totalRevenue = useMemo(() => {
-    return appointments?.reduce((sum, apt) => {
+    return filteredAppointments.reduce((sum, apt) => {
       const services = apt.services || [apt.service]
       const aptRevenue = services.reduce((s, service) => s + (servicePrices[service] || 0), 0)
       return sum + aptRevenue
-    }, 0) || 0
-  }, [appointments])
+    }, 0)
+  }, [filteredAppointments])
 
   const deleteAppointment = (id: string) => {
     setAppointments((current) => (current || []).filter(apt => apt.id !== id))
@@ -226,12 +266,71 @@ export function AdminAnalytics() {
     <div className="py-20 px-4 bg-secondary/30">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)' }}>
-            Admin Dashboard
-          </h2>
-          <p className="text-muted-foreground">
-            Complete overview of appointments, analytics, and performance
-          </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)' }}>
+                Admin Dashboard
+              </h2>
+              <p className="text-muted-foreground">
+                Complete overview of appointments, analytics, and performance
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start text-left font-normal">
+                    <CalendarBlank className="mr-2" size={18} />
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "MMM d, yyyy")} - {format(dateRange.to, "MMM d, yyyy")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "MMM d, yyyy")
+                      )
+                    ) : (
+                      <span>Filter by date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <CalendarComponent
+                    mode="range"
+                    selected={{ from: dateRange.from, to: dateRange.to }}
+                    onSelect={(range) => {
+                      setDateRange({
+                        from: range?.from,
+                        to: range?.to,
+                      })
+                    }}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              {(dateRange.from || dateRange.to) && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setDateRange({ from: undefined, to: undefined })}
+                >
+                  <X size={18} />
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          {(dateRange.from || dateRange.to) && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CalendarBlank size={16} />
+              <span>
+                Showing data for {dateRange.from && format(dateRange.from, "MMM d, yyyy")}
+                {dateRange.from && dateRange.to && " to "}
+                {dateRange.to && format(dateRange.to, "MMM d, yyyy")}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -241,7 +340,7 @@ export function AdminAnalytics() {
                 <CalendarCheck size={18} />
                 Total Appointments
               </CardDescription>
-              <CardTitle className="text-3xl">{appointments?.length || 0}</CardTitle>
+              <CardTitle className="text-3xl">{filteredAppointments.length}</CardTitle>
             </CardHeader>
           </Card>
 
@@ -445,12 +544,12 @@ export function AdminAnalytics() {
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Average per Appointment</div>
                       <div className="text-3xl font-bold">
-                        ${appointments?.length ? (totalRevenue / appointments.length).toFixed(0) : 0}
+                        ${filteredAppointments.length ? (totalRevenue / filteredAppointments.length).toFixed(0) : 0}
                       </div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Total Bookings</div>
-                      <div className="text-3xl font-bold">{appointments?.length || 0}</div>
+                      <div className="text-3xl font-bold">{filteredAppointments.length}</div>
                     </div>
                   </div>
                 </CardContent>
