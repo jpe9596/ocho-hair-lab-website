@@ -19,6 +19,7 @@ interface Appointment {
   email: string
   phone: string
   service: string
+  services?: string[]
   stylist: string
   date: Date
   time: string

@@ -17,6 +17,7 @@ interface Appointment {
   email: string
   phone: string
   service: string
+  services?: string[]
   stylist: string
   date: Date
   time: string
@@ -229,9 +230,20 @@ export function CustomerProfile() {
                                     Booked {new Date(appointment.createdAt).toLocaleDateString()}
                                   </Badge>
                                 </div>
-                                <CardTitle className="text-2xl">
-                                  {appointment.service}
+                                <CardTitle className="text-2xl mb-2">
+                                  {appointment.services && appointment.services.length > 1 
+                                    ? "Multiple Services" 
+                                    : appointment.service}
                                 </CardTitle>
+                                {appointment.services && appointment.services.length > 0 && (
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    {appointment.services.map((svc) => (
+                                      <Badge key={svc} variant="secondary" className="text-xs">
+                                        {svc}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                               <div className="flex gap-2">
                                 <Button
@@ -295,8 +307,14 @@ export function CustomerProfile() {
                                   <Scissors size={20} className="text-primary" />
                                 </div>
                                 <div>
-                                  <p className="text-sm text-muted-foreground">Service</p>
-                                  <p className="font-medium">{appointment.service}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {appointment.services && appointment.services.length > 1 ? "Services" : "Service"}
+                                  </p>
+                                  <p className="font-medium">
+                                    {appointment.services && appointment.services.length > 1 
+                                      ? `${appointment.services.length} services`
+                                      : appointment.service}
+                                  </p>
                                 </div>
                               </div>
                             </div>

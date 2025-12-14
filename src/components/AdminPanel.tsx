@@ -13,6 +13,7 @@ interface Appointment {
   email: string
   phone: string
   service: string
+  services?: string[]
   stylist: string
   date: Date
   time: string
@@ -121,9 +122,19 @@ export function AdminPanel() {
                         <Clock size={18} className="text-muted-foreground" />
                         <span>{appointment.time}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Scissors size={18} className="text-muted-foreground" />
-                        <span>{appointment.service}</span>
+                      <div className="flex items-start gap-2 text-sm">
+                        <Scissors size={18} className="text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <div className="flex flex-col gap-1">
+                          {appointment.services && appointment.services.length > 0 ? (
+                            appointment.services.map((svc) => (
+                              <Badge key={svc} variant="secondary" className="text-xs w-fit">
+                                {svc}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span>{appointment.service}</span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <User size={18} className="text-muted-foreground" />

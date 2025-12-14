@@ -14,6 +14,8 @@ import { formatAppointmentDate } from "@/lib/notifications"
 import { getAvailableTimeSlots, getAvailableStylistsForTime } from "@/lib/scheduling"
 import { StaffSchedule } from "@/components/StaffSchedule"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface BookingDialogProps {
   open: boolean
@@ -26,6 +28,7 @@ interface Appointment {
   email: string
   phone: string
   service: string
+  services: string[]
   stylist: string
   date: Date
   time: string
@@ -93,6 +96,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     email: "",
     phone: "",
     service: "",
+    services: [] as string[],
     stylist: "",
     time: "",
     notes: ""
@@ -133,8 +137,8 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!date || !formData.name || !formData.email || !formData.phone || !formData.service || !formData.time) {
-      toast.error("Please fill in all required fields")
+    if (!date || !formData.name || !formData.email || !formData.phone || formData.services.length === 0 || !formData.time) {
+      toast.error("Please fill in all required fields and select at least one service")
       return
     }
 
@@ -157,12 +161,15 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
     setIsSubmitting(true)
 
+    const servicesList = formData.services.join(", ")
+
     const newAppointment: Appointment = {
       id: Date.now().toString(),
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
-      service: formData.service,
+      service: servicesList,
+      services: formData.services,
       stylist: finalStylist,
       date: date,
       time: formData.time,
@@ -176,7 +183,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       await sendBookingConfirmation({
         to: formData.phone,
         customerName: formData.name,
-        service: formData.service,
+        service: servicesList,
         date: formatAppointmentDate(date),
         time: formData.time,
         stylist: formData.stylist || "Any Available"
@@ -192,7 +199,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       })
     } catch (error) {
       toast.success("Appointment Booked!", {
-        description: `Your ${formData.service} appointment is scheduled. You'll receive an immediate confirmation and a reminder 8 hours before.`,
+        description: `Your ${servicesList} appointment is scheduled. You'll receive an immediate confirmation and a reminder 8 hours before.`,
         icon: <Check size={20} weight="bold" />,
         action: {
           label: "View",
@@ -206,6 +213,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       email: "",
       phone: "",
       service: "",
+      services: [],
       stylist: "",
       time: "",
       notes: ""
@@ -269,30 +277,58 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="service">Service *</Label>
-              <Select value={formData.service} onValueChange={(value) => setFormData({ ...formData, service: value })}>
-                <SelectTrigger id="service">
-                  <SelectValue placeholder="Select a service" />
-                </SelectTrigger>
-                <SelectContent>
+            <div className="space-y-2 md:col-span-2">
+              <Label>Services * (Select one or more)</Label>
+              <ScrollArea className="h-[280px] rounded-md border p-4 bg-card">
+                <div className="space-y-4">
                   {serviceCategories.map((category) => (
-                    <div key={category.name}>
-                      <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                    <div key={category.name} className="space-y-2">
+                      <div className="text-sm font-semibold text-primary pb-1 border-b">
                         {category.name}
                       </div>
                       {category.items.map((service) => (
-                        <SelectItem key={service} value={service} className="pl-4">
-                          {service}
-                        </SelectItem>
+                        <div key={service} className="flex items-center space-x-2 pl-2">
+                          <Checkbox
+                            id={`service-${service}`}
+                            checked={formData.services.includes(service)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({ 
+                                  ...formData, 
+                                  services: [...formData.services, service]
+                                })
+                              } else {
+                                setFormData({ 
+                                  ...formData, 
+                                  services: formData.services.filter(s => s !== service)
+                                })
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`service-${service}`}
+                            className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {service}
+                          </label>
+                        </div>
                       ))}
                     </div>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              </ScrollArea>
+              {formData.services.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {formData.services.map((service) => (
+                    <Badge key={service} variant="secondary" className="text-xs">
+                      {service}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="stylist">Preferred Stylist</Label>
               <Select 
                 value={formData.stylist} 
