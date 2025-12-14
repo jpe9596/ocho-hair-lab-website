@@ -3,10 +3,9 @@ import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, User, Phone, Envelope, Scissors, Trash, Bell, PaperPlaneTilt } from "@phosphor-icons/react"
+import { Calendar, Clock, User, Phone, Envelope, Scissors, Trash, Bell } from "@phosphor-icons/react"
 import { formatAppointmentDate } from "@/lib/notifications"
 import { toast } from "sonner"
-import { sendWhatsAppMessage } from "@/lib/twilio-config"
 
 interface Appointment {
   id: string
@@ -47,20 +46,6 @@ export function AdminPanel() {
     toast.success("Appointment deleted")
   }
 
-  const testWhatsAppMessage = async () => {
-    try {
-      toast.loading("Sending test WhatsApp message...")
-      await sendWhatsAppMessage(
-        "8124028082",
-        "Test message from Ocho Hair Lab! This confirms WhatsApp is working correctly. 🎨💇‍♀️"
-      )
-      toast.success("Test WhatsApp message sent to 8124028082!")
-    } catch (error) {
-      toast.error("Failed to send test message. Check console for details.")
-      console.error("WhatsApp test error:", error)
-    }
-  }
-
   if (loading) {
     return null
   }
@@ -79,19 +64,13 @@ export function AdminPanel() {
     <div className="py-20 px-4 bg-secondary/30">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)' }}>
-                Appointment Manager
-              </h2>
-              <p className="text-muted-foreground">
-                {appointments?.length || 0} total appointments
-              </p>
-            </div>
-            <Button onClick={testWhatsAppMessage} className="flex items-center gap-2">
-              <PaperPlaneTilt size={18} weight="fill" />
-              Test WhatsApp (8124028082)
-            </Button>
+          <div>
+            <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)' }}>
+              Appointment Manager
+            </h2>
+            <p className="text-muted-foreground">
+              {appointments?.length || 0} total appointments
+            </p>
           </div>
         </div>
 
