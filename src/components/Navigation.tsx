@@ -35,8 +35,8 @@ export function Navigation({ onBookClick }: NavigationProps) {
     { label: "Contact", id: "contact" },
   ]
 
-  const handleProfileClick = () => {
-    window.location.hash = "#profile"
+  const handleBookNowClick = () => {
+    window.location.hash = "#booking"
     setIsMobileMenuOpen(false)
   }
 
@@ -78,8 +78,8 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 <UserCircle size={18} weight="fill" />
                 Staff Login
               </button>
-              <Button onClick={handleProfileClick} size="sm">
-                Customer Login
+              <Button onClick={handleBookNowClick} size="sm">
+                Book Now
               </Button>
             </div>
 
@@ -111,8 +111,8 @@ export function Navigation({ onBookClick }: NavigationProps) {
                 <UserCircle size={18} weight="fill" />
                 Staff Login
               </button>
-              <Button onClick={handleProfileClick} className="w-full">
-                Customer Login
+              <Button onClick={handleBookNowClick} className="w-full">
+                Book Now
               </Button>
             </div>
           </div>
@@ -120,8 +120,8 @@ export function Navigation({ onBookClick }: NavigationProps) {
       </nav>
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/95 backdrop-blur-md border-t border-border">
-        <Button onClick={handleProfileClick} className="w-full" size="lg">
-          Customer Login
+        <Button onClick={handleBookNowClick} className="w-full" size="lg">
+          Book Now
         </Button>
       </div>
     </>

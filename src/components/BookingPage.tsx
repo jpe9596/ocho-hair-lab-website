@@ -1,20 +1,21 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { useKV } from "@github/spark/hooks"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BookingDialog } from "@/components/BookingDialog"
-import { ArrowLeft, UserCircle, UserPlus } from "@phosphor-icons/react"
-import { useKV } from "@github/spark/hooks"
+import { ArrowLeft, Check, PaperPlaneTilt } from "@phosphor-icons/react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { WeekCalendar } from "@/components/WeekCalendar"
 import { toast } from "sonner"
-
-interface Customer {
-  phone: string
-  email: string
-  name: string
-  password: string
-}
+import { sendBookingConfirmation } from "@/lib/reminder-system"
+import { formatAppointmentDate } from "@/lib/notifications"
+import { getAvailableTimeSlots, getAvailableStylistsForTime } from "@/lib/scheduling"
+import { StaffSchedule } from "@/components/StaffSchedule"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Appointment {
   id: string
@@ -28,65 +29,204 @@ interface Appointment {
   time: string
   notes: string
   createdAt: Date
+  confirmationSent?: boolean
+  reminderSent?: boolean
 }
 
-export function BookingPage() {
-  const [customers] = useKV<Customer[]>("customers", [])
-  const [appointments] = useKV<Appointment[]>("appointments", [])
-  const [loginData, setLoginData] = useState({ phone: "", email: "", password: "" })
-  const [signupData, setSignupData] = useState({ name: "", email: "", phone: "", password: "" })
-  const [authenticatedCustomer, setAuthenticatedCustomer] = useState<Customer | null>(null)
-  const [bookingOpen, setBookingOpen] = useState(false)
-  const [newCustomers, setNewCustomers] = useKV<Customer[]>("customers", [])
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    const customer = (customers || []).find(
-      c => (c.phone === loginData.phone || c.email === loginData.email) && c.password === loginData.password
-    )
-
-    if (customer) {
-      setAuthenticatedCustomer(customer)
-      setBookingOpen(true)
-      toast.success(`Welcome back, ${customer.name}!`)
-    } else {
-      toast.error("Invalid credentials. Please check your phone/email and password.")
-    }
+const serviceCategories = [
+  {
+    name: "Tinte",
+    items: [
+      "Retoque de Raiz",
+      "Full Head Tint",
+      "0% AMONIACO",
+      "Toner/Gloss"
+    ]
+  },
+  {
+    name: "Corte & Styling",
+    items: [
+      "Corte & Secado",
+      "Secado (short)",
+      "Secado (mm)",
+      "Secado (long)",
+      "Waves/peinado"
+    ]
+  },
+  {
+    name: "Bespoke Color",
+    items: [
+      "Balayage",
+      "Baby Lights",
+      "Selfie Contour"
+    ]
+  },
+  {
+    name: "Treatments",
+    items: [
+      "Posion Nº17",
+      "Posion Nº 8"
+    ]
   }
+]
 
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault()
+const stylists = [
+  "Maria Rodriguez",
+  "Jessica Chen",
+  "Alex Thompson",
+  "Sophia Martinez"
+]
+
+const timeSlots = [
+  "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+  "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
+]
+
+export function BookingPage() {
+  const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
+  const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
+  const [date, setDate] = useState<Date>()
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    service: "",
+    services: [] as string[],
+    stylist: "",
+    time: "",
+    notes: ""
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const availableTimeSlots = useMemo(() => {
+    if (!date || !formData.stylist || !schedules) return timeSlots
     
-    const existingCustomer = (customers || []).find(
-      c => c.phone === signupData.phone || c.email === signupData.email
-    )
+    if (formData.stylist === "Any Available") {
+      const allAvailableSlots = new Set<string>()
+      stylists.forEach(stylist => {
+        const slots = getAvailableTimeSlots(date, stylist, schedules, appointments || [])
+        slots.forEach(slot => allAvailableSlots.add(slot))
+      })
+      return Array.from(allAvailableSlots).sort((a, b) => {
+        const parseTime = (time: string) => {
+          const [t, period] = time.split(' ')
+          let [hours, mins] = t.split(':').map(Number)
+          if (period === 'PM' && hours !== 12) hours += 12
+          if (period === 'AM' && hours === 12) hours = 0
+          return hours * 60 + mins
+        }
+        return parseTime(a) - parseTime(b)
+      })
+    }
+    
+    return getAvailableTimeSlots(date, formData.stylist, schedules, appointments || [])
+  }, [date, formData.stylist, schedules, appointments])
 
-    if (existingCustomer) {
-      toast.error("An account with this phone or email already exists. Please login instead.")
+  const availableStylists = useMemo(() => {
+    if (!date || !formData.time || !schedules) return stylists
+    
+    const available = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
+    return available
+  }, [date, formData.time, schedules, appointments])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!date || !formData.name || !formData.email || !formData.phone || formData.services.length === 0 || !formData.time) {
+      toast.error("Please fill in all required fields and select at least one service")
       return
     }
 
-    const newCustomer: Customer = {
-      name: signupData.name,
-      email: signupData.email,
-      phone: signupData.phone,
-      password: signupData.password
+    let finalStylist = formData.stylist || "Any Available"
+    
+    if (finalStylist === "Any Available" && schedules && schedules.length > 0) {
+      const available = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
+      if (available.length > 0) {
+        finalStylist = available[0]
+      }
     }
 
-    setNewCustomers((current) => [...(current || []), newCustomer])
-    setAuthenticatedCustomer(newCustomer)
-    setBookingOpen(true)
-    toast.success(`Welcome, ${newCustomer.name}!`)
+    setIsSubmitting(true)
+
+    try {
+      const newAppointment: Appointment = {
+        id: Date.now().toString(),
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        service: formData.services[0],
+        services: formData.services,
+        stylist: finalStylist,
+        date,
+        time: formData.time,
+        notes: formData.notes,
+        createdAt: new Date(),
+        confirmationSent: false,
+        reminderSent: false
+      }
+
+      setAppointments((current) => [...(current || []), newAppointment])
+
+      try {
+        await sendBookingConfirmation({
+          to: newAppointment.phone,
+          customerName: newAppointment.name,
+          service: newAppointment.services.join(", "),
+          date: formatAppointmentDate(newAppointment.date),
+          time: newAppointment.time,
+          stylist: newAppointment.stylist
+        })
+        toast.success("Appointment booked successfully! Check your WhatsApp for confirmation.", {
+          duration: 5000,
+          icon: <Check size={20} weight="bold" />
+        })
+      } catch (error) {
+        console.error("Failed to send confirmation:", error)
+        toast.success("Appointment booked successfully!", {
+          duration: 5000,
+          icon: <Check size={20} weight="bold" />
+        })
+      }
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        service: "",
+        services: [],
+        stylist: "",
+        time: "",
+        notes: ""
+      })
+      setDate(undefined)
+      
+      setTimeout(() => {
+        window.location.hash = ""
+      }, 2000)
+
+    } catch (error) {
+      toast.error("Failed to book appointment. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const toggleService = (serviceName: string) => {
+    setFormData(prev => {
+      const services = prev.services.includes(serviceName)
+        ? prev.services.filter(s => s !== serviceName)
+        : [...prev.services, serviceName]
+      return { ...prev, services, service: services[0] || "" }
+    })
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary via-muted to-card flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-muted to-card py-12 px-6">
       <div className="absolute inset-0 opacity-20" style={{
         backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, oklch(0.15 0 0 / 0.03) 35px, oklch(0.15 0 0 / 0.03) 70px)`
       }} />
       
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 max-w-4xl mx-auto">
         <Button
           variant="ghost"
           onClick={() => {
@@ -104,136 +244,158 @@ export function BookingPage() {
               Book Your Appointment
             </CardTitle>
             <CardDescription className="text-base">
-              Login to your account or create a new one to get started
+              Fill out the form below to schedule your visit
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="pt-6">
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8">
-                <TabsTrigger value="login" className="text-base">
-                  <UserCircle className="mr-2" size={20} />
-                  Login
-                </TabsTrigger>
-                <TabsTrigger value="signup" className="text-base">
-                  <UserPlus className="mr-2" size={20} />
-                  Sign Up
-                </TabsTrigger>
-              </TabsList>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name *</Label>
+                  <Input
+                    id="name"
+                    placeholder="Jane Doe"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
 
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-phone">Phone Number</Label>
-                    <Input
-                      id="login-phone"
-                      type="tel"
-                      placeholder="81 1615 3747"
-                      value={loginData.phone}
-                      onChange={(e) => setLoginData({ ...loginData, phone: e.target.value })}
-                      required
-                    />
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number (Mexico) *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="81 1615 3747"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  We'll send appointment confirmations to WhatsApp: +521 {formData.phone || "XXXXXXXXXX"}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Services * (Select one or more)</Label>
+                <ScrollArea className="h-64 rounded-lg border border-input p-4">
+                  {serviceCategories.map((category) => (
+                    <div key={category.name} className="mb-6 last:mb-0">
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-3">{category.name}</h3>
+                      <div className="space-y-3">
+                        {category.items.map((service) => (
+                          <div key={service} className="flex items-center space-x-3">
+                            <Checkbox
+                              id={service}
+                              checked={formData.services.includes(service)}
+                              onCheckedChange={() => toggleService(service)}
+                            />
+                            <label
+                              htmlFor={service}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
+                              {service}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </ScrollArea>
+                {formData.services.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.services.map(service => (
+                      <Badge key={service} variant="secondary">
+                        {service}
+                      </Badge>
+                    ))}
                   </div>
+                )}
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={loginData.email}
-                      onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Enter either your phone number or email to continue
-                    </p>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="stylist">Preferred Stylist</Label>
+                <Select value={formData.stylist} onValueChange={(value) => setFormData({ ...formData, stylist: value, time: "" })}>
+                  <SelectTrigger id="stylist">
+                    <SelectValue placeholder="Any Available" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Any Available">Any Available</SelectItem>
+                    {stylists.map((stylist) => (
+                      <SelectItem key={stylist} value={stylist}>{stylist}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <Input
-                      id="login-password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={loginData.password}
-                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                      required
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label>Select Date *</Label>
+                <WeekCalendar
+                  selected={date}
+                  onSelect={setDate}
+                  className="rounded-md border"
+                />
+              </div>
 
-                  <Button type="submit" className="w-full" size="lg">
-                    Continue to Booking
-                  </Button>
-                </form>
-              </TabsContent>
+              {date && formData.stylist && (
+                <div className="space-y-2">
+                  <Label htmlFor="time">Select Time *</Label>
+                  <Select value={formData.time} onValueChange={(value) => setFormData({ ...formData, time: value })}>
+                    <SelectTrigger id="time">
+                      <SelectValue placeholder="Choose a time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTimeSlots.length > 0 ? (
+                        availableTimeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>{time}</SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-slots" disabled>No available slots</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name *</Label>
-                    <Input
-                      id="signup-name"
-                      placeholder="Jane Doe"
-                      value={signupData.name}
-                      onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
-                      required
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Additional Notes (Optional)</Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Any special requests or information we should know..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={4}
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email *</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={signupData.email}
-                      onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Phone Number (Mexico) *</Label>
-                    <Input
-                      id="signup-phone"
-                      type="tel"
-                      placeholder="81 1615 3747"
-                      value={signupData.phone}
-                      onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      We'll send appointment confirmations to +521 {signupData.phone || "XXXXXXXXXX"}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Create Password *</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Create a secure password"
-                      value={signupData.password}
-                      onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                      required
-                      minLength={6}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Must be at least 6 characters
-                    </p>
-                  </div>
-
-                  <Button type="submit" className="w-full" size="lg">
-                    Create Account & Book
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+              <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  "Booking..."
+                ) : (
+                  <>
+                    <PaperPlaneTilt className="mr-2" size={20} weight="fill" />
+                    Confirm Booking
+                  </>
+                )}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
-
-      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} />
     </div>
   )
 }
