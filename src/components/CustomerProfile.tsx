@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck, Plus } from "@phosphor-icons/react"
+import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck, Plus, House } from "@phosphor-icons/react"
 import { formatAppointmentDate } from "@/lib/notifications"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
@@ -70,6 +70,10 @@ export function CustomerProfile() {
     setCustomerData(null)
     setEmail("")
     setPhone("")
+  }
+
+  const handleGoHome = () => {
+    window.location.hash = ""
   }
 
   const handleReschedule = (appointment: Appointment) => {
@@ -178,6 +182,10 @@ export function CustomerProfile() {
               </p>
             </div>
             <div className="flex gap-2">
+              <Button onClick={handleGoHome} variant="outline">
+                <House className="mr-2" size={18} />
+                Home
+              </Button>
               <Button onClick={() => setBookingDialogOpen(true)} variant="default">
                 <Plus className="mr-2" size={18} />
                 Book New
