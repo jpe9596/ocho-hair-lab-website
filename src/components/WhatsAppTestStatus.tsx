@@ -65,7 +65,11 @@ export function WhatsAppTestStatus() {
             </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />
-              <span>Book a test appointment with your Mexico phone number</span>
+              <span>Book a test appointment with your Mexico mobile number (10 digits)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Clock size={16} className="mt-0.5 flex-shrink-0" />
+              <span>Numbers will be formatted to E.164: +521XXXXXXXXXX (Mexico mobile)</span>
             </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />

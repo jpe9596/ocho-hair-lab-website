@@ -9,19 +9,23 @@ export const TWILIO_CONFIG = {
 function formatMexicoPhoneNumber(phone: string): string {
   let cleaned = phone.replace(/\D/g, '')
   
-  if (cleaned.startsWith('52')) {
+  if (cleaned.startsWith('521') && cleaned.length === 13) {
     return `+${cleaned}`
   }
   
+  if (cleaned.startsWith('52') && cleaned.length === 12) {
+    return `+521${cleaned.substring(2)}`
+  }
+  
   if (cleaned.length === 10) {
-    return `+52${cleaned}`
+    return `+521${cleaned}`
   }
   
   if (cleaned.startsWith('1') && cleaned.length === 11) {
-    return `+52${cleaned.substring(1)}`
+    return `+521${cleaned.substring(1)}`
   }
   
-  return `+52${cleaned}`
+  return `+521${cleaned}`
 }
 
 export async function sendWhatsAppMessage(

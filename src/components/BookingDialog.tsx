@@ -236,7 +236,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
               required
             />
             <p className="text-xs text-muted-foreground">
-              Enter your 10-digit Mexico phone number. We'll send WhatsApp confirmations to +52 {formData.phone || "XXXXXXXXXX"}
+              Enter your 10-digit Mexico mobile number. We'll send WhatsApp confirmations to +521 {formData.phone || "XXXXXXXXXX"}
             </p>
           </div>
 
