@@ -1,34 +1,37 @@
-# Twilio WhatsApp Integration Setup
+# Twilio WhatsApp Integration Setup ✅
 
 This application uses Twilio's WhatsApp API to send appointment notifications to customers.
 
-## Configuration
+## Configuration Status: COMPLETE ✅
 
-All Twilio settings are located in `/src/lib/twilio-config.ts`:
+All Twilio settings are configured in `/src/lib/twilio-config.ts`:
 
 ```typescript
 export const TWILIO_CONFIG = {
   accountSid: 'ACe7262fb35ec470497df636e736ba3d1a',
-  authToken: 'YOUR_AUTH_TOKEN',              // ⚠️ REPLACE WITH YOUR AUTH TOKEN
-  whatsappNumber: 'whatsapp:+14155238886',    // Twilio sandbox number
-  salonWhatsApp: 'whatsapp:+5218116153747',   // Salon's WhatsApp number
-  contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e'
+  authToken: '340898d89e3226f78f1cf217f7c6717a',  // ✅ CONFIGURED
+  whatsappNumber: 'whatsapp:+14155238886',          // Twilio sandbox number
+  salonWhatsApp: 'whatsapp:+5218116153747',         // Salon's WhatsApp number
+  contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e'  // Template ID
 }
 ```
 
-## Required Steps
+## Current Setup
 
-### 1. Add Your Twilio Auth Token
+### ✅ Auth Token Configured
 
-Replace `'YOUR_AUTH_TOKEN'` in `/src/lib/twilio-config.ts` with your actual Twilio auth token.
+Your Twilio auth token is now properly configured and matches your sandbox credentials
 
-**To find your auth token:**
-1. Log in to your Twilio Console: https://console.twilio.com/
-2. Navigate to Account → API keys & tokens
-3. Copy your Auth Token
-4. Paste it in the configuration file
 
-### 2. Phone Number Format
+
+### ✅ Mexico Phone Number Support
+
+The system automatically adds the +52 Mexico country code to phone numbers. Customers can enter their number in any of these formats:
+- `8124028082` (10 digits) → automatically becomes `+528124028082`
+- `528124028082` → becomes `+528124028082`
+- `+528124028082` → stays as is
+
+### Phone Number Format
 
 When customers book appointments, they should enter their phone number in international format without the "whatsapp:" prefix:
 
@@ -39,30 +42,31 @@ When customers book appointments, they should enter their phone number in intern
 
 The system will automatically format the number with the "whatsapp:" prefix when sending messages.
 
-### 3. WhatsApp Template (Optional)
+### ✅ WhatsApp Template Configured
 
-The system includes support for Twilio's pre-approved WhatsApp templates. Your current template:
+The system includes support for Twilio's pre-approved WhatsApp templates:
 
 - **Content SID:** `HXb5b62575e6e4ff6129ad7c8efe1f983e`
 - **Variables:** 
   - Variable 1: Date (e.g., "12/1")
   - Variable 2: Time (e.g., "3pm")
 
-To use templates instead of plain text messages, you can modify the functions in the notification files.
+The template function is available in `/src/lib/twilio-config.ts` as `sendWhatsAppTemplate()` if you want to use it instead of plain text messages.
 
 ## How It Works
 
-### Booking Confirmations
-When a customer books an appointment, the system sends:
+### Booking Confirmations ✅
+When a customer books an appointment, the system **immediately** sends:
 1. **To Customer:** Confirmation message with appointment details
-2. **To Salon:** Notification about the new booking
+2. **To Salon:** Notification about the new booking at `whatsapp:+5218116153747`
 
-### Appointment Reminders
-The system automatically checks for upcoming appointments and sends:
+### Appointment Reminders ✅
+The system automatically checks for upcoming appointments every hour and sends:
 - **8-hour reminder:** Sent automatically when an appointment is within 8 hours
+- **Immediate confirmation:** Sent right when the booking is made
 - Messages are sent to both the customer and the salon
 
-### Reschedule Notifications
+### Reschedule Notifications ✅
 When a customer reschedules:
 1. **To Customer:** Confirmation of the new date/time
 2. **To Salon:** Notification about the reschedule
