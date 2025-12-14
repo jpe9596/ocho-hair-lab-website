@@ -155,7 +155,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       })
 
       toast.success("Appointment Confirmed!", {
-        description: `Confirmation sent via SMS. You'll receive a reminder 8 hours before your appointment on ${formatAppointmentDate(date)} at ${formData.time}!`,
+        description: `Confirmation sent via WhatsApp immediately. You'll also receive a reminder 8 hours before your appointment on ${formatAppointmentDate(date)} at ${formData.time}!`,
         icon: <PaperPlaneTilt size={20} weight="fill" />,
         action: {
           label: "View",
@@ -164,7 +164,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       })
     } catch (error) {
       toast.success("Appointment Booked!", {
-        description: `Your ${formData.service} appointment is scheduled. You'll receive a reminder 8 hours before.`,
+        description: `Your ${formData.service} appointment is scheduled. You'll receive an immediate confirmation and a reminder 8 hours before.`,
         icon: <Check size={20} weight="bold" />,
         action: {
           label: "View",
@@ -195,7 +195,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
             Book Your Appointment
           </DialogTitle>
           <DialogDescription>
-            Select your preferred service, date, and time. Available times are based on stylist schedules. You'll receive an immediate confirmation and a reminder 8 hours before your appointment.
+            Select your preferred service, date, and time. Available times are based on stylist schedules. You'll receive WhatsApp confirmation immediately upon booking and another reminder 8 hours before your appointment.
           </DialogDescription>
         </DialogHeader>
 
