@@ -184,7 +184,7 @@ export function BookingPage() {
       setAppointments((current) => [...(current || []), newAppointment])
 
       const existingAccount = customerAccounts?.find(
-        acc => acc.email.toLowerCase() === formData.email.toLowerCase()
+        acc => acc.email?.toLowerCase().trim() === formData.email.toLowerCase().trim()
       )
       
       if (!existingAccount) {

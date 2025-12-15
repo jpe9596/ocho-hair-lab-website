@@ -30,7 +30,7 @@ export function CustomerLogin({ onLogin, onBack }: CustomerLoginProps) {
     setIsLoading(true)
 
     const account = accounts?.find(
-      acc => acc.email.toLowerCase() === email.toLowerCase() && acc.password === password
+      acc => acc.email?.toLowerCase().trim() === email.toLowerCase().trim() && acc.password === password
     )
 
     if (account) {

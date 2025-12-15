@@ -80,7 +80,7 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     }
 
     const account = (customerAccounts || []).find(
-      acc => acc.email.toLowerCase() === email.toLowerCase() && acc.password === password
+      acc => acc.email?.toLowerCase().trim() === email.toLowerCase().trim() && acc.password === password
     )
 
     if (!account) {
@@ -91,17 +91,19 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     setCustomerData(account)
     setIsLoggedIn(true)
     
-    const customerAppointments = (appointments || []).filter(apt => 
-      apt.email.toLowerCase() === account.email.toLowerCase()
-    )
+    const customerAppointments = (appointments || []).filter(apt => {
+      const appointmentEmail = apt.email?.toLowerCase().trim() || ''
+      const accountEmail = account.email?.toLowerCase().trim() || ''
+      return appointmentEmail === accountEmail
+    })
 
     if (customerAppointments.length === 0) {
-      toast.success("Welcome to Ocho Hair Lab!", {
-        description: "You can now book your first appointment"
+      toast.success(`Welcome, ${account.name}!`, {
+        description: "You don't have any appointments yet. Book your first one!"
       })
     } else {
-      toast.success("Welcome back!", {
-        description: `Found ${customerAppointments.length} appointment${customerAppointments.length > 1 ? 's' : ''}`
+      toast.success(`Welcome back, ${account.name}!`, {
+        description: `You have ${customerAppointments.length} appointment${customerAppointments.length > 1 ? 's' : ''}`
       })
     }
   }
@@ -160,9 +162,11 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
   }
 
   const customerAppointments = isLoggedIn && customerData
-    ? (appointments || []).filter(apt => 
-        apt.email.toLowerCase() === customerData.email.toLowerCase()
-      ).sort((a, b) => {
+    ? (appointments || []).filter(apt => {
+        const appointmentEmail = apt.email?.toLowerCase().trim() || ''
+        const customerEmailLower = customerData.email?.toLowerCase().trim() || ''
+        return appointmentEmail === customerEmailLower
+      }).sort((a, b) => {
         const dateA = new Date(a.date)
         const dateB = new Date(b.date)
         return dateA.getTime() - dateB.getTime()
