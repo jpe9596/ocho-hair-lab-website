@@ -219,6 +219,11 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
   const handleDeleteAccount = () => {
     if (!customerData) return
 
+    if (!deleteConfirmPassword) {
+      toast.error("Please enter your password to confirm")
+      return
+    }
+
     if (deleteConfirmPassword !== customerData.password) {
       toast.error("Password is incorrect")
       return
@@ -243,7 +248,9 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     })
 
     setDeleteAccountDialogOpen(false)
-    handleLogout()
+    setDeleteConfirmPassword("")
+    
+    window.location.hash = ""
   }
 
   const customerAppointments = isLoggedIn && customerData
@@ -708,12 +715,15 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
             <AlertDialogCancel onClick={() => setDeleteConfirmPassword("")}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteAccount}
+            <Button
+              onClick={(e) => {
+                e.preventDefault()
+                handleDeleteAccount()
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete My Account
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
