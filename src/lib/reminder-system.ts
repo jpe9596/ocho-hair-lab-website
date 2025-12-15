@@ -70,24 +70,9 @@ export async function sendBookingConfirmation(data: {
   stylist: string
   appointmentId: string
 }): Promise<void> {
-  const cancelUrl = `${window.location.origin}/#cancel-${data.appointmentId}`
-  const customerMessage = `Hi ${data.customerName}! Your appointment for ${data.service} on ${data.date} at ${data.time} with ${data.stylist} has been confirmed. We look forward to seeing you!
-
-Need to cancel? Click here: ${cancelUrl}
-
-- Ocho Hair Lab`
-  
-  const salonMessage = `New appointment booked:
-Name: ${data.customerName}
-Service: ${data.service}
-Date: ${data.date}
-Time: ${data.time}
-Stylist: ${data.stylist}
-Customer Phone: ${data.to}`
-
   await Promise.all([
-    sendWhatsAppMessage(data.to, customerMessage),
-    sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, salonMessage)
+    sendWhatsAppMessage(data.to, data.date, data.time),
+    sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, data.date, data.time)
   ])
 }
 
@@ -100,22 +85,9 @@ async function sendReminderNotifications(data: {
   stylist: string
   appointmentId: string
 }): Promise<void> {
-  const cancelUrl = `${window.location.origin}/#cancel-${data.appointmentId}`
-  const customerMessage = `Hi ${data.customerName}! Reminder: You have a ${data.service} appointment in 8 hours (${data.date}) at ${data.time} with ${data.stylist}. We look forward to seeing you!
-
-Need to cancel? Click here: ${cancelUrl}
-
-- Ocho Hair Lab`
-  
-  const salonMessage = `8-hour reminder sent to ${data.customerName} for upcoming appointment:
-Service: ${data.service}
-Time: ${data.time}
-Stylist: ${data.stylist}
-Customer Phone: ${data.to}`
-
   await Promise.all([
-    sendWhatsAppMessage(data.to, customerMessage),
-    sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, salonMessage)
+    sendWhatsAppMessage(data.to, data.date, data.time),
+    sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, data.date, data.time)
   ])
 }
 

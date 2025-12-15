@@ -30,7 +30,8 @@ function formatMexicoPhoneNumber(phone: string): string {
 
 export async function sendWhatsAppMessage(
   to: string,
-  message: string
+  date: string,
+  time: string
 ): Promise<void> {
   const formattedNumber = formatMexicoPhoneNumber(to)
   const formattedTo = `whatsapp:${formattedNumber}`
@@ -39,7 +40,11 @@ export async function sendWhatsAppMessage(
     const params = new URLSearchParams()
     params.append('To', formattedTo)
     params.append('From', TWILIO_CONFIG.whatsappNumber)
-    params.append('Body', message)
+    params.append('ContentSid', TWILIO_CONFIG.contentSid)
+    params.append('ContentVariables', JSON.stringify({
+      "1": date,
+      "2": time
+    }))
     
     const response = await fetch(
       `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_CONFIG.accountSid}/Messages.json`,
@@ -63,49 +68,6 @@ export async function sendWhatsAppMessage(
     console.log('WhatsApp message sent via Twilio:', result)
   } catch (error) {
     console.error('Failed to send WhatsApp message:', error)
-    throw error
-  }
-}
-
-export async function sendWhatsAppTemplate(
-  to: string,
-  variables: { date: string; time: string }
-): Promise<void> {
-  const formattedNumber = formatMexicoPhoneNumber(to)
-  const formattedTo = `whatsapp:${formattedNumber}`
-  
-  try {
-    const params = new URLSearchParams()
-    params.append('To', formattedTo)
-    params.append('From', TWILIO_CONFIG.whatsappNumber)
-    params.append('ContentSid', TWILIO_CONFIG.contentSid)
-    params.append('ContentVariables', JSON.stringify({
-      "1": variables.date,
-      "2": variables.time
-    }))
-    
-    const response = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_CONFIG.accountSid}/Messages.json`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Basic ' + btoa(`${TWILIO_CONFIG.accountSid}:${TWILIO_CONFIG.authToken}`),
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params.toString()
-      }
-    )
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Twilio API error:', errorText)
-      throw new Error(`Twilio API error: ${response.status}`)
-    }
-    
-    const result = await response.json()
-    console.log('WhatsApp template message sent via Twilio:', result)
-  } catch (error) {
-    console.error('Failed to send WhatsApp template:', error)
     throw error
   }
 }

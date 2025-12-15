@@ -49,23 +49,12 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
         (current || []).filter((apt) => apt.id !== appointmentId)
       )
 
-      const serviceName = appointment.services 
-        ? appointment.services.join(", ") 
-        : appointment.service
-
-      const customerMessage = `Hi ${appointment.name}, your appointment for ${serviceName} on ${formatAppointmentDate(new Date(appointment.date))} at ${appointment.time} has been cancelled. Contact us anytime to reschedule! - Ocho Hair Lab`
-
-      const salonMessage = `Appointment cancelled by customer:
-Name: ${appointment.name}
-Service: ${serviceName}
-Date: ${formatAppointmentDate(new Date(appointment.date))}
-Time: ${appointment.time}
-Stylist: ${appointment.stylist}
-Customer Phone: ${appointment.phone}`
+      const dateStr = formatAppointmentDate(new Date(appointment.date))
+      const timeStr = appointment.time
 
       await Promise.all([
-        sendWhatsAppMessage(appointment.phone, customerMessage),
-        sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, salonMessage)
+        sendWhatsAppMessage(appointment.phone, dateStr, timeStr),
+        sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, dateStr, timeStr)
       ])
 
       setCancelled(true)
