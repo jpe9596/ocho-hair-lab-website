@@ -22,6 +22,7 @@ interface Appointment {
   name: string
   email: string
   phone: string
+  password: string
   service: string
   services: string[]
   stylist: string
@@ -31,6 +32,13 @@ interface Appointment {
   createdAt: Date
   confirmationSent?: boolean
   reminderSent?: boolean
+}
+
+interface CustomerAccount {
+  email: string
+  password: string
+  name: string
+  phone: string
 }
 
 const serviceCategories = [
@@ -84,12 +92,14 @@ const timeSlots = [
 
 export function BookingPage() {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
+  const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [date, setDate] = useState<Date>()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
+    password: "",
     service: "",
     services: [] as string[],
     stylist: "",
@@ -132,8 +142,13 @@ export function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!date || !formData.name || !formData.email || !formData.phone || formData.services.length === 0 || !formData.time) {
+    if (!date || !formData.name || !formData.email || !formData.phone || !formData.password || formData.services.length === 0 || !formData.time) {
       toast.error("Please fill in all required fields and select at least one service")
+      return
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long")
       return
     }
 
@@ -154,6 +169,7 @@ export function BookingPage() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
+        password: formData.password,
         service: formData.services[0],
         services: formData.services,
         stylist: finalStylist,
@@ -166,6 +182,20 @@ export function BookingPage() {
       }
 
       setAppointments((current) => [...(current || []), newAppointment])
+
+      const existingAccount = customerAccounts?.find(
+        acc => acc.email.toLowerCase() === formData.email.toLowerCase()
+      )
+      
+      if (!existingAccount) {
+        const newAccount: CustomerAccount = {
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          phone: formData.phone
+        }
+        setCustomerAccounts((current) => [...(current || []), newAccount])
+      }
 
       try {
         await sendBookingConfirmation({
@@ -194,6 +224,7 @@ export function BookingPage() {
         name: "",
         email: "",
         phone: "",
+        password: "",
         service: "",
         services: [],
         stylist: "",
@@ -289,6 +320,22 @@ export function BookingPage() {
                 />
                 <p className="text-xs text-muted-foreground">
                   We'll send appointment confirmations to WhatsApp: +521 {formData.phone || "XXXXXXXXXX"}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password *</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Create a password (min. 6 characters)"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                  minLength={6}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Use this password to login and manage your appointments
                 </p>
               </div>
 

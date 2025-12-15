@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import { UserCircle } from "@phosphor-icons/react"
 
 const team = [
   {
@@ -34,6 +36,10 @@ const team = [
 ]
 
 export function Team() {
+  const handleStaffLoginClick = () => {
+    window.location.hash = "#staff"
+  }
+
   return (
     <section id="team" className="py-20 md:py-32 px-6 md:px-8 bg-secondary/30">
       <div className="max-w-7xl mx-auto">
@@ -85,6 +91,13 @@ export function Team() {
               </Card>
             </motion.div>
           ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <Button onClick={handleStaffLoginClick} size="lg" variant="outline">
+            <UserCircle className="mr-2" size={24} weight="fill" />
+            Staff Login
+          </Button>
         </div>
       </div>
     </section>

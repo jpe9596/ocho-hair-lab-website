@@ -22,11 +22,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-interface Customer {
-  phone: string
+interface CustomerAccount {
   email: string
-  name: string
   password: string
+  name: string
+  phone: string
 }
 
 interface Appointment {
@@ -34,6 +34,7 @@ interface Appointment {
   name: string
   email: string
   phone: string
+  password: string
   service: string
   services?: string[]
   stylist: string
@@ -45,14 +46,20 @@ interface Appointment {
   reminderSent?: boolean
 }
 
-export function CustomerProfile() {
+interface CustomerProfileProps {
+  customerEmail?: string
+  onLogout?: () => void
+}
+
+export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
-  const [customers] = useKV<Customer[]>("customers", [])
-  const [email, setEmail] = useState("")
-  const [phone, setPhone] = useState("")
+  const [customerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
+  const [email, setEmail] = useState(customerEmail || "")
   const [password, setPassword] = useState("")
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [customerData, setCustomerData] = useState<{ email: string; phone: string } | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(!!customerEmail)
+  const [customerData, setCustomerData] = useState<CustomerAccount | null>(
+    customerEmail ? customerAccounts?.find(acc => acc.email === customerEmail) || null : null
+  )
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
@@ -62,8 +69,8 @@ export function CustomerProfile() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!email && !phone) {
-      toast.error("Please enter your email or phone number")
+    if (!email) {
+      toast.error("Please enter your email address")
       return
     }
 
@@ -72,23 +79,20 @@ export function CustomerProfile() {
       return
     }
 
-    const customer = (customers || []).find(
-      c => ((email && c.email.toLowerCase() === email.toLowerCase()) ||
-            (phone && c.phone.replace(/\D/g, '') === phone.replace(/\D/g, ''))) &&
-           c.password === password
+    const account = (customerAccounts || []).find(
+      acc => acc.email.toLowerCase() === email.toLowerCase() && acc.password === password
     )
 
-    if (!customer) {
-      toast.error("Invalid credentials. Please check your information and try again.")
+    if (!account) {
+      toast.error("Invalid email or password")
       return
     }
 
-    setCustomerData({ email: customer.email, phone: customer.phone })
+    setCustomerData(account)
     setIsLoggedIn(true)
     
     const customerAppointments = (appointments || []).filter(apt => 
-      (customer.email && apt.email.toLowerCase() === customer.email.toLowerCase()) ||
-      (customer.phone && apt.phone.replace(/\D/g, '') === customer.phone.replace(/\D/g, ''))
+      apt.email.toLowerCase() === account.email.toLowerCase()
     )
 
     if (customerAppointments.length === 0) {
@@ -106,8 +110,8 @@ export function CustomerProfile() {
     setIsLoggedIn(false)
     setCustomerData(null)
     setEmail("")
-    setPhone("")
     setPassword("")
+    if (onLogout) onLogout()
   }
 
   const handleGoHome = () => {
@@ -157,8 +161,7 @@ export function CustomerProfile() {
 
   const customerAppointments = isLoggedIn && customerData
     ? (appointments || []).filter(apt => 
-        (customerData.email && apt.email.toLowerCase() === customerData.email.toLowerCase()) ||
-        (customerData.phone && apt.phone.replace(/\D/g, '') === customerData.phone.replace(/\D/g, ''))
+        apt.email.toLowerCase() === customerData.email.toLowerCase()
       ).sort((a, b) => {
         const dateA = new Date(a.date)
         const dateB = new Date(b.date)
@@ -193,7 +196,7 @@ export function CustomerProfile() {
                   My Appointments
                 </CardTitle>
                 <CardDescription>
-                  Enter your email or phone number to view your bookings
+                  Enter your email and password to view your bookings
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -206,23 +209,7 @@ export function CustomerProfile() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="jane@example.com"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 border-t border-border"></div>
-                    <span className="text-sm text-muted-foreground">OR</span>
-                    <div className="flex-1 border-t border-border"></div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="profile-phone">Phone Number</Label>
-                    <Input
-                      id="profile-phone"
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="(555) 123-4567"
+                      required
                     />
                   </div>
 

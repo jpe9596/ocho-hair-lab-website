@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { List, X, UserCircle } from "@phosphor-icons/react"
+import { List, X, SignIn } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -35,13 +35,8 @@ export function Navigation({ onBookClick }: NavigationProps) {
     { label: "Contact", id: "contact" },
   ]
 
-  const handleBookNowClick = () => {
-    window.location.hash = "#booking"
-    setIsMobileMenuOpen(false)
-  }
-
-  const handleStaffLoginClick = () => {
-    window.location.hash = "#staff"
+  const handleLoginClick = () => {
+    window.location.hash = "#customer-login"
     setIsMobileMenuOpen(false)
   }
 
@@ -71,15 +66,9 @@ export function Navigation({ onBookClick }: NavigationProps) {
                   {link.label}
                 </button>
               ))}
-              <button
-                onClick={handleStaffLoginClick}
-                className="text-foreground/70 hover:text-foreground transition-colors font-medium flex items-center gap-2"
-              >
-                <UserCircle size={18} weight="fill" />
-                Staff Login
-              </button>
-              <Button onClick={handleBookNowClick} size="sm">
-                Book Now
+              <Button onClick={handleLoginClick} size="sm" variant="outline">
+                <SignIn className="mr-2" size={18} weight="bold" />
+                Login
               </Button>
             </div>
 
@@ -104,15 +93,9 @@ export function Navigation({ onBookClick }: NavigationProps) {
                   {link.label}
                 </button>
               ))}
-              <button
-                onClick={handleStaffLoginClick}
-                className="block w-full text-left py-2 text-foreground/70 hover:text-foreground transition-colors font-medium flex items-center gap-2"
-              >
-                <UserCircle size={18} weight="fill" />
-                Staff Login
-              </button>
-              <Button onClick={handleBookNowClick} className="w-full">
-                Book Now
+              <Button onClick={handleLoginClick} className="w-full" variant="outline">
+                <SignIn className="mr-2" size={18} weight="bold" />
+                Login
               </Button>
             </div>
           </div>
@@ -120,8 +103,9 @@ export function Navigation({ onBookClick }: NavigationProps) {
       </nav>
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/95 backdrop-blur-md border-t border-border">
-        <Button onClick={handleBookNowClick} className="w-full" size="lg">
-          Book Now
+        <Button onClick={handleLoginClick} className="w-full" size="lg">
+          <SignIn className="mr-2" size={20} weight="bold" />
+          Login
         </Button>
       </div>
     </>

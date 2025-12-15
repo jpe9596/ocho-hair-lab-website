@@ -10,6 +10,7 @@ import { Footer } from "@/components/Footer"
 import { BookingDialog } from "@/components/BookingDialog"
 import { BookingPage } from "@/components/BookingPage"
 import { CustomerProfile } from "@/components/CustomerProfile"
+import { CustomerLogin } from "@/components/CustomerLogin"
 import { AdminDashboard } from "@/components/AdminDashboard"
 import { StaffLogin, StaffMember } from "@/components/StaffLogin"
 import { StaffDashboard } from "@/components/StaffDashboard"
@@ -18,9 +19,10 @@ import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<"home" | "profile" | "admin" | "staff" | "booking" | "cancel">("home")
+  const [currentView, setCurrentView] = useState<"home" | "profile" | "customer-login" | "admin" | "staff" | "booking" | "cancel">("home")
   const [staffMember, setStaffMember] = useState<StaffMember | null>(null)
   const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(null)
+  const [customerEmail, setCustomerEmail] = useState<string | null>(null)
   
   useAppointmentReminders()
 
@@ -29,6 +31,10 @@ function App() {
       const hash = window.location.hash
       if (hash === "#profile") {
         setCurrentView("profile")
+        setStaffMember(null)
+        setCancelAppointmentId(null)
+      } else if (hash === "#customer-login") {
+        setCurrentView("customer-login")
         setStaffMember(null)
         setCancelAppointmentId(null)
       } else if (hash === "#admin") {
@@ -59,6 +65,25 @@ function App() {
     return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
 
+  if (currentView === "customer-login") {
+    return (
+      <>
+        <CustomerLogin
+          onLogin={(email) => {
+            setCustomerEmail(email)
+            window.location.hash = "#profile"
+            setCurrentView("profile")
+          }}
+          onBack={() => {
+            window.location.hash = ""
+            setCurrentView("home")
+          }}
+        />
+        <Toaster position="top-center" />
+      </>
+    )
+  }
+
   if (currentView === "cancel" && cancelAppointmentId) {
     return (
       <>
@@ -86,7 +111,14 @@ function App() {
   if (currentView === "profile") {
     return (
       <>
-        <CustomerProfile />
+        <CustomerProfile
+          customerEmail={customerEmail || undefined}
+          onLogout={() => {
+            setCustomerEmail(null)
+            window.location.hash = ""
+            setCurrentView("home")
+          }}
+        />
         <Toaster position="top-center" />
       </>
     )
