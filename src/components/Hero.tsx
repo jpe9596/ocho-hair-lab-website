@@ -1,4 +1,4 @@
-import { Calendar } from "@phosphor-icons/react"
+import { Calendar, SignIn } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 
 interface HeroProps {
@@ -29,14 +29,32 @@ export function Hero({ onBookClick }: HeroProps) {
           <p>Damage-free extensions with plant-based products.</p>
         </div>
         
-        <Button 
-          size="lg" 
-          onClick={() => window.location.hash = "#booking"}
-          className="text-lg px-8 py-6 hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
-        >
-          <Calendar className="mr-2" size={24} weight="fill" />
-          Book Appointment
-        </Button>
+        <div className="flex flex-col items-center gap-4">
+          <Button 
+            size="lg" 
+            onClick={() => window.location.hash = "#booking"}
+            className="text-lg px-8 py-6 hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
+          >
+            <Calendar className="mr-2" size={24} weight="fill" />
+            Book Appointment
+          </Button>
+          
+          <div className="flex items-center gap-3">
+            <div className="h-px w-12 bg-border"></div>
+            <p className="text-sm text-muted-foreground">Previous Customers Login to Book</p>
+            <div className="h-px w-12 bg-border"></div>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => window.location.hash = "#customer-login"}
+            className="text-base px-6 py-5"
+          >
+            <SignIn className="mr-2" size={20} weight="bold" />
+            Customer Login
+          </Button>
+        </div>
       </div>
       
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">

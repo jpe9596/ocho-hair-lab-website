@@ -51,6 +51,9 @@ export function StaffManagement() {
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false)
   const [resetTarget, setResetTarget] = useState<{ type: 'staff' | 'customer', identifier: string } | null>(null)
   const [newPassword, setNewPassword] = useState("")
+  
+  const [deleteCustomerDialogOpen, setDeleteCustomerDialogOpen] = useState(false)
+  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null)
 
   const handleCreateStaff = () => {
     if (!newStaff.username || !newStaff.password || !newStaff.name || !newStaff.role) {
@@ -129,6 +132,15 @@ export function StaffManagement() {
     setResetTarget({ type, identifier })
     setNewPassword("")
     setResetPasswordDialogOpen(true)
+  }
+
+  const handleDeleteCustomer = () => {
+    if (!customerToDelete) return
+
+    setCustomerAccounts((current) => (current || []).filter(c => c.email !== customerToDelete))
+    toast.success("Customer account deleted successfully")
+    setDeleteCustomerDialogOpen(false)
+    setCustomerToDelete(null)
   }
 
   return (
@@ -327,14 +339,26 @@ export function StaffManagement() {
                         <TableCell>{customer.email}</TableCell>
                         <TableCell>{customer.phone}</TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openResetDialog('customer', customer.email)}
-                          >
-                            <Key size={16} className="mr-1" />
-                            Reset Password
-                          </Button>
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openResetDialog('customer', customer.email)}
+                            >
+                              <Key size={16} className="mr-1" />
+                              Reset Password
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setCustomerToDelete(customer.email)
+                                setDeleteCustomerDialogOpen(true)
+                              }}
+                            >
+                              <Trash size={16} />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -366,6 +390,25 @@ export function StaffManagement() {
             </Button>
             <Button variant="destructive" onClick={handleDeleteStaff}>
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteCustomerDialogOpen} onOpenChange={setDeleteCustomerDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Customer Account</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this customer account? This action cannot be undone and will remove their account information.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteCustomerDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteCustomer}>
+              Delete Customer
             </Button>
           </DialogFooter>
         </DialogContent>
