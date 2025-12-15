@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,6 +24,29 @@ export function CustomerLogin({ onLogin, onBack }: CustomerLoginProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const bookingEmail = sessionStorage.getItem('bookingEmail')
+    const bookingPassword = sessionStorage.getItem('bookingPassword')
+    
+    if (bookingEmail && bookingPassword) {
+      setEmail(bookingEmail)
+      setPassword(bookingPassword)
+      sessionStorage.removeItem('bookingEmail')
+      sessionStorage.removeItem('bookingPassword')
+      
+      setTimeout(() => {
+        const account = accounts?.find(
+          acc => acc.email?.toLowerCase().trim() === bookingEmail.toLowerCase().trim() && acc.password === bookingPassword
+        )
+        
+        if (account) {
+          toast.success(`Welcome, ${account.name}! Your appointment has been booked.`)
+          onLogin(bookingEmail)
+        }
+      }, 800)
+    }
+  }, [accounts, onLogin])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

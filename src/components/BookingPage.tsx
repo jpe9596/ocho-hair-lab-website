@@ -191,7 +191,7 @@ export function BookingPage() {
           console.log('Saving appointment for email:', normalizedEmail)
           console.log('Total appointments after save:', updated.length)
           console.log('New appointment:', newAppointment)
-          setTimeout(resolve, 0)
+          setTimeout(resolve, 200)
           return updated
         })
       })
@@ -212,7 +212,7 @@ export function BookingPage() {
             const updated = [...(current || []), newAccount]
             console.log('Creating new account for:', normalizedEmail)
             console.log('Total accounts after save:', updated.length)
-            setTimeout(resolve, 0)
+            setTimeout(resolve, 200)
             return updated
           })
         })
@@ -243,6 +243,9 @@ export function BookingPage() {
         })
       }
 
+      sessionStorage.setItem('bookingEmail', normalizedEmail)
+      sessionStorage.setItem('bookingPassword', formData.password)
+
       setFormData({
         name: "",
         email: "",
@@ -257,7 +260,7 @@ export function BookingPage() {
       setDate(undefined)
       
       setTimeout(() => {
-        window.location.hash = ""
+        window.location.hash = "#customer-login"
       }, 2000)
 
     } catch (error) {
