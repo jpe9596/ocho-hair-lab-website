@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useKV } from "@github/spark/hooks"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,40 +19,18 @@ export interface StaffMember {
   isAdmin: boolean
 }
 
-const STAFF_CREDENTIALS: Record<string, { password: string; name: string; role: string; isAdmin: boolean }> = {
-  "maria": {
-    password: "supersecret",
-    name: "Maria Rodriguez",
-    role: "Master Stylist",
-    isAdmin: false
-  },
-  "jessica": {
-    password: "supersecret",
-    name: "Jessica Chen",
-    role: "Senior Stylist",
-    isAdmin: false
-  },
-  "alex": {
-    password: "supersecret",
-    name: "Alex Thompson",
-    role: "Color Specialist",
-    isAdmin: false
-  },
-  "sophia": {
-    password: "supersecret",
-    name: "Sophia Martinez",
-    role: "Stylist",
-    isAdmin: false
-  },
-  "owner@ocholab.com": {
-    password: "owner123",
-    name: "Admin",
-    role: "Admin",
-    isAdmin: true
-  }
+interface StoredStaffMember extends StaffMember {
+  password: string
 }
 
 export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
+  const [staffMembers] = useKV<StoredStaffMember[]>("staff-members", [
+    { username: "maria", password: "supersecret", name: "Maria Rodriguez", role: "Master Stylist", isAdmin: false },
+    { username: "jessica", password: "supersecret", name: "Jessica Chen", role: "Senior Stylist", isAdmin: false },
+    { username: "alex", password: "supersecret", name: "Alex Thompson", role: "Color Specialist", isAdmin: false },
+    { username: "sophia", password: "supersecret", name: "Sophia Martinez", role: "Stylist", isAdmin: false },
+    { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true }
+  ])
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -61,26 +40,22 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
     setIsLoading(true)
 
     setTimeout(() => {
-      const credentials = STAFF_CREDENTIALS[username.toLowerCase().trim()]
+      const staff = staffMembers?.find(
+        s => s.username.toLowerCase() === username.toLowerCase().trim() && s.password === password
+      )
       
-      if (!credentials) {
-        toast.error("Invalid username")
+      if (!staff) {
+        toast.error("Invalid username or password")
         setIsLoading(false)
         return
       }
 
-      if (credentials.password !== password) {
-        toast.error("Invalid password")
-        setIsLoading(false)
-        return
-      }
-
-      toast.success(`Welcome back, ${credentials.name}!`)
+      toast.success(`Welcome back, ${staff.name}!`)
       onLogin({
-        username: username.toLowerCase().trim(),
-        name: credentials.name,
-        role: credentials.role,
-        isAdmin: credentials.isAdmin
+        username: staff.username,
+        name: staff.name,
+        role: staff.role,
+        isAdmin: staff.isAdmin
       })
       setIsLoading(false)
     }, 500)
