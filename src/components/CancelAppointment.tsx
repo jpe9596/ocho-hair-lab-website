@@ -9,18 +9,20 @@ import { toast } from "sonner"
 
 interface Appointment {
   id: string
-  name: string
-  email: string
-  phone: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
   service: string
   services?: string[]
   stylist: string
-  date: Date
+  date: Date | string
   time: string
-  notes: string
-  createdAt: Date
+  notes?: string
+  createdAt: Date | string
   confirmationSent?: boolean
   reminderSent?: boolean
+  status?: "confirmed" | "completed" | "cancelled"
+  password?: string
 }
 
 interface CancelAppointmentProps {
@@ -52,10 +54,10 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
       const dateStr = formatAppointmentDate(new Date(appointment.date))
       const timeStr = appointment.time
       const customerMessage = `Your ${appointment.service} appointment on ${dateStr} at ${timeStr} has been cancelled. Contact us anytime to reschedule!`
-      const salonMessage = `Cancelled: ${appointment.name} - ${appointment.service} on ${dateStr} at ${timeStr}`
+      const salonMessage = `Cancelled: ${appointment.customerName} - ${appointment.service} on ${dateStr} at ${timeStr}`
 
       await Promise.all([
-        sendSMSMessage(appointment.phone, customerMessage),
+        sendSMSMessage(appointment.customerPhone, customerMessage),
         sendSMSMessage(TWILIO_CONFIG.salonPhone, salonMessage)
       ])
 
@@ -145,7 +147,7 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
               <User size={20} className="text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Customer</p>
-                <p className="text-sm text-muted-foreground">{appointment.name}</p>
+                <p className="text-sm text-muted-foreground">{appointment.customerName}</p>
               </div>
             </div>
             

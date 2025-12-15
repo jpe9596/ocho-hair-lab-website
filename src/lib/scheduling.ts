@@ -2,17 +2,20 @@ import { StaffSchedule } from "@/components/StaffSchedule"
 
 export interface Appointment {
   id: string
-  name: string
-  email: string
-  phone: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  password?: string
   service: string
+  services?: string[]
   stylist: string
-  date: Date
+  date: Date | string
   time: string
-  notes: string
-  createdAt: Date
+  notes?: string
+  createdAt: Date | string
   confirmationSent?: boolean
   reminderSent?: boolean
+  status?: "confirmed" | "completed" | "cancelled"
 }
 
 export function getAvailableTimeSlots(

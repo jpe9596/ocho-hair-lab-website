@@ -39,19 +39,20 @@ interface CustomerAccount {
 
 interface Appointment {
   id: string
-  name: string
-  email: string
-  phone: string
-  password: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  password?: string
   service: string
   services?: string[]
   stylist: string
-  date: Date
+  date: Date | string
   time: string
-  notes: string
-  createdAt: Date
+  notes?: string
+  createdAt: Date | string
   confirmationSent?: boolean
   reminderSent?: boolean
+  status?: "confirmed" | "completed" | "cancelled"
 }
 
 interface CustomerProfileProps {
@@ -107,7 +108,7 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     setIsLoggedIn(true)
     
     const customerAppointments = (appointments || []).filter(apt => {
-      const appointmentEmail = apt.email?.toLowerCase().trim() || ''
+      const appointmentEmail = apt.customerEmail?.toLowerCase().trim() || ''
       const accountEmail = account.email?.toLowerCase().trim() || ''
       console.log('Comparing appointment:', appointmentEmail, 'with account:', accountEmail, 'match:', appointmentEmail === accountEmail)
       return appointmentEmail === accountEmail
@@ -162,8 +163,8 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     
     try {
       await sendCancellationSMS({
-        to: appointmentToCancel.phone,
-        customerName: appointmentToCancel.name,
+        to: appointmentToCancel.customerPhone,
+        customerName: appointmentToCancel.customerName,
         service: serviceName,
         date: formatAppointmentDate(new Date(appointmentToCancel.date)),
         time: appointmentToCancel.time
@@ -223,7 +224,7 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
 
   const customerAppointments = isLoggedIn && customerData
     ? (appointments || []).filter(apt => {
-        const appointmentEmail = apt.email?.toLowerCase().trim() || ''
+        const appointmentEmail = apt.customerEmail?.toLowerCase().trim() || ''
         const customerEmailLower = customerData.email?.toLowerCase().trim() || ''
         return appointmentEmail === customerEmailLower
       }).sort((a, b) => {

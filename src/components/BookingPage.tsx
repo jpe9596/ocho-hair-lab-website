@@ -19,9 +19,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Appointment {
   id: string
-  name: string
-  email: string
-  phone: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
   password: string
   service: string
   services: string[]
@@ -32,6 +32,7 @@ interface Appointment {
   createdAt: Date
   confirmationSent?: boolean
   reminderSent?: boolean
+  status: "confirmed" | "completed" | "cancelled"
 }
 
 interface CustomerAccount {
@@ -168,9 +169,9 @@ export function BookingPage() {
 
       const newAppointment: Appointment = {
         id: Date.now().toString(),
-        name: formData.name,
-        email: normalizedEmail,
-        phone: formData.phone,
+        customerName: formData.name,
+        customerEmail: normalizedEmail,
+        customerPhone: formData.phone,
         password: formData.password,
         service: formData.services[0],
         services: formData.services,
@@ -180,7 +181,8 @@ export function BookingPage() {
         notes: formData.notes,
         createdAt: new Date(),
         confirmationSent: false,
-        reminderSent: false
+        reminderSent: false,
+        status: "confirmed"
       }
 
       setAppointments((current) => [...(current || []), newAppointment])
@@ -201,9 +203,9 @@ export function BookingPage() {
 
       try {
         await sendBookingConfirmation({
-          to: newAppointment.phone,
-          customerName: newAppointment.name,
-          customerEmail: newAppointment.email,
+          to: newAppointment.customerPhone,
+          customerName: newAppointment.customerName,
+          customerEmail: newAppointment.customerEmail,
           service: newAppointment.services.join(", "),
           date: formatAppointmentDate(newAppointment.date),
           time: newAppointment.time,

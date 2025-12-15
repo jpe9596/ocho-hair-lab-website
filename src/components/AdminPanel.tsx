@@ -9,18 +9,20 @@ import { toast } from "sonner"
 
 interface Appointment {
   id: string
-  name: string
-  email: string
-  phone: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
   service: string
   services?: string[]
   stylist: string
-  date: Date
+  date: Date | string
   time: string
-  notes: string
-  createdAt: Date
+  notes?: string
+  createdAt: Date | string
   confirmationSent?: boolean
   reminderSent?: boolean
+  status?: "confirmed" | "completed" | "cancelled"
+  password?: string
 }
 
 export function AdminPanel() {
@@ -90,7 +92,7 @@ export function AdminPanel() {
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <CardTitle className="text-xl">{appointment.name}</CardTitle>
+                        <CardTitle className="text-xl">{appointment.customerName}</CardTitle>
                         {appointment.reminderSent && (
                           <Badge variant="secondary" className="flex items-center gap-1">
                             <Bell size={12} weight="fill" />
@@ -145,14 +147,14 @@ export function AdminPanel() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-sm">
                         <Phone size={18} className="text-muted-foreground" />
-                        <a href={`tel:${appointment.phone}`} className="hover:underline">
-                          {appointment.phone}
+                        <a href={`tel:${appointment.customerPhone}`} className="hover:underline">
+                          {appointment.customerPhone}
                         </a>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Envelope size={18} className="text-muted-foreground" />
-                        <a href={`mailto:${appointment.email}`} className="hover:underline truncate">
-                          {appointment.email}
+                        <a href={`mailto:${appointment.customerEmail}`} className="hover:underline truncate">
+                          {appointment.customerEmail}
                         </a>
                       </div>
                       {appointment.notes && (

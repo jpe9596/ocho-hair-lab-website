@@ -24,9 +24,9 @@ interface BookingDialogProps {
 
 interface Appointment {
   id: string
-  name: string
-  email: string
-  phone: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
   service: string
   services: string[]
   stylist: string
@@ -36,6 +36,7 @@ interface Appointment {
   createdAt: Date
   confirmationSent?: boolean
   reminderSent?: boolean
+  status?: "confirmed" | "completed" | "cancelled"
 }
 
 const serviceCategories = [
@@ -165,16 +166,17 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
     const newAppointment: Appointment = {
       id: Date.now().toString(),
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
+      customerName: formData.name,
+      customerEmail: formData.email,
+      customerPhone: formData.phone,
       service: servicesList,
       services: formData.services,
       stylist: finalStylist,
       date: date,
       time: formData.time,
       notes: formData.notes,
-      createdAt: new Date()
+      createdAt: new Date(),
+      status: "confirmed"
     }
 
     setAppointments((current) => [...(current || []), newAppointment])

@@ -15,18 +15,20 @@ import { StaffSchedule } from "@/components/StaffSchedule"
 
 interface Appointment {
   id: string
-  name: string
-  email: string
-  phone: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
   service: string
   services?: string[]
   stylist: string
-  date: Date
+  date: Date | string
   time: string
-  notes: string
-  createdAt: Date
+  notes?: string
+  createdAt: Date | string
   confirmationSent?: boolean
   reminderSent?: boolean
+  status?: "confirmed" | "completed" | "cancelled"
+  password?: string
 }
 
 interface RescheduleDialogProps {
@@ -61,7 +63,7 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
       setDate(new Date(appointment.date))
       setTime(appointment.time)
       setStylist(appointment.stylist)
-      setNotes(appointment.notes)
+      setNotes(appointment.notes || "")
     }
   }, [appointment, open])
 
@@ -157,8 +159,8 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
 
     try {
       await sendRescheduleSMS({
-        to: appointment.phone,
-        customerName: appointment.name,
+        to: appointment.customerPhone,
+        customerName: appointment.customerName,
         service: appointment.service,
         oldDate: formatAppointmentDate(originalDate),
         oldTime: originalTime,
