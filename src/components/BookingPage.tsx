@@ -185,7 +185,16 @@ export function BookingPage() {
         status: "confirmed"
       }
 
-      setAppointments((current) => [...(current || []), newAppointment])
+      await new Promise<void>((resolve) => {
+        setAppointments((current) => {
+          const updated = [...(current || []), newAppointment]
+          console.log('Saving appointment for email:', normalizedEmail)
+          console.log('Total appointments after save:', updated.length)
+          console.log('New appointment:', newAppointment)
+          setTimeout(resolve, 0)
+          return updated
+        })
+      })
 
       const existingAccount = customerAccounts?.find(
         acc => acc.email?.toLowerCase().trim() === normalizedEmail
@@ -198,7 +207,17 @@ export function BookingPage() {
           name: formData.name,
           phone: formData.phone
         }
-        setCustomerAccounts((current) => [...(current || []), newAccount])
+        await new Promise<void>((resolve) => {
+          setCustomerAccounts((current) => {
+            const updated = [...(current || []), newAccount]
+            console.log('Creating new account for:', normalizedEmail)
+            console.log('Total accounts after save:', updated.length)
+            setTimeout(resolve, 0)
+            return updated
+          })
+        })
+      } else {
+        console.log('Existing account found for:', normalizedEmail)
       }
 
       try {

@@ -226,13 +226,24 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     ? (appointments || []).filter(apt => {
         const appointmentEmail = apt.customerEmail?.toLowerCase().trim() || ''
         const customerEmailLower = customerData.email?.toLowerCase().trim() || ''
-        return appointmentEmail === customerEmailLower
+        const match = appointmentEmail === customerEmailLower
+        console.log('Filtering appointment:', {
+          appointmentEmail,
+          customerEmailLower,
+          match,
+          appointmentId: apt.id
+        })
+        return match
       }).sort((a, b) => {
         const dateA = new Date(a.date)
         const dateB = new Date(b.date)
         return dateA.getTime() - dateB.getTime()
       })
     : []
+  
+  console.log('Customer appointments found:', customerAppointments.length)
+  console.log('All appointments in system:', appointments?.length || 0)
+  console.log('Customer email:', customerData?.email)
 
   const upcomingAppointments = customerAppointments.filter(apt => new Date(apt.date) >= new Date())
   const pastAppointments = customerAppointments.filter(apt => new Date(apt.date) < new Date())
