@@ -343,15 +343,7 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
           transition={{ duration: 0.4 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)' }}>
-                My Appointments
-              </h1>
-              <p className="text-muted-foreground">
-                {customerData?.email || customerData?.phone}
-              </p>
-            </div>
+          <div className="flex flex-col gap-6 mb-4">
             <div className="flex gap-2">
               <Button onClick={handleGoHome} variant="outline">
                 <House className="mr-2" size={18} />
@@ -373,6 +365,14 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
                 <SignOut className="mr-2" size={18} />
                 Sign Out
               </Button>
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)' }}>
+                My Appointments
+              </h1>
+              <p className="text-muted-foreground">
+                {customerData?.email || customerData?.phone}
+              </p>
             </div>
           </div>
         </motion.div>
@@ -715,15 +715,12 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
             <AlertDialogCancel onClick={() => setDeleteConfirmPassword("")}>
               Cancel
             </AlertDialogCancel>
-            <Button
-              onClick={(e) => {
-                e.preventDefault()
-                handleDeleteAccount()
-              }}
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete My Account
-            </Button>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
