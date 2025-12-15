@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck, Plus, House, Key, UserMinus } from "@phosphor-icons/react"
+import { Calendar, Clock, Scissors, User, Trash, MagnifyingGlass, SignOut, CalendarCheck, Plus, House, Key } from "@phosphor-icons/react"
 import { formatAppointmentDate, sendCancellationSMS } from "@/lib/notifications"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
@@ -78,9 +78,6 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  
-  const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false)
-  const [deleteConfirmPassword, setDeleteConfirmPassword] = useState("")
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -216,43 +213,6 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     setConfirmPassword("")
   }
 
-  const handleDeleteAccount = () => {
-    if (!customerData) return
-
-    if (!deleteConfirmPassword) {
-      toast.error("Please enter your password to confirm")
-      return
-    }
-
-    if (deleteConfirmPassword !== customerData.password) {
-      toast.error("Password is incorrect")
-      return
-    }
-
-    const userAppointments = (appointments || []).filter(apt => 
-      apt.email?.toLowerCase().trim() === customerData.email?.toLowerCase().trim()
-    )
-
-    setCustomerAccounts((current) => 
-      (current || []).filter(acc => acc.email !== customerData.email)
-    )
-
-    setAppointments((current) => 
-      (current || []).filter(apt => 
-        apt.email?.toLowerCase().trim() !== customerData.email?.toLowerCase().trim()
-      )
-    )
-
-    toast.success("Account deleted successfully", {
-      description: `Your account and ${userAppointments.length} appointment(s) have been removed.`
-    })
-
-    setDeleteAccountDialogOpen(false)
-    setDeleteConfirmPassword("")
-    
-    window.location.hash = ""
-  }
-
   const customerAppointments = isLoggedIn && customerData
     ? (appointments || []).filter(apt => {
         const appointmentEmail = apt.email?.toLowerCase().trim() || ''
@@ -356,10 +316,6 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
               <Button onClick={() => setResetPasswordDialogOpen(true)} variant="outline">
                 <Key className="mr-2" size={18} />
                 Change Password
-              </Button>
-              <Button onClick={() => setDeleteAccountDialogOpen(true)} variant="outline" className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
-                <UserMinus className="mr-2" size={18} />
-                Delete Account
               </Button>
               <Button onClick={handleLogout} variant="outline">
                 <SignOut className="mr-2" size={18} />
@@ -683,47 +639,6 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={deleteAccountDialogOpen} onOpenChange={setDeleteAccountDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Account?</AlertDialogTitle>
-            <AlertDialogDescription>
-              <div className="space-y-2">
-                <p className="font-semibold text-destructive">This action is permanent and cannot be undone.</p>
-                <p>Deleting your account will:</p>
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Remove all your personal information</li>
-                  <li>Cancel all upcoming appointments</li>
-                  <li>Delete your appointment history</li>
-                  <li>Remove your login credentials</li>
-                </ul>
-                <div className="mt-4 space-y-2">
-                  <Label htmlFor="delete-confirm-password">Enter your password to confirm</Label>
-                  <Input
-                    id="delete-confirm-password"
-                    type="password"
-                    value={deleteConfirmPassword}
-                    onChange={(e) => setDeleteConfirmPassword(e.target.value)}
-                    placeholder="Enter your password"
-                  />
-                </div>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteConfirmPassword("")}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteAccount}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete My Account
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }
