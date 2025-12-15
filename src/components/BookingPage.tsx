@@ -171,6 +171,7 @@ export function BookingPage() {
         await sendBookingConfirmation({
           to: newAppointment.phone,
           customerName: newAppointment.name,
+          customerEmail: newAppointment.email,
           service: newAppointment.services.join(", "),
           date: formatAppointmentDate(newAppointment.date),
           time: newAppointment.time,

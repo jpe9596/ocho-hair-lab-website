@@ -1,3 +1,5 @@
+import { logSMSMessage } from './sms-logger'
+
 export const TWILIO_CONFIG = {
   accountSid: 'ACe7262fb35ec470497df636e736ba3d1a',
   authToken: '7ffd32aa4b86b4fa97cad7a97a1e0990',
@@ -29,7 +31,15 @@ function formatMexicoPhoneNumber(phone: string): string {
 
 export async function sendSMSMessage(
   to: string,
-  message: string
+  message: string,
+  logData?: {
+    appointmentId: string
+    type: "confirmation" | "reminder" | "custom"
+    templateName?: string
+    customerName: string
+    customerEmail: string
+    serviceName: string
+  }
 ): Promise<void> {
   const formattedNumber = formatMexicoPhoneNumber(to)
   
@@ -54,13 +64,45 @@ export async function sendSMSMessage(
     if (!response.ok) {
       const errorText = await response.text()
       console.error('Twilio API error:', errorText)
+      
+      if (logData) {
+        await logSMSMessage({
+          ...logData,
+          to: formattedNumber,
+          message,
+          status: "failed",
+          failureReason: `Twilio API error: ${response.status}`
+        })
+      }
+      
       throw new Error(`Twilio API error: ${response.status}`)
     }
     
     const result = await response.json()
     console.log('SMS message sent via Twilio:', result)
+    
+    if (logData) {
+      await logSMSMessage({
+        ...logData,
+        to: formattedNumber,
+        message,
+        status: result.status === "queued" || result.status === "sent" ? "sent" : 
+                result.status === "delivered" ? "delivered" : "pending"
+      })
+    }
   } catch (error) {
     console.error('Failed to send SMS message:', error)
+    
+    if (logData) {
+      await logSMSMessage({
+        ...logData,
+        to: formattedNumber,
+        message,
+        status: "failed",
+        failureReason: error instanceof Error ? error.message : "Unknown error"
+      })
+    }
+    
     throw error
   }
 }

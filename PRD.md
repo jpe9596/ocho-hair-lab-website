@@ -89,6 +89,13 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Progression**: Select message type (confirmation/reminder/reschedule/cancellation) → Choose service category → View current template → Edit template with placeholders ({CUSTOMER_NAME}, {SERVICE}, {DATE}, {TIME}, {STYLIST}) → Preview with sample data → Save custom template → Reset to default if needed
 - **Success criteria**: Only visible to owner; templates persist between sessions; placeholders correctly replaced with real data; preview shows accurate sample; custom templates apply to all future SMS; can revert to defaults; tips provided for effective messaging
 
+### SMS Analytics Dashboard
+- **Functionality**: Comprehensive analytics interface tracking SMS delivery rates, customer engagement metrics, template performance, and messaging history with detailed logs and visual data representations
+- **Purpose**: Provides salon owner with insights into communication effectiveness, helping identify delivery issues, optimize messaging templates, and track customer engagement through SMS channels
+- **Trigger**: Owner navigates to SMS Analytics tab in Admin Dashboard
+- **Progression**: View dashboard overview with key metrics → See total SMS sent, delivery rate, failure rate, and average delivery time → Review customer coverage statistics → Examine template performance rankings → Browse recent failures with detailed error information → Check recent SMS activity log with status indicators → Filter data by custom date ranges or quick filters (week/month/7-day/30-day)
+- **Success criteria**: Only visible to owner; displays real-time delivery metrics with visual progress indicators; tracks all SMS by type (confirmation/reminder/custom); shows per-template success rates; identifies failed deliveries with error messages; provides engagement analytics (coverage rate, appointment reach); supports date filtering; logs persist in KV storage; responsive design for mobile monitoring
+
 ## Edge Case Handling
 
 - **No Services Available**: Display elegant empty state with message to check back soon
@@ -114,6 +121,10 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **All Stylists Blocked**: If all stylists have a date blocked, that date is disabled in customer booking calendar
 - **Custom Template Validation**: Template editor validates placeholder usage; preview shows real-time rendering with sample data
 - **Template Storage**: Custom templates persist in KV storage; fall back to defaults if custom templates are deleted or malformed
+- **SMS Logging**: All SMS messages automatically logged with metadata (type, template, status, timestamps); logs persist indefinitely for analytics
+- **No SMS Data**: Analytics dashboard shows empty states with helpful guidance when no messages have been sent yet
+- **Delivery Status Tracking**: SMS logs capture status changes from Twilio API (sent/delivered/failed) with timestamps for accurate delivery time calculation
+- **Analytics Date Filtering**: Date range selection with validation; quick filters apply appropriate date boundaries; clear visual indication of active filters
 
 ## Design Direction
 

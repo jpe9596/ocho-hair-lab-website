@@ -49,6 +49,7 @@ export async function checkAndSendReminders(
         await sendReminderNotifications({
           to: appointment.phone,
           customerName: appointment.name,
+          customerEmail: appointment.email,
           service: appointment.service,
           date: formatAppointmentDate(new Date(appointment.date)),
           time: appointment.time,
@@ -69,6 +70,7 @@ export async function checkAndSendReminders(
 export async function sendBookingConfirmation(data: {
   to: string
   customerName: string
+  customerEmail?: string
   service: string
   date: string
   time: string
@@ -93,14 +95,29 @@ export async function sendBookingConfirmation(data: {
   })
   
   await Promise.all([
-    sendSMSMessage(data.to, customerMessage),
-    sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
+    sendSMSMessage(data.to, customerMessage, {
+      appointmentId: data.appointmentId,
+      type: "confirmation",
+      templateName: "Booking Confirmation",
+      customerName: data.customerName,
+      customerEmail: data.customerEmail || "",
+      serviceName: data.service
+    }),
+    sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage, {
+      appointmentId: data.appointmentId,
+      type: "custom",
+      templateName: "Staff Notification - New Booking",
+      customerName: "Salon Staff",
+      customerEmail: "",
+      serviceName: data.service
+    })
   ])
 }
 
 async function sendReminderNotifications(data: {
   to: string
   customerName: string
+  customerEmail?: string
   service: string
   date: string
   time: string
@@ -125,8 +142,22 @@ async function sendReminderNotifications(data: {
   })
   
   await Promise.all([
-    sendSMSMessage(data.to, customerMessage),
-    sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
+    sendSMSMessage(data.to, customerMessage, {
+      appointmentId: data.appointmentId,
+      type: "reminder",
+      templateName: "8-Hour Reminder",
+      customerName: data.customerName,
+      customerEmail: data.customerEmail || "",
+      serviceName: data.service
+    }),
+    sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage, {
+      appointmentId: data.appointmentId,
+      type: "custom",
+      templateName: "Staff Notification - Reminder",
+      customerName: "Salon Staff",
+      customerEmail: "",
+      serviceName: data.service
+    })
   ])
 }
 

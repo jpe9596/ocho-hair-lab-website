@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { AdminAnalytics } from "@/components/AdminAnalytics"
 import { StaffSchedule } from "@/components/StaffSchedule"
 import { SMSTemplateManager } from "@/components/SMSTemplateManager"
+import { SMSAnalyticsDashboard } from "@/components/SMSAnalyticsDashboard"
 import { ArrowLeft, Lock, ShieldCheck } from "@phosphor-icons/react"
 import { toast } from "sonner"
 
@@ -100,14 +101,19 @@ export function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-3">
+          <TabsList className="grid w-full max-w-3xl grid-cols-4">
             <TabsTrigger value="analytics">Analytics & Appointments</TabsTrigger>
+            <TabsTrigger value="sms-analytics">SMS Analytics</TabsTrigger>
             <TabsTrigger value="schedules">Staff Schedules</TabsTrigger>
             <TabsTrigger value="sms-templates">SMS Templates</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics" className="space-y-6">
             <AdminAnalytics />
+          </TabsContent>
+
+          <TabsContent value="sms-analytics" className="space-y-6">
+            <SMSAnalyticsDashboard />
           </TabsContent>
 
           <TabsContent value="schedules" className="space-y-6">
