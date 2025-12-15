@@ -92,8 +92,10 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
       return
     }
 
+    const normalizedEmail = email.toLowerCase().trim()
+
     const account = (customerAccounts || []).find(
-      acc => acc.email?.toLowerCase().trim() === email.toLowerCase().trim() && acc.password === password
+      acc => acc.email?.toLowerCase().trim() === normalizedEmail && acc.password === password
     )
 
     if (!account) {
@@ -107,8 +109,14 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     const customerAppointments = (appointments || []).filter(apt => {
       const appointmentEmail = apt.email?.toLowerCase().trim() || ''
       const accountEmail = account.email?.toLowerCase().trim() || ''
+      console.log('Comparing appointment:', appointmentEmail, 'with account:', accountEmail, 'match:', appointmentEmail === accountEmail)
       return appointmentEmail === accountEmail
     })
+
+    console.log('Total appointments:', appointments?.length || 0)
+    console.log('Customer appointments found:', customerAppointments.length)
+    console.log('All appointments:', appointments)
+    console.log('Filtered for:', normalizedEmail)
 
     if (customerAppointments.length === 0) {
       toast.success(`Welcome, ${account.name}!`, {

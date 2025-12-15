@@ -164,10 +164,12 @@ export function BookingPage() {
     setIsSubmitting(true)
 
     try {
+      const normalizedEmail = formData.email.toLowerCase().trim()
+
       const newAppointment: Appointment = {
         id: Date.now().toString(),
         name: formData.name,
-        email: formData.email,
+        email: normalizedEmail,
         phone: formData.phone,
         password: formData.password,
         service: formData.services[0],
@@ -184,12 +186,12 @@ export function BookingPage() {
       setAppointments((current) => [...(current || []), newAppointment])
 
       const existingAccount = customerAccounts?.find(
-        acc => acc.email?.toLowerCase().trim() === formData.email.toLowerCase().trim()
+        acc => acc.email?.toLowerCase().trim() === normalizedEmail
       )
       
       if (!existingAccount) {
         const newAccount: CustomerAccount = {
-          email: formData.email,
+          email: normalizedEmail,
           password: formData.password,
           name: formData.name,
           phone: formData.phone
