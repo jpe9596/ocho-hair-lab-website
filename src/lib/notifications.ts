@@ -1,4 +1,10 @@
 import { sendSMSMessage, TWILIO_CONFIG } from './twilio-config'
+import { 
+  getConfirmationMessage, 
+  getRescheduleMessage, 
+  getCancellationMessage,
+  getStaffNotificationMessage 
+} from './sms-templates'
 
 interface SMSNotificationData {
   to: string
@@ -6,6 +12,7 @@ interface SMSNotificationData {
   service: string
   date: string
   time: string
+  stylist?: string
 }
 
 interface RescheduleSMSData {
@@ -16,6 +23,7 @@ interface RescheduleSMSData {
   oldTime: string
   newDate: string
   newTime: string
+  stylist?: string
 }
 
 interface CancellationSMSData {
@@ -24,15 +32,30 @@ interface CancellationSMSData {
   service: string
   date: string
   time: string
+  stylist?: string
 }
 
 export async function sendAppointmentSMS(data: SMSNotificationData): Promise<boolean> {
   try {
-    const message = `Hello ${data.customerName}, this is a confirmation from Ocho Hair Lab for your ${data.service} appointment on ${data.date} at ${data.time}.`
+    const customerMessage = await getConfirmationMessage({
+      customerName: data.customerName,
+      service: data.service,
+      date: data.date,
+      time: data.time,
+      stylist: data.stylist || 'Our Team'
+    })
+    
+    const staffMessage = getStaffNotificationMessage('newBooking', {
+      customerName: data.customerName,
+      service: data.service,
+      date: data.date,
+      time: data.time,
+      stylist: data.stylist || 'Our Team'
+    })
     
     await Promise.all([
-      sendSMSMessage(data.to, message),
-      sendSMSMessage(TWILIO_CONFIG.salonPhone, `New booking: ${data.customerName} - ${data.service} on ${data.date} at ${data.time}`)
+      sendSMSMessage(data.to, customerMessage),
+      sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
     ])
 
     return true
@@ -44,11 +67,33 @@ export async function sendAppointmentSMS(data: SMSNotificationData): Promise<boo
 
 export async function sendRescheduleSMS(data: RescheduleSMSData): Promise<boolean> {
   try {
-    const message = `Hello ${data.customerName}, your ${data.service} appointment has been rescheduled from ${data.oldDate} at ${data.oldTime} to ${data.newDate} at ${data.newTime}.`
+    const customerMessage = await getRescheduleMessage({
+      customerName: data.customerName,
+      service: data.service,
+      date: data.newDate,
+      time: data.newTime,
+      oldDate: data.oldDate,
+      oldTime: data.oldTime,
+      newDate: data.newDate,
+      newTime: data.newTime,
+      stylist: data.stylist || 'Our Team'
+    })
+    
+    const staffMessage = getStaffNotificationMessage('reschedule', {
+      customerName: data.customerName,
+      service: data.service,
+      date: data.newDate,
+      time: data.newTime,
+      oldDate: data.oldDate,
+      oldTime: data.oldTime,
+      newDate: data.newDate,
+      newTime: data.newTime,
+      stylist: data.stylist || 'Our Team'
+    })
     
     await Promise.all([
-      sendSMSMessage(data.to, message),
-      sendSMSMessage(TWILIO_CONFIG.salonPhone, `Rescheduled: ${data.customerName} - ${data.service} from ${data.oldDate} ${data.oldTime} to ${data.newDate} ${data.newTime}`)
+      sendSMSMessage(data.to, customerMessage),
+      sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
     ])
 
     return true
@@ -60,11 +105,25 @@ export async function sendRescheduleSMS(data: RescheduleSMSData): Promise<boolea
 
 export async function sendCancellationSMS(data: CancellationSMSData): Promise<boolean> {
   try {
-    const message = `Hello ${data.customerName}, your ${data.service} appointment on ${data.date} at ${data.time} has been cancelled.`
+    const customerMessage = await getCancellationMessage({
+      customerName: data.customerName,
+      service: data.service,
+      date: data.date,
+      time: data.time,
+      stylist: data.stylist || 'Our Team'
+    })
+    
+    const staffMessage = getStaffNotificationMessage('cancellation', {
+      customerName: data.customerName,
+      service: data.service,
+      date: data.date,
+      time: data.time,
+      stylist: data.stylist || 'Our Team'
+    })
     
     await Promise.all([
-      sendSMSMessage(data.to, message),
-      sendSMSMessage(TWILIO_CONFIG.salonPhone, `Cancelled: ${data.customerName} - ${data.service} on ${data.date} at ${data.time}`)
+      sendSMSMessage(data.to, customerMessage),
+      sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
     ])
 
     return true

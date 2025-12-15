@@ -69,11 +69,11 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Success criteria**: Secure access via email/phone lookup; displays upcoming and past appointments separately; allows appointment rescheduling and cancellation with confirmation; smooth animations between states; easy navigation back to home
 
 ### Appointment Reminders
-- **Functionality**: Automated reminder system that sends WhatsApp messages via Twilio to customers 8 hours before their scheduled appointments
-- **Purpose**: Reduces no-shows and keeps customers informed about upcoming appointments through their preferred WhatsApp messaging
+- **Functionality**: Automated reminder system that sends SMS messages via Twilio to customers 8 hours before their scheduled appointments with custom templates based on service type
+- **Purpose**: Reduces no-shows and keeps customers informed about upcoming appointments through SMS messaging with personalized, service-specific content
 - **Trigger**: System automatically checks appointments every hour
-- **Progression**: System detects appointment within 8-hour window → Sends reminder WhatsApp message to customer → Sends notification WhatsApp to salon staff → Updates appointment record → Displays reminder status in admin panel
-- **Success criteria**: Reminders sent exactly once per appointment at 8-hour mark; customers receive helpful reminder message via WhatsApp; salon staff notified that reminder was sent; admin panel shows reminder status badge
+- **Progression**: System detects appointment within 8-hour window → Selects appropriate template based on service category (Tinte, Corte, Bespoke, Tratamiento) → Sends customized reminder SMS to customer → Sends notification SMS to salon staff → Updates appointment record → Displays reminder status in admin panel
+- **Success criteria**: Reminders sent exactly once per appointment at 8-hour mark; customers receive service-specific reminder message via SMS with helpful tips; salon staff notified that reminder was sent; admin panel shows reminder status badge; templates can be customized by owner
 
 ### Staff Schedule Management
 - **Functionality**: Owner-only interface to configure stylist availability including working hours by day, break times, and blocked dates for time off
@@ -81,6 +81,13 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Trigger**: Owner navigates to Staff Schedule Management section (appears between Team and Admin Panel)
 - **Progression**: Select stylist from dropdown → Set working hours for each day of week with toggle switches → Add break times with start/end times → Block specific dates for vacation/time off using calendar picker → Changes save automatically → Booking system immediately reflects availability
 - **Success criteria**: Only visible to owner; each stylist has individual schedule; supports different hours per day; allows multiple break times; blocked dates prevent bookings; booking dialog only shows available time slots based on schedules; prevents double-booking
+
+### SMS Template Management
+- **Functionality**: Owner-only interface to customize SMS message templates for different appointment types (confirmations, reminders, reschedules, cancellations) across service categories (Tinte, Corte, Bespoke Color, Tratamiento)
+- **Purpose**: Allows salon owner to personalize automated SMS communications to match their brand voice and provide service-specific information to customers
+- **Trigger**: Owner navigates to SMS Templates tab in Admin Dashboard
+- **Progression**: Select message type (confirmation/reminder/reschedule/cancellation) → Choose service category → View current template → Edit template with placeholders ({CUSTOMER_NAME}, {SERVICE}, {DATE}, {TIME}, {STYLIST}) → Preview with sample data → Save custom template → Reset to default if needed
+- **Success criteria**: Only visible to owner; templates persist between sessions; placeholders correctly replaced with real data; preview shows accurate sample; custom templates apply to all future SMS; can revert to defaults; tips provided for effective messaging
 
 ## Edge Case Handling
 
@@ -92,19 +99,21 @@ A sophisticated, modern website for Ocho Hair Lab that showcases salon services,
 - **Missing Images**: Fallback to elegant placeholder patterns or gradients
 - **Gallery Image Loading**: Lazy loading for performance; skeleton states while images load; fallback to placeholder on error
 - **Lightbox Navigation**: Escape key closes lightbox; click outside image closes modal; smooth animations
-- **SMS Delivery Failures**: Graceful fallback to success message mentioning email confirmation if WhatsApp fails
+- **SMS Delivery Failures**: Graceful fallback to success message mentioning email confirmation if SMS fails
 - **Non-owner Access**: Admin panel automatically hidden for regular visitors
-- **Phone Number Formatting**: Accept various phone formats with validation for WhatsApp delivery; automatically formats to international format with "whatsapp:" prefix
+- **Phone Number Formatting**: Accept various phone formats with validation for SMS delivery; automatically formats to international format for Mexico (+521XXXXXXXXXX)
 - **Customer Profile Access**: No appointments found shows helpful error; supports lookup by email OR phone number
 - **Past Appointments Display**: Clearly separated from upcoming appointments with reduced opacity
 - **Appointment Cancellation**: Confirmation feedback via toast; immediately removed from customer view
-- **Appointment Rescheduling**: Reset reminder flag when rescheduled so new reminder will be sent
+- **Appointment Rescheduling**: Reset reminder flag when rescheduled so new reminder will be sent; sends reschedule SMS with old and new times
 - **Reminder Timing**: System checks appointments hourly; reminders only sent once per appointment
-- **Reminder After Reschedule**: Rescheduled appointments receive fresh WhatsApp reminders 8 hours before new time
+- **Reminder After Reschedule**: Rescheduled appointments receive fresh SMS reminders 8 hours before new time
 - **Stylist Unavailability**: Calendar disables dates when no stylists are working; time selector only shows available slots
 - **Schedule Conflicts**: Booking system prevents double-booking by checking existing appointments against stylist schedules
 - **Break Times**: Multiple break periods can be configured; appointments cannot be booked during breaks
 - **All Stylists Blocked**: If all stylists have a date blocked, that date is disabled in customer booking calendar
+- **Custom Template Validation**: Template editor validates placeholder usage; preview shows real-time rendering with sample data
+- **Template Storage**: Custom templates persist in KV storage; fall back to defaults if custom templates are deleted or malformed
 
 ## Design Direction
 
