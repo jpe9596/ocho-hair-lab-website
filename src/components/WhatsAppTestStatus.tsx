@@ -5,17 +5,16 @@ import { TWILIO_CONFIG } from "@/lib/twilio-config"
 
 export function WhatsAppTestStatus() {
   const isConfigured = TWILIO_CONFIG.authToken && TWILIO_CONFIG.authToken.length > 0
-  const isTemplateConfigured = TWILIO_CONFIG.contentSid && TWILIO_CONFIG.contentSid.length > 0
   
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          WhatsApp Testing Status
-          {isConfigured && isTemplateConfigured ? (
+          SMS Testing Status
+          {isConfigured ? (
             <Badge variant="default" className="bg-green-500">
               <CheckCircle size={16} weight="fill" className="mr-1" />
-              Ready (Template Mode)
+              Ready (SMS Mode)
             </Badge>
           ) : (
             <Badge variant="destructive">
@@ -25,7 +24,7 @@ export function WhatsAppTestStatus() {
           )}
         </CardTitle>
         <CardDescription>
-          Using ContentSid & ContentVariables (Required after April 1, 2025)
+          Using Twilio SMS API for appointment reminders
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -34,10 +33,10 @@ export function WhatsAppTestStatus() {
             <CheckCircle size={20} weight="fill" className="text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="text-sm font-semibold text-green-900 dark:text-green-100">
-                ✓ Updated to new WhatsApp API requirements
+                ✓ Updated to use SMS instead of WhatsApp
               </p>
               <p className="text-xs text-green-700 dark:text-green-300">
-                All messages now use ContentSid and ContentVariables instead of Body parameter. This ensures compliance with WhatsApp's requirements for business-initiated messages after April 1, 2025.
+                All appointment confirmations and reminders now use SMS messages via Twilio's SMS API. This is more reliable and doesn't require WhatsApp template approvals.
               </p>
             </div>
           </div>
@@ -55,29 +54,20 @@ export function WhatsAppTestStatus() {
             status={isConfigured ? 'success' : 'error'}
           />
           <StatusItem
-            label="WhatsApp From Number"
-            value={TWILIO_CONFIG.whatsappNumber}
-            status={TWILIO_CONFIG.whatsappNumber ? 'success' : 'error'}
+            label="SMS From Number"
+            value={TWILIO_CONFIG.smsNumber}
+            status={TWILIO_CONFIG.smsNumber ? 'success' : 'error'}
           />
           <StatusItem
-            label="Salon WhatsApp"
-            value={TWILIO_CONFIG.salonWhatsApp}
-            status={TWILIO_CONFIG.salonWhatsApp ? 'success' : 'error'}
-          />
-          <StatusItem
-            label="Content SID (Template)"
-            value={TWILIO_CONFIG.contentSid}
-            status={isTemplateConfigured ? 'success' : 'error'}
+            label="Salon Phone"
+            value={TWILIO_CONFIG.salonPhone}
+            status={TWILIO_CONFIG.salonPhone ? 'success' : 'error'}
           />
         </div>
 
         <div className="pt-4 border-t space-y-2">
           <h4 className="font-semibold text-sm">Testing Checklist:</h4>
           <ul className="text-sm space-y-2 text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <Clock size={16} className="mt-0.5 flex-shrink-0" />
-              <span>Join Twilio sandbox: Send "join [code]" to +1 415 523 8886</span>
-            </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />
               <span>Book a test appointment with your Mexico mobile number (10 digits)</span>
@@ -88,19 +78,19 @@ export function WhatsAppTestStatus() {
             </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />
-              <span>Check WhatsApp for immediate confirmation using approved template</span>
+              <span>Check your phone for immediate SMS confirmation</span>
             </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />
-              <span>Verify 8-hour reminder is scheduled and uses template format</span>
+              <span>Verify 8-hour reminder is scheduled and sent via SMS</span>
             </li>
           </ul>
         </div>
 
-        {isConfigured && isTemplateConfigured && (
+        {isConfigured && (
           <div className="pt-4 border-t">
             <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-              ✓ System is ready for testing! All messages use ContentSid: {TWILIO_CONFIG.contentSid}
+              ✓ System is ready for testing! SMS messages will be sent from {TWILIO_CONFIG.smsNumber}
             </p>
           </div>
         )}

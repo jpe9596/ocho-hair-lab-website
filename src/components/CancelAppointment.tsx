@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { X, CheckCircle, ArrowLeft, Calendar, Clock, Scissors, User } from "@phosphor-icons/react"
-import { sendWhatsAppMessage, TWILIO_CONFIG } from "@/lib/twilio-config"
+import { sendSMSMessage, TWILIO_CONFIG } from "@/lib/twilio-config"
 import { toast } from "sonner"
 
 interface Appointment {
@@ -51,15 +51,17 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
 
       const dateStr = formatAppointmentDate(new Date(appointment.date))
       const timeStr = appointment.time
+      const customerMessage = `Your ${appointment.service} appointment on ${dateStr} at ${timeStr} has been cancelled. Contact us anytime to reschedule!`
+      const salonMessage = `Cancelled: ${appointment.name} - ${appointment.service} on ${dateStr} at ${timeStr}`
 
       await Promise.all([
-        sendWhatsAppMessage(appointment.phone, dateStr, timeStr),
-        sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, dateStr, timeStr)
+        sendSMSMessage(appointment.phone, customerMessage),
+        sendSMSMessage(TWILIO_CONFIG.salonPhone, salonMessage)
       ])
 
       setCancelled(true)
       toast.success("Appointment Cancelled", {
-        description: "Confirmation sent via WhatsApp"
+        description: "Confirmation sent via SMS"
       })
     } catch (error) {
       console.error("Failed to cancel appointment:", error)
@@ -105,7 +107,7 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
               Appointment Cancelled
             </CardTitle>
             <CardDescription>
-              Your appointment has been successfully cancelled. A confirmation has been sent to your WhatsApp.
+              Your appointment has been successfully cancelled. A confirmation has been sent to your phone via SMS.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -184,7 +186,7 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
 
           <Alert>
             <AlertDescription>
-              You'll receive a cancellation confirmation via WhatsApp. Contact us anytime to reschedule.
+              You'll receive a cancellation confirmation via SMS. Contact us anytime to reschedule.
             </AlertDescription>
           </Alert>
 

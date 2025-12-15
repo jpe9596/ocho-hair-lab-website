@@ -1,4 +1,4 @@
-import { sendWhatsAppMessage, TWILIO_CONFIG } from './twilio-config'
+import { sendSMSMessage, TWILIO_CONFIG } from './twilio-config'
 
 interface Appointment {
   id: string
@@ -70,9 +70,11 @@ export async function sendBookingConfirmation(data: {
   stylist: string
   appointmentId: string
 }): Promise<void> {
+  const message = `Hello ${data.customerName}, this is a confirmation from Ocho Hair Lab for your ${data.service} appointment with ${data.stylist} on ${data.date} at ${data.time}.`
+  
   await Promise.all([
-    sendWhatsAppMessage(data.to, data.date, data.time),
-    sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, data.date, data.time)
+    sendSMSMessage(data.to, message),
+    sendSMSMessage(TWILIO_CONFIG.salonPhone, `New booking: ${data.customerName} - ${data.service} on ${data.date} at ${data.time} with ${data.stylist}`)
   ])
 }
 
@@ -85,9 +87,11 @@ async function sendReminderNotifications(data: {
   stylist: string
   appointmentId: string
 }): Promise<void> {
+  const message = `Hello ${data.customerName}, this is a reminder from Ocho Hair Lab about your ${data.service} appointment with ${data.stylist} on ${data.date} at ${data.time}.`
+  
   await Promise.all([
-    sendWhatsAppMessage(data.to, data.date, data.time),
-    sendWhatsAppMessage(TWILIO_CONFIG.salonWhatsApp, data.date, data.time)
+    sendSMSMessage(data.to, message),
+    sendSMSMessage(TWILIO_CONFIG.salonPhone, `Reminder sent: ${data.customerName} - ${data.service} on ${data.date} at ${data.time} with ${data.stylist}`)
   ])
 }
 

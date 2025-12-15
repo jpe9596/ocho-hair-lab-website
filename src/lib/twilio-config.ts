@@ -1,9 +1,8 @@
 export const TWILIO_CONFIG = {
   accountSid: 'ACe7262fb35ec470497df636e736ba3d1a',
   authToken: '7ffd32aa4b86b4fa97cad7a97a1e0990',
-  whatsappNumber: 'whatsapp:+17752547763',
-  salonWhatsApp: 'whatsapp:+5218116153747',
-  contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e'
+  smsNumber: '+17752547763',
+  salonPhone: '+5218116153747'
 } as const
 
 function formatMexicoPhoneNumber(phone: string): string {
@@ -28,23 +27,17 @@ function formatMexicoPhoneNumber(phone: string): string {
   return `+521${cleaned}`
 }
 
-export async function sendWhatsAppMessage(
+export async function sendSMSMessage(
   to: string,
-  date: string,
-  time: string
+  message: string
 ): Promise<void> {
   const formattedNumber = formatMexicoPhoneNumber(to)
-  const formattedTo = `whatsapp:${formattedNumber}`
   
   try {
     const params = new URLSearchParams()
-    params.append('To', formattedTo)
-    params.append('From', TWILIO_CONFIG.whatsappNumber)
-    params.append('ContentSid', TWILIO_CONFIG.contentSid)
-    params.append('ContentVariables', JSON.stringify({
-      "1": date,
-      "2": time
-    }))
+    params.append('To', formattedNumber)
+    params.append('From', TWILIO_CONFIG.smsNumber)
+    params.append('Body', message)
     
     const response = await fetch(
       `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_CONFIG.accountSid}/Messages.json`,
@@ -65,9 +58,9 @@ export async function sendWhatsAppMessage(
     }
     
     const result = await response.json()
-    console.log('WhatsApp message sent via Twilio:', result)
+    console.log('SMS message sent via Twilio:', result)
   } catch (error) {
-    console.error('Failed to send WhatsApp message:', error)
+    console.error('Failed to send SMS message:', error)
     throw error
   }
 }
