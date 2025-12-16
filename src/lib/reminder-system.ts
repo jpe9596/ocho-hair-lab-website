@@ -1,9 +1,4 @@
-import { sendSMSMessage, TWILIO_CONFIG } from './twilio-config'
-import { 
-  getConfirmationMessage, 
-  getReminderMessage, 
-  getStaffNotificationMessage 
-} from './sms-templates'
+import { sendWhatsAppMessage, TWILIO_CONFIG } from './twilio-config'
 
 interface Appointment {
   id: string
@@ -77,41 +72,14 @@ export async function sendBookingConfirmation(data: {
   stylist: string
   appointmentId: string
 }): Promise<void> {
-  const customerMessage = await getConfirmationMessage({
+  await sendWhatsAppMessage(data.to, data.date, data.time, {
+    appointmentId: data.appointmentId,
+    type: "confirmation",
+    templateName: "Booking Confirmation",
     customerName: data.customerName,
-    service: data.service,
-    date: data.date,
-    time: data.time,
-    stylist: data.stylist,
-    appointmentId: data.appointmentId
+    customerEmail: data.customerEmail || "",
+    serviceName: data.service
   })
-  
-  const staffMessage = getStaffNotificationMessage('newBooking', {
-    customerName: data.customerName,
-    service: data.service,
-    date: data.date,
-    time: data.time,
-    stylist: data.stylist
-  })
-  
-  await Promise.all([
-    sendSMSMessage(data.to, customerMessage, {
-      appointmentId: data.appointmentId,
-      type: "confirmation",
-      templateName: "Booking Confirmation",
-      customerName: data.customerName,
-      customerEmail: data.customerEmail || "",
-      serviceName: data.service
-    }),
-    sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage, {
-      appointmentId: data.appointmentId,
-      type: "custom",
-      templateName: "Staff Notification - New Booking",
-      customerName: "Salon Staff",
-      customerEmail: "",
-      serviceName: data.service
-    })
-  ])
 }
 
 async function sendReminderNotifications(data: {
@@ -124,41 +92,14 @@ async function sendReminderNotifications(data: {
   stylist: string
   appointmentId: string
 }): Promise<void> {
-  const customerMessage = await getReminderMessage({
+  await sendWhatsAppMessage(data.to, data.date, data.time, {
+    appointmentId: data.appointmentId,
+    type: "reminder",
+    templateName: "8-Hour Reminder",
     customerName: data.customerName,
-    service: data.service,
-    date: data.date,
-    time: data.time,
-    stylist: data.stylist,
-    appointmentId: data.appointmentId
+    customerEmail: data.customerEmail || "",
+    serviceName: data.service
   })
-  
-  const staffMessage = getStaffNotificationMessage('reminder', {
-    customerName: data.customerName,
-    service: data.service,
-    date: data.date,
-    time: data.time,
-    stylist: data.stylist
-  })
-  
-  await Promise.all([
-    sendSMSMessage(data.to, customerMessage, {
-      appointmentId: data.appointmentId,
-      type: "reminder",
-      templateName: "8-Hour Reminder",
-      customerName: data.customerName,
-      customerEmail: data.customerEmail || "",
-      serviceName: data.service
-    }),
-    sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage, {
-      appointmentId: data.appointmentId,
-      type: "custom",
-      templateName: "Staff Notification - Reminder",
-      customerName: "Salon Staff",
-      customerEmail: "",
-      serviceName: data.service
-    })
-  ])
 }
 
 function combineDateAndTime(date: Date, timeString: string): Date {

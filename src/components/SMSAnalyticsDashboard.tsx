@@ -213,10 +213,10 @@ export function SMSAnalyticsDashboard() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)' }}>
-            SMS Analytics Dashboard
+            WhatsApp Analytics Dashboard
           </h2>
           <p className="text-muted-foreground">
-            Track delivery rates, customer engagement, and messaging performance
+            Track delivery rates, customer engagement, and WhatsApp messaging performance
           </p>
         </div>
         

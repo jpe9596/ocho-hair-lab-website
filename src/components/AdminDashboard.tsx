@@ -104,9 +104,9 @@ export function AdminDashboard() {
         <Tabs defaultValue="analytics" className="space-y-6">
           <TabsList className="grid w-full max-w-4xl grid-cols-5">
             <TabsTrigger value="analytics">Analytics & Appointments</TabsTrigger>
-            <TabsTrigger value="sms-analytics">SMS Analytics</TabsTrigger>
+            <TabsTrigger value="sms-analytics">WhatsApp Analytics</TabsTrigger>
             <TabsTrigger value="schedules">Staff Schedules</TabsTrigger>
-            <TabsTrigger value="sms-templates">SMS Templates</TabsTrigger>
+            <TabsTrigger value="sms-templates">Message Templates</TabsTrigger>
             <TabsTrigger value="staff-management">Staff & Accounts</TabsTrigger>
           </TabsList>
 

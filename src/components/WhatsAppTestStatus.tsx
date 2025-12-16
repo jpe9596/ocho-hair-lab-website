@@ -53,9 +53,9 @@ export function WhatsAppTestStatus() {
             status={isConfigured ? 'success' : 'error'}
           />
           <StatusItem
-            label="SMS From Number"
-            value={TWILIO_CONFIG.smsNumber}
-            status={TWILIO_CONFIG.smsNumber ? 'success' : 'error'}
+            label="WhatsApp From Number"
+            value={TWILIO_CONFIG.whatsappNumber}
+            status={TWILIO_CONFIG.whatsappNumber ? 'success' : 'error'}
           />
           <StatusItem
             label="Salon Phone"
@@ -73,15 +73,15 @@ export function WhatsAppTestStatus() {
             </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />
-              <span>Numbers will be formatted to E.164: +521XXXXXXXXXX (Mexico mobile)</span>
+              <span>Numbers will be formatted to E.164: whatsapp:+521XXXXXXXXXX (Mexico mobile)</span>
             </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />
-              <span>Check your phone for immediate SMS confirmation</span>
+              <span>Check WhatsApp for immediate confirmation</span>
             </li>
             <li className="flex items-start gap-2">
               <Clock size={16} className="mt-0.5 flex-shrink-0" />
-              <span>Verify 8-hour reminder is scheduled and sent via SMS</span>
+              <span>Verify 8-hour reminder is scheduled and sent via WhatsApp</span>
             </li>
           </ul>
         </div>
@@ -89,7 +89,7 @@ export function WhatsAppTestStatus() {
         {isConfigured && (
           <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-              ✓ System is ready for testing! SMS messages will be sent from {TWILIO_CONFIG.smsNumber}
+              ✓ System is ready for testing! WhatsApp messages will be sent from {TWILIO_CONFIG.whatsappNumber}
             </p>
           </div>
         )}

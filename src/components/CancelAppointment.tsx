@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { X, CheckCircle, ArrowLeft, Calendar, Clock, Scissors, User } from "@phosphor-icons/react"
-import { sendSMSMessage, TWILIO_CONFIG } from "@/lib/twilio-config"
 import { toast } from "sonner"
 
 interface Appointment {
@@ -51,19 +50,9 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
         (current || []).filter((apt) => apt.id !== appointmentId)
       )
 
-      const dateStr = formatAppointmentDate(new Date(appointment.date))
-      const timeStr = appointment.time
-      const customerMessage = `Your ${appointment.service} appointment on ${dateStr} at ${timeStr} has been cancelled. Contact us anytime to reschedule!`
-      const salonMessage = `Cancelled: ${appointment.customerName} - ${appointment.service} on ${dateStr} at ${timeStr}`
-
-      await Promise.all([
-        sendSMSMessage(appointment.customerPhone, customerMessage),
-        sendSMSMessage(TWILIO_CONFIG.salonPhone, salonMessage)
-      ])
-
       setCancelled(true)
       toast.success("Appointment Cancelled", {
-        description: "Confirmation sent via SMS"
+        description: "Your appointment has been cancelled"
       })
     } catch (error) {
       console.error("Failed to cancel appointment:", error)
@@ -109,7 +98,7 @@ export function CancelAppointment({ appointmentId, onBack }: CancelAppointmentPr
               Appointment Cancelled
             </CardTitle>
             <CardDescription>
-              Your appointment has been successfully cancelled. A confirmation has been sent to your phone via SMS.
+              Your appointment has been successfully cancelled.
             </CardDescription>
           </CardHeader>
           <CardContent>

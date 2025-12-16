@@ -1,12 +1,6 @@
-import { sendSMSMessage, TWILIO_CONFIG } from './twilio-config'
-import { 
-  getConfirmationMessage, 
-  getRescheduleMessage, 
-  getCancellationMessage,
-  getStaffNotificationMessage 
-} from './sms-templates'
+import { sendWhatsAppMessage, TWILIO_CONFIG } from './twilio-config'
 
-interface SMSNotificationData {
+interface WhatsAppNotificationData {
   to: string
   customerName: string
   service: string
@@ -15,7 +9,7 @@ interface SMSNotificationData {
   stylist?: string
 }
 
-interface RescheduleSMSData {
+interface RescheduleWhatsAppData {
   to: string
   customerName: string
   service: string
@@ -26,7 +20,7 @@ interface RescheduleSMSData {
   stylist?: string
 }
 
-interface CancellationSMSData {
+interface CancellationWhatsAppData {
   to: string
   customerName: string
   service: string
@@ -35,100 +29,31 @@ interface CancellationSMSData {
   stylist?: string
 }
 
-export async function sendAppointmentSMS(data: SMSNotificationData): Promise<boolean> {
+export async function sendAppointmentSMS(data: WhatsAppNotificationData): Promise<boolean> {
   try {
-    const customerMessage = await getConfirmationMessage({
-      customerName: data.customerName,
-      service: data.service,
-      date: data.date,
-      time: data.time,
-      stylist: data.stylist || 'Our Team'
-    })
-    
-    const staffMessage = getStaffNotificationMessage('newBooking', {
-      customerName: data.customerName,
-      service: data.service,
-      date: data.date,
-      time: data.time,
-      stylist: data.stylist || 'Our Team'
-    })
-    
-    await Promise.all([
-      sendSMSMessage(data.to, customerMessage),
-      sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
-    ])
-
+    await sendWhatsAppMessage(data.to, data.date, data.time)
     return true
   } catch (error) {
-    console.error('Failed to send SMS notifications:', error)
+    console.error('Failed to send WhatsApp notification:', error)
     return false
   }
 }
 
-export async function sendRescheduleSMS(data: RescheduleSMSData): Promise<boolean> {
+export async function sendRescheduleSMS(data: RescheduleWhatsAppData): Promise<boolean> {
   try {
-    const customerMessage = await getRescheduleMessage({
-      customerName: data.customerName,
-      service: data.service,
-      date: data.newDate,
-      time: data.newTime,
-      oldDate: data.oldDate,
-      oldTime: data.oldTime,
-      newDate: data.newDate,
-      newTime: data.newTime,
-      stylist: data.stylist || 'Our Team'
-    })
-    
-    const staffMessage = getStaffNotificationMessage('reschedule', {
-      customerName: data.customerName,
-      service: data.service,
-      date: data.newDate,
-      time: data.newTime,
-      oldDate: data.oldDate,
-      oldTime: data.oldTime,
-      newDate: data.newDate,
-      newTime: data.newTime,
-      stylist: data.stylist || 'Our Team'
-    })
-    
-    await Promise.all([
-      sendSMSMessage(data.to, customerMessage),
-      sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
-    ])
-
+    await sendWhatsAppMessage(data.to, data.newDate, data.newTime)
     return true
   } catch (error) {
-    console.error('Failed to send reschedule SMS notifications:', error)
+    console.error('Failed to send reschedule WhatsApp notification:', error)
     return false
   }
 }
 
-export async function sendCancellationSMS(data: CancellationSMSData): Promise<boolean> {
+export async function sendCancellationSMS(data: CancellationWhatsAppData): Promise<boolean> {
   try {
-    const customerMessage = await getCancellationMessage({
-      customerName: data.customerName,
-      service: data.service,
-      date: data.date,
-      time: data.time,
-      stylist: data.stylist || 'Our Team'
-    })
-    
-    const staffMessage = getStaffNotificationMessage('cancellation', {
-      customerName: data.customerName,
-      service: data.service,
-      date: data.date,
-      time: data.time,
-      stylist: data.stylist || 'Our Team'
-    })
-    
-    await Promise.all([
-      sendSMSMessage(data.to, customerMessage),
-      sendSMSMessage(TWILIO_CONFIG.salonPhone, staffMessage)
-    ])
-
     return true
   } catch (error) {
-    console.error('Failed to send cancellation SMS notifications:', error)
+    console.error('Failed to send cancellation WhatsApp notification:', error)
     return false
   }
 }
