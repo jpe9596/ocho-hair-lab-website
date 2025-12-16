@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { AdminAnalytics } from "@/components/AdminAnalytics"
 import { StaffSchedule } from "@/components/StaffSchedule"
-import { SMSTemplateManager } from "@/components/SMSTemplateManager"
 import { SMSAnalyticsDashboard } from "@/components/SMSAnalyticsDashboard"
 import { StaffManagement } from "@/components/StaffManagement"
 import { ArrowLeft, Lock, ShieldCheck } from "@phosphor-icons/react"
@@ -102,11 +101,10 @@ export function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full max-w-4xl grid-cols-5">
+          <TabsList className="grid w-full max-w-4xl grid-cols-4">
             <TabsTrigger value="analytics">Analytics & Appointments</TabsTrigger>
             <TabsTrigger value="sms-analytics">WhatsApp Analytics</TabsTrigger>
             <TabsTrigger value="schedules">Staff Schedules</TabsTrigger>
-            <TabsTrigger value="sms-templates">Message Templates</TabsTrigger>
             <TabsTrigger value="staff-management">Staff & Accounts</TabsTrigger>
           </TabsList>
 
@@ -120,10 +118,6 @@ export function AdminDashboard() {
 
           <TabsContent value="schedules" className="space-y-6">
             <StaffSchedule />
-          </TabsContent>
-
-          <TabsContent value="sms-templates" className="space-y-6">
-            <SMSTemplateManager />
           </TabsContent>
 
           <TabsContent value="staff-management" className="space-y-6">
