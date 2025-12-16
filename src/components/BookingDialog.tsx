@@ -126,7 +126,12 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
           email: account.email,
           phone: account.phone
         }))
+        console.log('BookingDialog: Logged in user detected:', account.email)
+      } else {
+        console.log('BookingDialog: Email in session but no account found:', storedEmail)
       }
+    } else {
+      console.log('BookingDialog: No logged in user detected')
     }
   }, [customerAccounts, open])
 
@@ -298,9 +303,12 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           {loggedInAccount && (
-            <div className="p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm font-medium">
-                Booking as: <span className="text-primary">{loggedInAccount.name}</span> ({loggedInAccount.email})
+            <div className="p-5 bg-primary/10 border-2 border-primary/20 rounded-lg">
+              <p className="text-base font-semibold text-primary mb-1">
+                Welcome back, {loggedInAccount.name}!
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Booking as: {loggedInAccount.email}
               </p>
             </div>
           )}

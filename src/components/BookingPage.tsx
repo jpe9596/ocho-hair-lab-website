@@ -125,7 +125,12 @@ export function BookingPage() {
           phone: account.phone,
           password: account.password
         }))
+        console.log('BookingPage: Logged in user detected:', account.email)
+      } else {
+        console.log('BookingPage: Email in session but no account found:', storedEmail)
       }
+    } else {
+      console.log('BookingPage: No logged in user detected')
     }
   }, [customerAccounts])
 
@@ -359,9 +364,12 @@ export function BookingPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {loggedInAccount && (
-                <div className="p-4 bg-primary/10 rounded-lg mb-4">
-                  <p className="text-sm font-medium">
-                    Booking as: <span className="text-primary">{loggedInAccount.name}</span> ({loggedInAccount.email})
+                <div className="p-5 bg-primary/10 border-2 border-primary/20 rounded-lg mb-6">
+                  <p className="text-base font-semibold text-primary mb-1">
+                    Welcome back, {loggedInAccount.name}!
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Booking as: {loggedInAccount.email}
                   </p>
                 </div>
               )}
