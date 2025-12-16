@@ -36,13 +36,15 @@ export function CustomerLogin({ onLogin, onBack }: CustomerLoginProps) {
       sessionStorage.removeItem('bookingPassword')
       
       setTimeout(() => {
+        const normalizedEmail = bookingEmail.toLowerCase().trim()
         const account = accounts?.find(
-          acc => acc.email?.toLowerCase().trim() === bookingEmail.toLowerCase().trim() && acc.password === bookingPassword
+          acc => acc.email?.toLowerCase().trim() === normalizedEmail && acc.password === bookingPassword
         )
         
         if (account) {
           toast.success(`Welcome, ${account.name}! Your appointment has been booked.`)
-          onLogin(bookingEmail)
+          sessionStorage.setItem('customerEmail', normalizedEmail)
+          onLogin(normalizedEmail)
         }
       }, 800)
     }
@@ -52,13 +54,15 @@ export function CustomerLogin({ onLogin, onBack }: CustomerLoginProps) {
     e.preventDefault()
     setIsLoading(true)
 
+    const normalizedEmail = email.toLowerCase().trim()
     const account = accounts?.find(
-      acc => acc.email?.toLowerCase().trim() === email.toLowerCase().trim() && acc.password === password
+      acc => acc.email?.toLowerCase().trim() === normalizedEmail && acc.password === password
     )
 
     if (account) {
       toast.success(`Welcome back, ${account.name}!`)
-      onLogin(email)
+      sessionStorage.setItem('customerEmail', normalizedEmail)
+      onLogin(normalizedEmail)
     } else {
       toast.error("Invalid email or password")
     }

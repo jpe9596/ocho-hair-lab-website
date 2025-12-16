@@ -227,10 +227,13 @@ export function BookingPage() {
           console.log('Saving appointment for email:', normalizedEmail)
           console.log('Total appointments after save:', updated.length)
           console.log('New appointment:', newAppointment)
-          setTimeout(resolve, 200)
+          setTimeout(resolve, 500)
           return updated
         })
       })
+
+      console.log('Appointment saved, waiting for KV sync...')
+      await new Promise(resolve => setTimeout(resolve, 300))
 
       if (!loggedInAccount) {
         const existingAccount = customerAccounts?.find(
@@ -282,6 +285,8 @@ export function BookingPage() {
       }
 
       if (loggedInAccount) {
+        sessionStorage.setItem('customerEmail', loggedInAccount.email.toLowerCase().trim())
+        
         setFormData(prev => ({
           ...prev,
           service: "",

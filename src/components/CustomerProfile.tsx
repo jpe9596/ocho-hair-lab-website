@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -63,12 +63,10 @@ interface CustomerProfileProps {
 export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
-  const [email, setEmail] = useState(customerEmail || "")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isLoggedIn, setIsLoggedIn] = useState(!!customerEmail)
-  const [customerData, setCustomerData] = useState<CustomerAccount | null>(
-    customerEmail ? customerAccounts?.find(acc => acc.email === customerEmail) || null : null
-  )
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [customerData, setCustomerData] = useState<CustomerAccount | null>(null)
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
@@ -79,6 +77,52 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('customerEmail')
+    if (storedEmail && customerAccounts && customerAccounts.length > 0) {
+      const normalizedEmail = storedEmail.toLowerCase().trim()
+      const account = customerAccounts.find(acc => acc.email?.toLowerCase().trim() === normalizedEmail)
+      
+      if (account) {
+        console.log('CustomerProfile: Auto-login from session:', normalizedEmail)
+        setCustomerData(account)
+        setIsLoggedIn(true)
+        setEmail(normalizedEmail)
+      } else {
+        console.log('CustomerProfile: Session email found but no matching account:', normalizedEmail)
+        console.log('Available accounts:', customerAccounts.map(a => a.email))
+        sessionStorage.removeItem('customerEmail')
+      }
+    } else if (customerEmail && customerAccounts && customerAccounts.length > 0) {
+      const normalizedEmail = customerEmail.toLowerCase().trim()
+      const account = customerAccounts.find(acc => acc.email?.toLowerCase().trim() === normalizedEmail)
+      
+      if (account) {
+        console.log('CustomerProfile: Auto-login from prop:', normalizedEmail)
+        setCustomerData(account)
+        setIsLoggedIn(true)
+        setEmail(normalizedEmail)
+        sessionStorage.setItem('customerEmail', normalizedEmail)
+      }
+    }
+  }, [customerEmail, customerAccounts])
+
+  useEffect(() => {
+    if (isLoggedIn && customerData) {
+      console.log('=== CustomerProfile Appointments Debug ===')
+      console.log('Logged in as:', customerData.email)
+      console.log('Total appointments in system:', appointments?.length || 0)
+      const userAppointments = (appointments || []).filter(apt => 
+        apt.customerEmail?.toLowerCase().trim() === customerData.email?.toLowerCase().trim()
+      )
+      console.log('Appointments for this user:', userAppointments.length)
+      if (userAppointments.length > 0) {
+        console.log('User appointments:', userAppointments)
+      }
+      console.log('==========================================')
+    }
+  }, [appointments, isLoggedIn, customerData])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
