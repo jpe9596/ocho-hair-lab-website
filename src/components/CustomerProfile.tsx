@@ -106,6 +106,7 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
 
     setCustomerData(account)
     setIsLoggedIn(true)
+    sessionStorage.setItem('customerEmail', normalizedEmail)
     
     const customerAppointments = (appointments || []).filter(apt => {
       const appointmentEmail = apt.customerEmail?.toLowerCase().trim() || ''
@@ -135,6 +136,7 @@ export function CustomerProfile({ customerEmail, onLogout }: CustomerProfileProp
     setCustomerData(null)
     setEmail("")
     setPassword("")
+    sessionStorage.removeItem('customerEmail')
     if (onLogout) onLogout()
   }
 

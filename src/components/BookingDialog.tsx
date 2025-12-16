@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -22,11 +22,19 @@ interface BookingDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
+interface CustomerAccount {
+  email: string
+  password: string
+  name: string
+  phone: string
+}
+
 interface Appointment {
   id: string
   customerName: string
   customerEmail: string
   customerPhone: string
+  password?: string
   service: string
   services: string[]
   stylist: string
@@ -90,8 +98,10 @@ const timeSlots = [
 
 export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
+  const [customerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [date, setDate] = useState<Date>()
+  const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -103,6 +113,22 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     notes: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('customerEmail')
+    if (storedEmail && customerAccounts) {
+      const account = customerAccounts.find(acc => acc.email?.toLowerCase().trim() === storedEmail.toLowerCase().trim())
+      if (account) {
+        setLoggedInAccount(account)
+        setFormData(prev => ({
+          ...prev,
+          name: account.name,
+          email: account.email,
+          phone: account.phone
+        }))
+      }
+    }
+  }, [customerAccounts, open])
 
   const availableTimeSlots = useMemo(() => {
     if (!date || !formData.stylist || !schedules) return timeSlots
@@ -138,9 +164,16 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!date || !formData.name || !formData.email || !formData.phone || formData.services.length === 0 || !formData.time) {
-      toast.error("Please fill in all required fields and select at least one service")
-      return
+    if (!loggedInAccount) {
+      if (!date || !formData.name || !formData.email || !formData.phone || formData.services.length === 0 || !formData.time) {
+        toast.error("Please fill in all required fields and select at least one service")
+        return
+      }
+    } else {
+      if (!date || formData.services.length === 0 || !formData.time) {
+        toast.error("Please select date, time, and at least one service")
+        return
+      }
     }
 
     let finalStylist = formData.stylist || "Any Available"
@@ -162,13 +195,19 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
     setIsSubmitting(true)
 
+    const customerName = loggedInAccount ? loggedInAccount.name : formData.name
+    const customerEmail = loggedInAccount ? loggedInAccount.email.toLowerCase().trim() : formData.email.toLowerCase().trim()
+    const customerPhone = loggedInAccount ? loggedInAccount.phone : formData.phone
+    const customerPassword = loggedInAccount ? loggedInAccount.password : ""
+
     const servicesList = formData.services.join(", ")
 
     const newAppointment: Appointment = {
       id: Date.now().toString(),
-      customerName: formData.name,
-      customerEmail: formData.email,
-      customerPhone: formData.phone,
+      customerName,
+      customerEmail,
+      customerPhone,
+      password: customerPassword,
       service: servicesList,
       services: formData.services,
       stylist: finalStylist,
@@ -179,21 +218,29 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       status: "confirmed"
     }
 
-    setAppointments((current) => [...(current || []), newAppointment])
+    await new Promise<void>((resolve) => {
+      setAppointments((current) => {
+        const updated = [...(current || []), newAppointment]
+        console.log('BookingDialog: Saving appointment for email:', customerEmail)
+        console.log('BookingDialog: Total appointments after save:', updated.length)
+        setTimeout(resolve, 200)
+        return updated
+      })
+    })
 
     try {
       await sendBookingConfirmation({
-        to: formData.phone,
-        customerName: formData.name,
+        to: customerPhone,
+        customerName,
         service: servicesList,
         date: formatAppointmentDate(date),
         time: formData.time,
-        stylist: formData.stylist || "Any Available",
+        stylist: finalStylist,
         appointmentId: newAppointment.id
       })
 
       toast.success("Appointment Confirmed!", {
-        description: `Confirmation sent via WhatsApp immediately. You'll also receive a reminder 8 hours before your appointment on ${formatAppointmentDate(date)} at ${formData.time}!`,
+        description: `Confirmation sent via WhatsApp. You'll also receive a reminder 8 hours before your appointment!`,
         icon: <PaperPlaneTilt size={20} weight="fill" />,
         action: {
           label: "View",
@@ -202,7 +249,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       })
     } catch (error) {
       toast.success("Appointment Booked!", {
-        description: `Your ${servicesList} appointment is scheduled. You'll receive an immediate confirmation and a reminder 8 hours before.`,
+        description: `Your ${servicesList} appointment is scheduled. You'll receive a reminder 8 hours before.`,
         icon: <Check size={20} weight="bold" />,
         action: {
           label: "View",
@@ -211,16 +258,27 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       })
     }
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      service: "",
-      services: [],
-      stylist: "",
-      time: "",
-      notes: ""
-    })
+    if (loggedInAccount) {
+      setFormData(prev => ({
+        ...prev,
+        service: "",
+        services: [],
+        stylist: "",
+        time: "",
+        notes: ""
+      }))
+    } else {
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        service: "",
+        services: [],
+        stylist: "",
+        time: "",
+        notes: ""
+      })
+    }
     setDate(undefined)
     setIsSubmitting(false)
     onOpenChange(false)
@@ -239,45 +297,57 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Jane Doe"
-                required
-              />
+          {loggedInAccount && (
+            <div className="p-4 bg-primary/10 rounded-lg">
+              <p className="text-sm font-medium">
+                Booking as: <span className="text-primary">{loggedInAccount.name}</span> ({loggedInAccount.email})
+              </p>
             </div>
+          )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="jane@example.com"
-                required
-              />
-            </div>
-          </div>
+          {!loggedInAccount && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Jane Doe"
+                    required
+                  />
+                </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number (Mexico) *</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="81 1615 3747"
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              Enter your 10-digit Mexico mobile number. We'll send WhatsApp confirmations to +521 {formData.phone || "XXXXXXXXXX"}
-            </p>
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="jane@example.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number (Mexico) *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="81 1615 3747"
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter your 10-digit Mexico mobile number. We'll send WhatsApp confirmations to +521 {formData.phone || "XXXXXXXXXX"}
+                </p>
+              </div>
+            </>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2 md:col-span-2">

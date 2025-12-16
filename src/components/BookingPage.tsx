@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -96,6 +96,8 @@ export function BookingPage() {
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [date, setDate] = useState<Date>()
+  const [loggedInEmail, setLoggedInEmail] = useState<string>("")
+  const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -108,6 +110,24 @@ export function BookingPage() {
     notes: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('customerEmail')
+    if (storedEmail && customerAccounts) {
+      const account = customerAccounts.find(acc => acc.email?.toLowerCase().trim() === storedEmail.toLowerCase().trim())
+      if (account) {
+        setLoggedInEmail(storedEmail)
+        setLoggedInAccount(account)
+        setFormData(prev => ({
+          ...prev,
+          name: account.name,
+          email: account.email,
+          phone: account.phone,
+          password: account.password
+        }))
+      }
+    }
+  }, [customerAccounts])
 
   const availableTimeSlots = useMemo(() => {
     if (!date || !formData.stylist || !schedules) return timeSlots
@@ -143,14 +163,21 @@ export function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!date || !formData.name || !formData.email || !formData.phone || !formData.password || formData.services.length === 0 || !formData.time) {
-      toast.error("Please fill in all required fields and select at least one service")
-      return
-    }
+    if (!loggedInAccount) {
+      if (!date || !formData.name || !formData.email || !formData.phone || !formData.password || formData.services.length === 0 || !formData.time) {
+        toast.error("Please fill in all required fields and select at least one service")
+        return
+      }
 
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters long")
-      return
+      if (formData.password.length < 6) {
+        toast.error("Password must be at least 6 characters long")
+        return
+      }
+    } else {
+      if (!date || formData.services.length === 0 || !formData.time) {
+        toast.error("Please select date, time, and at least one service")
+        return
+      }
     }
 
     let finalStylist = formData.stylist || "Any Available"
@@ -165,14 +192,18 @@ export function BookingPage() {
     setIsSubmitting(true)
 
     try {
-      const normalizedEmail = formData.email.toLowerCase().trim()
+      const customerName = loggedInAccount ? loggedInAccount.name : formData.name
+      const customerEmail = loggedInAccount ? loggedInAccount.email : formData.email
+      const customerPhone = loggedInAccount ? loggedInAccount.phone : formData.phone
+      const customerPassword = loggedInAccount ? loggedInAccount.password : formData.password
+      const normalizedEmail = customerEmail.toLowerCase().trim()
 
       const newAppointment: Appointment = {
         id: Date.now().toString(),
-        customerName: formData.name,
+        customerName,
         customerEmail: normalizedEmail,
-        customerPhone: formData.phone,
-        password: formData.password,
+        customerPhone,
+        password: customerPassword,
         service: formData.services[0],
         services: formData.services,
         stylist: finalStylist,
@@ -196,28 +227,30 @@ export function BookingPage() {
         })
       })
 
-      const existingAccount = customerAccounts?.find(
-        acc => acc.email?.toLowerCase().trim() === normalizedEmail
-      )
-      
-      if (!existingAccount) {
-        const newAccount: CustomerAccount = {
-          email: normalizedEmail,
-          password: formData.password,
-          name: formData.name,
-          phone: formData.phone
-        }
-        await new Promise<void>((resolve) => {
-          setCustomerAccounts((current) => {
-            const updated = [...(current || []), newAccount]
-            console.log('Creating new account for:', normalizedEmail)
-            console.log('Total accounts after save:', updated.length)
-            setTimeout(resolve, 200)
-            return updated
+      if (!loggedInAccount) {
+        const existingAccount = customerAccounts?.find(
+          acc => acc.email?.toLowerCase().trim() === normalizedEmail
+        )
+        
+        if (!existingAccount) {
+          const newAccount: CustomerAccount = {
+            email: normalizedEmail,
+            password: formData.password,
+            name: formData.name,
+            phone: formData.phone
+          }
+          await new Promise<void>((resolve) => {
+            setCustomerAccounts((current) => {
+              const updated = [...(current || []), newAccount]
+              console.log('Creating new account for:', normalizedEmail)
+              console.log('Total accounts after save:', updated.length)
+              setTimeout(resolve, 200)
+              return updated
+            })
           })
-        })
-      } else {
-        console.log('Existing account found for:', normalizedEmail)
+        } else {
+          console.log('Existing account found for:', normalizedEmail)
+        }
       }
 
       try {
@@ -243,25 +276,41 @@ export function BookingPage() {
         })
       }
 
-      sessionStorage.setItem('bookingEmail', normalizedEmail)
-      sessionStorage.setItem('bookingPassword', formData.password)
+      if (loggedInAccount) {
+        setFormData(prev => ({
+          ...prev,
+          service: "",
+          services: [],
+          stylist: "",
+          time: "",
+          notes: ""
+        }))
+        setDate(undefined)
+        
+        setTimeout(() => {
+          window.location.hash = "#profile"
+        }, 2000)
+      } else {
+        sessionStorage.setItem('bookingEmail', normalizedEmail)
+        sessionStorage.setItem('bookingPassword', formData.password)
 
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        service: "",
-        services: [],
-        stylist: "",
-        time: "",
-        notes: ""
-      })
-      setDate(undefined)
-      
-      setTimeout(() => {
-        window.location.hash = "#customer-login"
-      }, 2000)
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          password: "",
+          service: "",
+          services: [],
+          stylist: "",
+          time: "",
+          notes: ""
+        })
+        setDate(undefined)
+        
+        setTimeout(() => {
+          window.location.hash = "#customer-login"
+        }, 2000)
+      }
 
     } catch (error) {
       toast.error("Failed to book appointment. Please try again.")
@@ -309,61 +358,73 @@ export function BookingPage() {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name *</Label>
-                  <Input
-                    id="name"
-                    placeholder="Jane Doe"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
+              {loggedInAccount && (
+                <div className="p-4 bg-primary/10 rounded-lg mb-4">
+                  <p className="text-sm font-medium">
+                    Booking as: <span className="text-primary">{loggedInAccount.name}</span> ({loggedInAccount.email})
+                  </p>
                 </div>
+              )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
+              {!loggedInAccount && (
+                <>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name *</Label>
+                      <Input
+                        id="name"
+                        placeholder="Jane Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                      />
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number (Mexico) *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="81 1615 3747"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  We'll send appointment confirmations to WhatsApp: +521 {formData.phone || "XXXXXXXXXX"}
-                </p>
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Create a password (min. 6 characters)"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  minLength={6}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Use this password to login and manage your appointments
-                </p>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number (Mexico) *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="81 1615 3747"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      We'll send appointment confirmations to WhatsApp: +521 {formData.phone || "XXXXXXXXXX"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password *</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Create a password (min. 6 characters)"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                      minLength={6}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Use this password to login and manage your appointments
+                    </p>
+                  </div>
+                </>
+              )}
 
               <div className="space-y-3">
                 <Label>Services * (Select one or more)</Label>
