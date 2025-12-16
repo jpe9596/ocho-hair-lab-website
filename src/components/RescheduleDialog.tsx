@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar } from "@/components/ui/calendar"
+import { WeekCalendar } from "@/components/WeekCalendar"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { CalendarCheck, PaperPlaneTilt } from "@phosphor-icons/react"
@@ -209,8 +209,7 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
 
           <div className="space-y-2">
             <Label>New Date *</Label>
-            <Calendar
-              mode="single"
+            <WeekCalendar
               selected={date}
               onSelect={(newDate) => {
                 setDate(newDate)
@@ -234,7 +233,7 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
                 
                 return !anyOneWorking
               }}
-              className="rounded-md border"
+              className="rounded-md border p-4"
             />
           </div>
 
