@@ -233,7 +233,7 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
                 return !anyOneWorking
               }}
               className="rounded-md border p-4"
-              className="rounded-md border p-4"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
