@@ -4,7 +4,7 @@ export const TWILIO_CONFIG = {
   accountSid: 'ACe7262fb35ec470497df636e736ba3d1a',
   authToken: '7ffd32aa4b86b4fa97cad7a97a1e0990',
   whatsappNumber: 'whatsapp:+17752547763',
-  templateSid: 'HX797679775dc43a66039095fe7de267d1',
+  templateSid: 'HXe3b49be604a7165c8843b33e2f24f162',
   salonPhone: '+5218116153747'
 } as const
 
