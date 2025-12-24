@@ -40,7 +40,18 @@ export function Footer() {
           </div>
         </div>
         
-        <div className="mt-8 pt-6 border-t border-border text-center">
+        <div className="mt-8 pt-6 border-t border-border text-center space-y-4">
+          <div>
+            <a 
+              href="#staff" 
+              className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors underline"
+            >
+              Staff Login
+            </a>
+          </div>
+          <p className="text-sm text-foreground/60">
+            Follow us @ochohairlab
+          </p>
           <p className="text-sm text-foreground/60">
             © {new Date().getFullYear()} Ocho Hair Lab. All rights reserved.
           </p>
