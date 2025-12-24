@@ -47,6 +47,15 @@ interface Appointment {
   status?: "confirmed" | "completed" | "cancelled"
 }
 
+interface StaffMember {
+  username: string
+  password: string
+  name: string
+  role: string
+  isAdmin: boolean
+  availableServices?: string[]
+}
+
 const serviceCategories = [
   {
     name: "Tinte",
@@ -84,13 +93,6 @@ const serviceCategories = [
   }
 ]
 
-const stylists = [
-  "Maria Rodriguez",
-  "Jessica Chen",
-  "Alex Thompson",
-  "Sophia Martinez"
-]
-
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
@@ -100,6 +102,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [customerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [date, setDate] = useState<Date>()
   const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
   const [formData, setFormData] = useState({
@@ -113,6 +116,11 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     notes: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const stylistNames = useMemo(() => {
+    if (!staffMembers || staffMembers.length === 0) return []
+    return staffMembers.filter(s => !s.isAdmin).map(s => s.name)
+  }, [staffMembers])
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('customerEmail')
@@ -140,7 +148,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     
     if (formData.stylist === "Any Available") {
       const allAvailableSlots = new Set<string>()
-      stylists.forEach(stylist => {
+      stylistNames.forEach(stylist => {
         const slots = getAvailableTimeSlots(date, stylist, schedules, appointments || [])
         slots.forEach(slot => allAvailableSlots.add(slot))
       })
@@ -157,14 +165,14 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     }
     
     return getAvailableTimeSlots(date, formData.stylist, schedules, appointments || [])
-  }, [date, formData.stylist, schedules, appointments])
+  }, [date, formData.stylist, schedules, appointments, stylistNames])
 
   const availableStylists = useMemo(() => {
-    if (!date || !formData.time || !schedules) return stylists
+    if (!date || !formData.time || !schedules) return stylistNames
     
     const available = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
     return available
-  }, [date, formData.time, schedules, appointments])
+  }, [date, formData.time, schedules, appointments, stylistNames])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -422,7 +430,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Any Available">Any Available</SelectItem>
-                  {stylists.map((stylist) => {
+                  {stylistNames.map((stylist) => {
                     const isAvailable = !date || !formData.time || availableStylists.includes(stylist)
                     return (
                       <SelectItem key={stylist} value={stylist} disabled={!isAvailable}>

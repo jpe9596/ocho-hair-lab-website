@@ -88,11 +88,6 @@ const serviceCategories = [
   }
 ]
 
-const stylists = [
-  "Maria",
-  "Paula"
-]
-
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
@@ -142,12 +137,17 @@ export function BookingPage() {
     }
   }, [customerAccounts])
 
+  const stylistNames = useMemo(() => {
+    if (!staffMembers || staffMembers.length === 0) return []
+    return staffMembers.filter(s => !s.isAdmin).map(s => s.name)
+  }, [staffMembers])
+
   const availableTimeSlots = useMemo(() => {
     if (!date || !formData.stylist || !schedules) return timeSlots
     
     if (formData.stylist === "Any Available") {
       const allAvailableSlots = new Set<string>()
-      stylists.forEach(stylist => {
+      stylistNames.forEach(stylist => {
         const slots = getAvailableTimeSlots(date, stylist, schedules, appointments || [])
         slots.forEach(slot => allAvailableSlots.add(slot))
       })
@@ -164,14 +164,14 @@ export function BookingPage() {
     }
     
     return getAvailableTimeSlots(date, formData.stylist, schedules, appointments || [])
-  }, [date, formData.stylist, schedules, appointments])
+  }, [date, formData.stylist, schedules, appointments, stylistNames])
 
   const availableStylists = useMemo(() => {
-    if (!date || !formData.time || !schedules) return stylists
+    if (!date || !formData.time || !schedules) return stylistNames
     
     const available = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
     return available
-  }, [date, formData.time, schedules, appointments])
+  }, [date, formData.time, schedules, appointments, stylistNames])
 
   const availableServices = useMemo(() => {
     if (!formData.stylist || formData.stylist === "Any Available" || !staffMembers) {
@@ -533,7 +533,7 @@ export function BookingPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Any Available">Any Available</SelectItem>
-                    {stylists.map((stylist) => (
+                    {stylistNames.map((stylist) => (
                       <SelectItem key={stylist} value={stylist}>{stylist}</SelectItem>
                     ))}
                   </SelectContent>
