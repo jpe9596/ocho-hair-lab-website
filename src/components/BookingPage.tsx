@@ -483,53 +483,16 @@ export function BookingPage() {
                 </>
               )}
 
-              <div className="space-y-3">
-                <Label>Services * (Select one or more)</Label>
-                {formData.stylist && formData.stylist !== "Any Available" && availableServices.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    No services configured for this stylist. Please contact the salon.
-                  </p>
-                )}
-                <ScrollArea className="h-64 rounded-lg border border-input p-4">
-                  {availableServices.map((category) => (
-                    <div key={category.name} className="mb-6 last:mb-0">
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-3">{category.name}</h3>
-                      <div className="space-y-3">
-                        {category.items.map((service) => (
-                          <div key={service} className="flex items-center space-x-3">
-                            <Checkbox
-                              id={service}
-                              checked={formData.services.includes(service)}
-                              onCheckedChange={() => toggleService(service)}
-                            />
-                            <label
-                              htmlFor={service}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                            >
-                              {service}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </ScrollArea>
-                {formData.services.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.services.map(service => (
-                      <Badge key={service} variant="secondary">
-                        {service}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               <div className="space-y-2">
-                <Label htmlFor="stylist">Preferred Stylist</Label>
-                <Select value={formData.stylist} onValueChange={(value) => setFormData({ ...formData, stylist: value, time: "" })}>
+                <Label htmlFor="stylist">Preferred Stylist *</Label>
+                <Select 
+                  value={formData.stylist} 
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, stylist: value, time: "", services: [] })
+                  }}
+                >
                   <SelectTrigger id="stylist">
-                    <SelectValue placeholder="Any Available" />
+                    <SelectValue placeholder="Select a stylist first" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Any Available">Any Available</SelectItem>
@@ -538,6 +501,61 @@ export function BookingPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {formData.stylist && formData.stylist !== "Any Available" && (
+                  <p className="text-xs text-muted-foreground">
+                    Showing services available for {formData.stylist}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <Label>Services * (Select one or more)</Label>
+                {!formData.stylist ? (
+                  <div className="h-64 rounded-lg border border-input p-4 bg-muted/30 flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground">Please select a stylist first</p>
+                  </div>
+                ) : (
+                  <>
+                    {formData.stylist && formData.stylist !== "Any Available" && availableServices.length === 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        No services configured for this stylist. Please contact the salon.
+                      </p>
+                    )}
+                    <ScrollArea className="h-64 rounded-lg border border-input p-4">
+                      {availableServices.map((category) => (
+                        <div key={category.name} className="mb-6 last:mb-0">
+                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">{category.name}</h3>
+                          <div className="space-y-3">
+                            {category.items.map((service) => (
+                              <div key={service} className="flex items-center space-x-3">
+                                <Checkbox
+                                  id={service}
+                                  checked={formData.services.includes(service)}
+                                  onCheckedChange={() => toggleService(service)}
+                                />
+                                <label
+                                  htmlFor={service}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                >
+                                  {service}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </ScrollArea>
+                    {formData.services.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {formData.services.map(service => (
+                          <Badge key={service} variant="secondary">
+                            {service}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
               <div className="space-y-2">

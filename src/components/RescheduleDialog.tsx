@@ -37,12 +37,14 @@ interface RescheduleDialogProps {
   appointment: Appointment | null
 }
 
-const stylists = [
-  "Maria Rodriguez",
-  "Jessica Chen",
-  "Alex Thompson",
-  "Sophia Martinez"
-]
+interface StaffMember {
+  username: string
+  password: string
+  name: string
+  role: string
+  isAdmin: boolean
+  availableServices?: string[]
+}
 
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
@@ -52,11 +54,17 @@ const timeSlots = [
 export function RescheduleDialog({ open, onOpenChange, appointment }: RescheduleDialogProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [date, setDate] = useState<Date>()
   const [time, setTime] = useState("")
   const [stylist, setStylist] = useState("")
   const [notes, setNotes] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const stylistNames = useMemo(() => {
+    if (!staffMembers || staffMembers.length === 0) return []
+    return staffMembers.filter(s => !s.isAdmin).map(s => s.name)
+  }, [staffMembers])
 
   useEffect(() => {
     if (appointment && open) {
@@ -72,7 +80,7 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
     
     if (stylist === "Any Available") {
       const allAvailableSlots = new Set<string>()
-      stylists.forEach(s => {
+      stylistNames.forEach(s => {
         const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
         const slots = getAvailableTimeSlots(date, s, schedules, otherAppointments)
         slots.forEach(slot => allAvailableSlots.add(slot))
@@ -91,14 +99,14 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
     
     const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
     return getAvailableTimeSlots(date, stylist, schedules, otherAppointments)
-  }, [date, stylist, schedules, appointments, appointment])
+  }, [date, stylist, schedules, appointments, appointment, stylistNames])
 
   const availableStylists = useMemo(() => {
-    if (!date || !time || !schedules || !appointment) return stylists
+    if (!date || !time || !schedules || !appointment) return stylistNames
     
     const otherAppointments = (appointments || []).filter(apt => apt.id !== appointment.id)
     return getAvailableStylistsForTime(date, time, schedules, otherAppointments)
-  }, [date, time, schedules, appointments, appointment])
+  }, [date, time, schedules, appointments, appointment, stylistNames])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -276,7 +284,7 @@ export function RescheduleDialog({ open, onOpenChange, appointment }: Reschedule
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Any Available">Any Available</SelectItem>
-                  {stylists.map((s) => {
+                  {stylistNames.map((s) => {
                     const isAvailable = !date || !time || availableStylists.includes(s)
                     return (
                       <SelectItem key={s} value={s} disabled={!isAvailable}>

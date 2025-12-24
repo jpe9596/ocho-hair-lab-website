@@ -122,6 +122,23 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     return staffMembers.filter(s => !s.isAdmin).map(s => s.name)
   }, [staffMembers])
 
+  const availableServicesForStylist = useMemo(() => {
+    if (!formData.stylist || formData.stylist === "Any Available") {
+      return serviceCategories
+    }
+    
+    const selectedStaff = staffMembers?.find(s => s.name === formData.stylist)
+    if (!selectedStaff || !selectedStaff.availableServices || selectedStaff.availableServices.length === 0) {
+      return serviceCategories
+    }
+
+    const availableServicesList = selectedStaff.availableServices
+    return serviceCategories.map(category => ({
+      ...category,
+      items: category.items.filter(service => availableServicesList.includes(service))
+    })).filter(category => category.items.length > 0)
+  }, [formData.stylist, staffMembers])
+
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('customerEmail')
     if (storedEmail && customerAccounts) {
@@ -367,10 +384,57 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="stylist">Preferred Stylist *</Label>
+              <Select 
+                value={formData.stylist} 
+                onValueChange={(value) => {
+                  setFormData({ ...formData, stylist: value, time: "", services: [] })
+                }}
+              >
+                <SelectTrigger id="stylist">
+                  <SelectValue placeholder="Select a stylist first" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Any Available">Any Available</SelectItem>
+                  {stylistNames.map((stylist) => {
+                    const isAvailable = !date || !formData.time || availableStylists.includes(stylist)
+                    return (
+                      <SelectItem key={stylist} value={stylist} disabled={!isAvailable}>
+                        <div className="flex items-center justify-between w-full">
+                          {stylist}
+                          {date && formData.time && !isAvailable && (
+                            <Badge variant="secondary" className="ml-2 text-xs">Unavailable</Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+              {formData.stylist && formData.stylist !== "Any Available" && (
+                <p className="text-xs text-muted-foreground">
+                  Showing services available for {formData.stylist}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
               <Label>Services * (Select one or more)</Label>
-              <ScrollArea className="h-[280px] rounded-md border p-4 bg-card">
-                <div className="space-y-4">
-                  {serviceCategories.map((category) => (
+              {!formData.stylist ? (
+                <div className="h-[280px] rounded-md border p-4 bg-muted/30 flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">Please select a stylist first</p>
+                </div>
+              ) : (
+                <>
+                  <ScrollArea className="h-[280px] rounded-md border p-4 bg-card">
+                    <div className="space-y-4">
+                      {availableServicesForStylist.length === 0 ? (
+                        <div className="text-center py-8">
+                          <p className="text-sm text-muted-foreground">No services configured for this stylist.</p>
+                          <p className="text-xs text-muted-foreground mt-2">Please contact admin to configure services.</p>
+                        </div>
+                      ) : (
+                        availableServicesForStylist.map((category) => (
                     <div key={category.name} className="space-y-2">
                       <div className="text-sm font-semibold text-primary pb-1 border-b">
                         {category.name}
@@ -403,48 +467,21 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
                         </div>
                       ))}
                     </div>
-                  ))}
-                </div>
-              </ScrollArea>
-              {formData.services.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {formData.services.map((service) => (
-                    <Badge key={service} variant="secondary" className="text-xs">
-                      {service}
-                    </Badge>
-                  ))}
-                </div>
+                  ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                  {formData.services.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {formData.services.map((service) => (
+                        <Badge key={service} variant="secondary" className="text-xs">
+                          {service}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="stylist">Preferred Stylist</Label>
-              <Select 
-                value={formData.stylist} 
-                onValueChange={(value) => {
-                  setFormData({ ...formData, stylist: value, time: "" })
-                }}
-              >
-                <SelectTrigger id="stylist">
-                  <SelectValue placeholder="Any available" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Any Available">Any Available</SelectItem>
-                  {stylistNames.map((stylist) => {
-                    const isAvailable = !date || !formData.time || availableStylists.includes(stylist)
-                    return (
-                      <SelectItem key={stylist} value={stylist} disabled={!isAvailable}>
-                        <div className="flex items-center justify-between w-full">
-                          {stylist}
-                          {date && formData.time && !isAvailable && (
-                            <Badge variant="secondary" className="ml-2 text-xs">Unavailable</Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    )
-                  })}
-                </SelectContent>
-              </Select>
             </div>
           </div>
 
