@@ -8,8 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Trash, Key, Users, UserCircle, ShieldCheck } from "@phosphor-icons/react"
+import { Plus, Trash, Key, Users, UserCircle, ShieldCheck, Scissors } from "@phosphor-icons/react"
 import { toast } from "sonner"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface StaffMember {
   username: string
@@ -17,6 +19,7 @@ interface StaffMember {
   name: string
   role: string
   isAdmin: boolean
+  availableServices?: string[]
 }
 
 interface CustomerAccount {
@@ -28,11 +31,9 @@ interface CustomerAccount {
 
 export function StaffManagement() {
   const [staffMembers, setStaffMembers] = useKV<StaffMember[]>("staff-members", [
-    { username: "maria", password: "supersecret", name: "Maria Rodriguez", role: "Master Stylist", isAdmin: false },
-    { username: "jessica", password: "supersecret", name: "Jessica Chen", role: "Senior Stylist", isAdmin: false },
-    { username: "alex", password: "supersecret", name: "Alex Thompson", role: "Color Specialist", isAdmin: false },
-    { username: "sophia", password: "supersecret", name: "Sophia Martinez", role: "Stylist", isAdmin: false },
-    { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true }
+    { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false, availableServices: [] },
+    { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false, availableServices: [] },
+    { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
   ])
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   
@@ -41,12 +42,16 @@ export function StaffManagement() {
     password: "",
     name: "",
     role: "",
-    isAdmin: false
+    isAdmin: false,
+    availableServices: [] as string[]
   })
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [staffToDelete, setStaffToDelete] = useState<string | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  
+  const [serviceDialogOpen, setServiceDialogOpen] = useState(false)
+  const [staffForServices, setStaffForServices] = useState<string | null>(null)
   
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false)
   const [resetTarget, setResetTarget] = useState<{ type: 'staff' | 'customer', identifier: string } | null>(null)
@@ -54,6 +59,23 @@ export function StaffManagement() {
   
   const [deleteCustomerDialogOpen, setDeleteCustomerDialogOpen] = useState(false)
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null)
+
+  const allServices = [
+    "Retoque de Raiz",
+    "Full Head Tint",
+    "0% AMONIACO",
+    "Toner/Gloss",
+    "Corte & Secado",
+    "Secado (short)",
+    "Secado (mm)",
+    "Secado (long)",
+    "Waves/peinado",
+    "Balayage",
+    "Baby Lights",
+    "Selfie Contour",
+    "Posion Nº17",
+    "Posion Nº 8"
+  ]
 
   const handleCreateStaff = () => {
     if (!newStaff.username || !newStaff.password || !newStaff.name || !newStaff.role) {
@@ -76,7 +98,7 @@ export function StaffManagement() {
     }])
 
     toast.success(`Staff member ${newStaff.name} created successfully`)
-    setNewStaff({ username: "", password: "", name: "", role: "", isAdmin: false })
+    setNewStaff({ username: "", password: "", name: "", role: "", isAdmin: false, availableServices: [] })
     setCreateDialogOpen(false)
   }
 
@@ -141,6 +163,30 @@ export function StaffManagement() {
     toast.success("Customer account deleted successfully")
     setDeleteCustomerDialogOpen(false)
     setCustomerToDelete(null)
+  }
+
+  const handleUpdateServices = (services: string[]) => {
+    if (!staffForServices) return
+
+    setStaffMembers((current) =>
+      (current || []).map(s =>
+        s.username === staffForServices
+          ? { ...s, availableServices: services }
+          : s
+      )
+    )
+    toast.success("Services updated successfully")
+  }
+
+  const openServiceDialog = (username: string) => {
+    setStaffForServices(username)
+    setServiceDialogOpen(true)
+  }
+
+  const getCurrentServices = (): string[] => {
+    if (!staffForServices) return []
+    const staff = staffMembers?.find(s => s.username === staffForServices)
+    return staff?.availableServices || []
   }
 
   return (
@@ -275,6 +321,16 @@ export function StaffManagement() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
+                            {!staff.isAdmin && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openServiceDialog(staff.username)}
+                              >
+                                <Scissors size={16} className="mr-1" />
+                                Services
+                              </Button>
+                            )}
                             <Button
                               variant="outline"
                               size="sm"
@@ -443,6 +499,54 @@ export function StaffManagement() {
             </Button>
             <Button onClick={handleResetPassword}>
               Reset Password
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={serviceDialogOpen} onOpenChange={setServiceDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Scissors size={24} />
+              Manage Available Services
+            </DialogTitle>
+            <DialogDescription>
+              Select which services {staffMembers?.find(s => s.username === staffForServices)?.name} can perform
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="space-y-4 py-4">
+              {allServices.map((service) => {
+                const currentServices = getCurrentServices()
+                const isChecked = currentServices.includes(service)
+                
+                return (
+                  <div key={service} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`service-${service}`}
+                      checked={isChecked}
+                      onCheckedChange={(checked) => {
+                        const updated = checked
+                          ? [...currentServices, service]
+                          : currentServices.filter(s => s !== service)
+                        handleUpdateServices(updated)
+                      }}
+                    />
+                    <Label
+                      htmlFor={`service-${service}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {service}
+                    </Label>
+                  </div>
+                )
+              })}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button onClick={() => setServiceDialogOpen(false)}>
+              Done
             </Button>
           </DialogFooter>
         </DialogContent>

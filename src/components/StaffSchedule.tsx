@@ -45,10 +45,8 @@ const TIME_SLOTS = [
 ]
 
 const STYLISTS = [
-  "Maria Rodriguez",
-  "Jessica Chen",
-  "Alex Thompson",
-  "Sophia Martinez"
+  "Maria",
+  "Paula"
 ]
 
 const DEFAULT_SCHEDULE: StaffSchedule["workingHours"] = {

@@ -26,12 +26,6 @@ export function Footer() {
               Services
             </a>
             <a 
-              href="/#team" 
-              className="text-foreground/60 hover:text-foreground transition-colors"
-            >
-              Team
-            </a>
-            <a 
               href="/#contact" 
               className="text-foreground/60 hover:text-foreground transition-colors"
             >

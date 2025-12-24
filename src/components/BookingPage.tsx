@@ -42,6 +42,15 @@ interface CustomerAccount {
   phone: string
 }
 
+interface StaffMember {
+  username: string
+  password: string
+  name: string
+  role: string
+  isAdmin: boolean
+  availableServices?: string[]
+}
+
 const serviceCategories = [
   {
     name: "Tinte",
@@ -80,10 +89,8 @@ const serviceCategories = [
 ]
 
 const stylists = [
-  "Maria Rodriguez",
-  "Jessica Chen",
-  "Alex Thompson",
-  "Sophia Martinez"
+  "Maria",
+  "Paula"
 ]
 
 const timeSlots = [
@@ -95,6 +102,7 @@ export function BookingPage() {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [date, setDate] = useState<Date>()
   const [loggedInEmail, setLoggedInEmail] = useState<string>("")
   const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
@@ -164,6 +172,42 @@ export function BookingPage() {
     const available = getAvailableStylistsForTime(date, formData.time, schedules, appointments || [])
     return available
   }, [date, formData.time, schedules, appointments])
+
+  const availableServices = useMemo(() => {
+    if (!formData.stylist || formData.stylist === "Any Available" || !staffMembers) {
+      return serviceCategories
+    }
+
+    const staff = staffMembers.find(s => s.name === formData.stylist)
+    if (!staff || !staff.availableServices || staff.availableServices.length === 0) {
+      return serviceCategories
+    }
+
+    const filteredCategories = serviceCategories.map(category => ({
+      ...category,
+      items: category.items.filter(item => staff.availableServices!.includes(item))
+    })).filter(category => category.items.length > 0)
+
+    return filteredCategories
+  }, [formData.stylist, staffMembers])
+
+  useEffect(() => {
+    if (formData.stylist && formData.stylist !== "Any Available" && staffMembers) {
+      const staff = staffMembers.find(s => s.name === formData.stylist)
+      if (staff && staff.availableServices && staff.availableServices.length > 0) {
+        const validServices = formData.services.filter(service => 
+          staff.availableServices!.includes(service)
+        )
+        if (validServices.length !== formData.services.length) {
+          setFormData(prev => ({
+            ...prev,
+            services: validServices,
+            service: validServices[0] || ""
+          }))
+        }
+      }
+    }
+  }, [formData.stylist, staffMembers])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -441,8 +485,13 @@ export function BookingPage() {
 
               <div className="space-y-3">
                 <Label>Services * (Select one or more)</Label>
+                {formData.stylist && formData.stylist !== "Any Available" && availableServices.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No services configured for this stylist. Please contact the salon.
+                  </p>
+                )}
                 <ScrollArea className="h-64 rounded-lg border border-input p-4">
-                  {serviceCategories.map((category) => (
+                  {availableServices.map((category) => (
                     <div key={category.name} className="mb-6 last:mb-0">
                       <h3 className="font-semibold text-sm text-muted-foreground mb-3">{category.name}</h3>
                       <div className="space-y-3">

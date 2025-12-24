@@ -25,10 +25,8 @@ interface StoredStaffMember extends StaffMember {
 
 export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
   const [staffMembers] = useKV<StoredStaffMember[]>("staff-members", [
-    { username: "maria", password: "supersecret", name: "Maria Rodriguez", role: "Master Stylist", isAdmin: false },
-    { username: "jessica", password: "supersecret", name: "Jessica Chen", role: "Senior Stylist", isAdmin: false },
-    { username: "alex", password: "supersecret", name: "Alex Thompson", role: "Color Specialist", isAdmin: false },
-    { username: "sophia", password: "supersecret", name: "Sophia Martinez", role: "Stylist", isAdmin: false },
+    { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false },
+    { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false },
     { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true }
   ])
   const [username, setUsername] = useState("")
