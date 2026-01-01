@@ -28,6 +28,15 @@ export interface StaffSchedule {
   }[]
 }
 
+interface StaffMember {
+  username: string
+  password: string
+  name: string
+  role: string
+  isAdmin: boolean
+  availableServices?: string[]
+}
+
 const DAYS_OF_WEEK = [
   "Monday",
   "Tuesday",
@@ -44,11 +53,6 @@ const TIME_SLOTS = [
   "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM"
 ]
 
-const STYLISTS = [
-  "Maria",
-  "Paula"
-]
-
 const DEFAULT_SCHEDULE: StaffSchedule["workingHours"] = {
   Monday: { isWorking: true, startTime: "9:00 AM", endTime: "6:00 PM" },
   Tuesday: { isWorking: true, startTime: "9:00 AM", endTime: "6:00 PM" },
@@ -61,21 +65,32 @@ const DEFAULT_SCHEDULE: StaffSchedule["workingHours"] = {
 
 export function StaffSchedule() {
   const [schedules, setSchedules] = useKV<StaffSchedule[]>("staff-schedules", [])
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [selectedStylist, setSelectedStylist] = useState<string>("")
   const [blockDateDialogOpen, setBlockDateDialogOpen] = useState(false)
   const [selectedBlockDates, setSelectedBlockDates] = useState<Date[]>([])
 
+  const availableStylists = (staffMembers || []).filter(s => !s.isAdmin).map(s => s.name)
+
   useEffect(() => {
-    if (schedules && schedules.length === 0) {
-      const initialSchedules = STYLISTS.map(stylist => ({
-        stylistName: stylist,
-        workingHours: DEFAULT_SCHEDULE,
-        blockedDates: [],
-        breakTimes: [{ startTime: "12:00 PM", endTime: "1:00 PM" }]
-      }))
-      setSchedules(initialSchedules)
+    if (staffMembers && staffMembers.length > 0) {
+      const nonAdminStaff = staffMembers.filter(s => !s.isAdmin)
+      const existingScheduleNames = new Set((schedules || []).map(s => s.stylistName))
+      
+      const missingSchedules = nonAdminStaff
+        .filter(staff => !existingScheduleNames.has(staff.name))
+        .map(staff => ({
+          stylistName: staff.name,
+          workingHours: DEFAULT_SCHEDULE,
+          blockedDates: [],
+          breakTimes: [{ startTime: "12:00 PM", endTime: "1:00 PM" }]
+        }))
+
+      if (missingSchedules.length > 0) {
+        setSchedules((current) => [...(current || []), ...missingSchedules])
+      }
     }
-  }, [schedules, setSchedules])
+  }, [staffMembers])
 
   const currentSchedule = schedules?.find(s => s.stylistName === selectedStylist)
 
@@ -206,7 +221,7 @@ export function StaffSchedule() {
               <SelectValue placeholder="Choose a stylist to manage" />
             </SelectTrigger>
             <SelectContent>
-              {STYLISTS.map((stylist) => (
+              {availableStylists.map((stylist) => (
                 <SelectItem key={stylist} value={stylist}>
                   <div className="flex items-center gap-2">
                     <User size={16} />
