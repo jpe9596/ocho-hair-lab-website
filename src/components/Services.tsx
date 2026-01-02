@@ -1,41 +1,43 @@
 import { motion } from "framer-motion"
 
-const services = [
+const categoryData = [
   {
-    category: "HAIRCARE",
-    title: "Haircut and Styling",
-    price: "$45-$70",
-    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=400&fit=crop"
+    category: "Tinte",
+    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=600&fit=crop&q=80",
+    services: [
+      "Retoque de Raiz",
+      "Full Head Tint",
+      "0% AMONIACO",
+      "Toner/Gloss"
+    ]
   },
   {
-    category: "HAIRCARE",
-    title: "Color and Highlights",
-    price: "Starts at $70",
-    image: "https://images.unsplash.com/photo-1522337094846-8a818192de1f?w=400&h=400&fit=crop"
+    category: "Corte & Styling",
+    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=600&fit=crop&q=80",
+    services: [
+      "Corte & Secado",
+      "Secado (short)",
+      "Secado (mm)",
+      "Secado (long)",
+      "Waves/peinado"
+    ]
   },
   {
-    category: "HAIRCARE",
-    title: "Perm and Straightening",
-    price: "Starts at $80",
-    image: "https://images.unsplash.com/photo-1573799854789-f9de46df7c85?w=400&h=400&fit=crop"
+    category: "Bespoke Color",
+    image: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&h=600&fit=crop&q=80",
+    services: [
+      "Balayage",
+      "Baby Lights",
+      "Selfie Contour"
+    ]
   },
   {
-    category: "TREATMENTS",
-    title: "Deep Conditioning",
-    price: "$45-$70",
-    image: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=400&fit=crop"
-  },
-  {
-    category: "TREATMENTS",
-    title: "Keratin Treatment",
-    price: "Starts at $70",
-    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=400&fit=crop"
-  },
-  {
-    category: "TREATMENTS",
-    title: "Hair Spa",
-    price: "Starts at $90",
-    image: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=400&fit=crop"
+    category: "Treatments",
+    image: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&h=600&fit=crop&q=80",
+    services: [
+      "Posion Nº17",
+      "Posion Nº 8"
+    ]
   }
 ]
 
@@ -52,8 +54,8 @@ export function Services() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          {services.map((service, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+          {categoryData.map((category, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
@@ -66,34 +68,32 @@ export function Services() {
                 <div className="p-4 border-b-2 border-foreground/20">
                   <div className="aspect-square overflow-hidden">
                     <img 
-                      src={service.image} 
-                      alt={service.title}
+                      src={category.image} 
+                      alt={category.category}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                 </div>
                 
-                <div className="p-8 text-center">
-                  <p 
-                    className="text-xs tracking-widest text-foreground/60 mb-4"
-                    style={{ fontFamily: 'sans-serif', letterSpacing: '0.15em' }}
-                  >
-                    {service.category}
-                  </p>
-                  
+                <div className="p-6 text-center">
                   <h3 
-                    className="text-2xl md:text-3xl mb-6 text-foreground font-light"
+                    className="text-xl md:text-2xl mb-6 text-foreground font-light"
                     style={{ fontFamily: 'serif', fontWeight: 300, lineHeight: 1.3 }}
                   >
-                    {service.title}
+                    {category.category}
                   </h3>
                   
-                  <p 
-                    className="text-sm tracking-wider text-foreground/70"
-                    style={{ fontFamily: 'sans-serif', letterSpacing: '0.1em' }}
-                  >
-                    {service.price}
-                  </p>
+                  <ul className="space-y-2 text-left">
+                    {category.services.map((service, serviceIndex) => (
+                      <li 
+                        key={serviceIndex}
+                        className="text-sm text-foreground/70 pl-4 relative before:content-['•'] before:absolute before:left-0"
+                        style={{ fontFamily: 'sans-serif', letterSpacing: '0.05em' }}
+                      >
+                        {service}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </motion.div>
