@@ -67,9 +67,7 @@ export function Products() {
                 lineHeight: '1.3'
               }}
             >
-              THE<br />
-              PRODUCTS<br />
-              WE USE
+              productos a base de vegetales disponibles
             </h2>
             
             <div className="space-y-12">
