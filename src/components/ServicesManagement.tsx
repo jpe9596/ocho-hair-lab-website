@@ -62,7 +62,7 @@ const DEFAULT_SERVICES: Service[] = [
 ]
 
 export function ServicesManagement() {
-  const [services, setServices] = useKV<Service[]>("salon-services", DEFAULT_SERVICES)
+  const [services, setServices] = useKV<Service[]>("salon-services", [])
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   
   const [newService, setNewService] = useState({
@@ -77,23 +77,6 @@ export function ServicesManagement() {
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-
-  useEffect(() => {
-    if (!services || services.length === 0) {
-      setServices(DEFAULT_SERVICES)
-      toast.success("Services initialized with default offerings")
-      return
-    }
-
-    const needsMigration = services.some(s => !(s as any).price)
-    if (needsMigration) {
-      const migratedServices = services.map(s => ({
-        ...s,
-        price: (s as any).price || "Contact for pricing"
-      }))
-      setServices(migratedServices)
-    }
-  }, [])
 
   const handleCreateService = () => {
     if (!newService.name || !newService.category || !newService.price) {

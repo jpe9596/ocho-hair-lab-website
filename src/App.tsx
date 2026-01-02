@@ -15,6 +15,7 @@ import { StaffLogin, StaffMember } from "@/components/StaffLogin"
 import { StaffDashboard } from "@/components/StaffDashboard"
 import { CancelAppointment } from "@/components/CancelAppointment"
 import { useAppointmentReminders } from "@/hooks/use-appointment-reminders"
+import { useSeedData } from "@/hooks/use-seed-data"
 
 function App() {
   const [bookingOpen, setBookingOpen] = useState(false)
@@ -23,6 +24,7 @@ function App() {
   const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(null)
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
   
+  useSeedData()
   useAppointmentReminders()
 
   useEffect(() => {
