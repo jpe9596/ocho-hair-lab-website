@@ -1,5 +1,5 @@
 import { InstagramLogo, MapPin } from "@phosphor-icons/react"
-import contactImg from "@/assets/images/Screenshot_2026-01-01_at_8.47.42_PM.png"
+import contactImg from "@/assets/images/alejandro.png"
 
 export function Contact() {
   return (
