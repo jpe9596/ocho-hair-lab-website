@@ -37,6 +37,12 @@ interface StaffMember {
   availableServices?: string[]
 }
 
+const DEFAULT_STAFF_MEMBERS: StaffMember[] = [
+  { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false, availableServices: [] },
+  { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false, availableServices: [] },
+  { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
+]
+
 const DAYS_OF_WEEK = [
   "Monday",
   "Tuesday",
@@ -65,12 +71,17 @@ const DEFAULT_SCHEDULE: StaffSchedule["workingHours"] = {
 
 export function StaffSchedule() {
   const [schedules, setSchedules] = useKV<StaffSchedule[]>("staff-schedules", [])
-  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", DEFAULT_STAFF_MEMBERS)
   const [selectedStylist, setSelectedStylist] = useState<string>("")
   const [blockDateDialogOpen, setBlockDateDialogOpen] = useState(false)
   const [selectedBlockDates, setSelectedBlockDates] = useState<Date[]>([])
 
   const availableStylists = (staffMembers || []).filter(s => !s.isAdmin).map(s => s.name)
+
+  useEffect(() => {
+    console.log('StaffSchedule: staffMembers:', staffMembers)
+    console.log('StaffSchedule: availableStylists:', availableStylists)
+  }, [staffMembers, availableStylists])
 
   useEffect(() => {
     if (staffMembers && staffMembers.length > 0) {
@@ -221,14 +232,20 @@ export function StaffSchedule() {
               <SelectValue placeholder="Choose a stylist to manage" />
             </SelectTrigger>
             <SelectContent>
-              {availableStylists.map((stylist) => (
-                <SelectItem key={stylist} value={stylist}>
-                  <div className="flex items-center gap-2">
-                    <User size={16} />
-                    {stylist}
-                  </div>
-                </SelectItem>
-              ))}
+              {availableStylists.length === 0 ? (
+                <div className="p-4 text-sm text-muted-foreground text-center">
+                  No staff members found. Please add staff members first.
+                </div>
+              ) : (
+                availableStylists.map((stylist) => (
+                  <SelectItem key={stylist} value={stylist}>
+                    <div className="flex items-center gap-2">
+                      <User size={16} />
+                      {stylist}
+                    </div>
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>

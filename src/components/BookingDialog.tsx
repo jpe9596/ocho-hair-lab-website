@@ -58,6 +58,12 @@ interface StaffMember {
   availableServices?: string[]
 }
 
+const DEFAULT_STAFF_MEMBERS: StaffMember[] = [
+  { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false, availableServices: [] },
+  { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false, availableServices: [] },
+  { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
+]
+
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
@@ -67,7 +73,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [customerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
-  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", DEFAULT_STAFF_MEMBERS)
   const [services] = useKV<Service[]>("salon-services", [])
   const [date, setDate] = useState<Date>()
   const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
@@ -84,9 +90,19 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const stylistNames = useMemo(() => {
-    if (!staffMembers || staffMembers.length === 0) return []
-    return staffMembers.filter(s => !s.isAdmin).map(s => s.name)
+    if (!staffMembers || staffMembers.length === 0) {
+      console.log('BookingDialog: No staff members available:', staffMembers)
+      return []
+    }
+    const nonAdminStaff = staffMembers.filter(s => !s.isAdmin)
+    console.log('BookingDialog: Non-admin staff members:', nonAdminStaff)
+    return nonAdminStaff.map(s => s.name)
   }, [staffMembers])
+
+  useEffect(() => {
+    console.log('BookingDialog: staffMembers loaded:', staffMembers)
+    console.log('BookingDialog: stylistNames computed:', stylistNames)
+  }, [staffMembers, stylistNames])
 
   const serviceCategories = useMemo(() => {
     if (!services || services.length === 0) return []
@@ -388,19 +404,25 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Any Available">Any Available</SelectItem>
-                  {stylistNames.map((stylist) => {
-                    const isAvailable = !date || !formData.time || availableStylists.includes(stylist)
-                    return (
-                      <SelectItem key={stylist} value={stylist} disabled={!isAvailable}>
-                        <div className="flex items-center justify-between w-full">
-                          {stylist}
-                          {date && formData.time && !isAvailable && (
-                            <Badge variant="secondary" className="ml-2 text-xs">Unavailable</Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    )
-                  })}
+                  {stylistNames.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      No stylists available. Please contact admin.
+                    </div>
+                  ) : (
+                    stylistNames.map((stylist) => {
+                      const isAvailable = !date || !formData.time || availableStylists.includes(stylist)
+                      return (
+                        <SelectItem key={stylist} value={stylist} disabled={!isAvailable}>
+                          <div className="flex items-center justify-between w-full">
+                            {stylist}
+                            {date && formData.time && !isAvailable && (
+                              <Badge variant="secondary" className="ml-2 text-xs">Unavailable</Badge>
+                            )}
+                          </div>
+                        </SelectItem>
+                      )
+                    })
+                  )}
                 </SelectContent>
               </Select>
               {formData.stylist && formData.stylist !== "Any Available" && (

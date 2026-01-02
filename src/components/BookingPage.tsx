@@ -53,6 +53,12 @@ interface StaffMember {
   availableServices?: string[]
 }
 
+const DEFAULT_STAFF_MEMBERS: StaffMember[] = [
+  { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false, availableServices: [] },
+  { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false, availableServices: [] },
+  { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
+]
+
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
@@ -62,7 +68,7 @@ export function BookingPage() {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
-  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", DEFAULT_STAFF_MEMBERS)
   const [services] = useKV<Service[]>("salon-services", [])
   const [date, setDate] = useState<Date>()
   const [loggedInEmail, setLoggedInEmail] = useState<string>("")
@@ -79,6 +85,21 @@ export function BookingPage() {
     notes: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const stylistNames = useMemo(() => {
+    if (!staffMembers || staffMembers.length === 0) {
+      console.log('BookingPage: No staff members available:', staffMembers)
+      return []
+    }
+    const nonAdminStaff = staffMembers.filter(s => !s.isAdmin)
+    console.log('BookingPage: Non-admin staff members:', nonAdminStaff)
+    return nonAdminStaff.map(s => s.name)
+  }, [staffMembers])
+
+  useEffect(() => {
+    console.log('BookingPage: staffMembers loaded:', staffMembers)
+    console.log('BookingPage: stylistNames computed:', stylistNames)
+  }, [staffMembers, stylistNames])
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('customerEmail')
@@ -102,11 +123,6 @@ export function BookingPage() {
       console.log('BookingPage: No logged in user detected')
     }
   }, [customerAccounts])
-
-  const stylistNames = useMemo(() => {
-    if (!staffMembers || staffMembers.length === 0) return []
-    return staffMembers.filter(s => !s.isAdmin).map(s => s.name)
-  }, [staffMembers])
 
   const availableTimeSlots = useMemo(() => {
     if (!date || !formData.stylist || !schedules) return timeSlots
@@ -488,9 +504,15 @@ export function BookingPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Any Available">Any Available</SelectItem>
-                    {stylistNames.map((stylist) => (
-                      <SelectItem key={stylist} value={stylist}>{stylist}</SelectItem>
-                    ))}
+                    {stylistNames.length === 0 ? (
+                      <div className="p-2 text-sm text-muted-foreground text-center">
+                        No stylists available. Please contact admin.
+                      </div>
+                    ) : (
+                      stylistNames.map((stylist) => (
+                        <SelectItem key={stylist} value={stylist}>{stylist}</SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 {formData.stylist && formData.stylist !== "Any Available" && (
