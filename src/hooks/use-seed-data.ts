@@ -145,6 +145,10 @@ export function useSeedData() {
       }
 
       console.log('✅ Data seeding complete')
+      console.log('📊 Quick verification:')
+      console.log('   - Total services:', services?.length || 0, '(Expected: 14)')
+      console.log('   - Maria services:', staffMembers?.find(s => s.username === 'maria')?.availableServices?.length || 0, '(Expected: 14)')
+      console.log('   - Paula services:', staffMembers?.find(s => s.username === 'paula')?.availableServices?.length || 0, '(Expected: 14)')
     }
 
     initializeData()
