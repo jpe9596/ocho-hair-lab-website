@@ -1,5 +1,9 @@
 import { motion } from "framer-motion"
 import { useKV } from "@github/spark/hooks"
+import tinteImg from "@/assets/images/Screenshot_2026-01-01_at_7.40.24_PM.png"
+import corteImg from "@/assets/images/Screenshot_2026-01-01_at_7.42.16_PM.png"
+import bespokeImg from "@/assets/images/Screenshot_2026-01-01_at_7.43.29_PM.png"
+import treatmentsImg from "@/assets/images/Screenshot_2026-01-01_at_7.45.20_PM.png"
 
 interface Service {
   id: string
@@ -10,10 +14,10 @@ interface Service {
 }
 
 const categoryImages: Record<string, string> = {
-  "Tinte": "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=600&fit=crop&q=80",
-  "Corte & Styling": "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=600&fit=crop&q=80",
-  "Bespoke Color": "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&h=600&fit=crop&q=80",
-  "Treatments": "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&h=600&fit=crop&q=80"
+  "Tinte": tinteImg,
+  "Corte & Styling": corteImg,
+  "Bespoke Color": bespokeImg,
+  "Treatments": treatmentsImg
 }
 
 const DEFAULT_SERVICES: Service[] = [
