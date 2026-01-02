@@ -1,4 +1,4 @@
-import { Phone, Envelope, InstagramLogo, FacebookLogo, TwitterLogo } from "@phosphor-icons/react"
+import { InstagramLogo, MapPin } from "@phosphor-icons/react"
 
 export function Contact() {
   return (
@@ -44,20 +44,20 @@ export function Contact() {
                 </div>
 
                 <div>
+                  <h3 className="text-sm font-semibold tracking-widest mb-2 flex items-center justify-center gap-2">
+                    <MapPin size={16} weight="fill" />
+                    LOCATION
+                  </h3>
+                  <p className="text-foreground text-sm leading-relaxed">
+                    Urbox Plaza<br />
+                    Río Hudson 414, Del Valle<br />
+                    66220 San Pedro Garza García, N.L.
+                  </p>
+                </div>
+
+                <div>
                   <h3 className="text-sm font-semibold tracking-widest mb-4">SOCIAL</h3>
                   <div className="flex items-center justify-center gap-4">
-                    <button 
-                      className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
-                      aria-label="Facebook"
-                    >
-                      <FacebookLogo size={20} weight="fill" />
-                    </button>
-                    <button 
-                      className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
-                      aria-label="Twitter"
-                    >
-                      <TwitterLogo size={20} weight="fill" />
-                    </button>
                     <a 
                       href="https://www.instagram.com/ochohairlab/?hl=en"
                       target="_blank"
