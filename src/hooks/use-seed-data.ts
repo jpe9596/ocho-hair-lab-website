@@ -67,18 +67,20 @@ export function useSeedData() {
 
   useEffect(() => {
     const initializeData = async () => {
-      console.log('Initializing seed data...')
+      console.log('✅ Initializing seed data...')
       
       await new Promise(resolve => setTimeout(resolve, 100))
 
       const allServiceNames = DEFAULT_SERVICES.map(s => s.name)
+      console.log(`✅ All service names (${allServiceNames.length}):`, allServiceNames)
 
       if (!staffMembers || staffMembers.length === 0) {
-        console.log('Seeding initial staff members with all services...')
+        console.log('✅ Seeding initial staff members with all services...')
         const staffWithServices = DEFAULT_STAFF.map(staff => ({
           ...staff,
           availableServices: staff.isAdmin ? undefined : allServiceNames
         }))
+        console.log('✅ Staff with services:', staffWithServices)
         setStaffMembers(staffWithServices)
       } else {
         const hasOwner = staffMembers.some(s => s.username === "owner@ocholab.com")
@@ -117,24 +119,32 @@ export function useSeedData() {
         })
 
         if (needsServiceAssignment) {
-          console.log('Assigning all services to staff members without services...')
+          console.log('✅ Assigning all services to staff members without services...')
           const staffWithAllServices = updatedStaff.map(s =>
             s.isAdmin || (s.availableServices && s.availableServices.length > 0)
               ? s 
               : { ...s, availableServices: allServiceNames }
           )
+          console.log('✅ Updated staff with services:', staffWithAllServices)
           setStaffMembers(staffWithAllServices)
         } else if (needsStaffUpdate) {
+          console.log('✅ Updating staff members:', updatedStaff)
           setStaffMembers(updatedStaff)
+        } else {
+          console.log('✅ Staff members already configured correctly:', staffMembers.length, 'members')
+          console.log('✅ Maria services:', staffMembers.find(s => s.username === 'maria')?.availableServices?.length || 0)
+          console.log('✅ Paula services:', staffMembers.find(s => s.username === 'paula')?.availableServices?.length || 0)
         }
       }
 
       if (!services || services.length === 0) {
-        console.log('Seeding services...')
+        console.log('✅ Seeding services...')
         setServices(DEFAULT_SERVICES)
+      } else {
+        console.log('✅ Services already seeded:', services.length, 'services')
       }
 
-      console.log('Data seeding complete')
+      console.log('✅ Data seeding complete')
     }
 
     initializeData()

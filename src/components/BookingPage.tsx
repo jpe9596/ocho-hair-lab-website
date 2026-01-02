@@ -82,17 +82,25 @@ export function BookingPage() {
 
   const stylistNames = useMemo(() => {
     if (!staffMembers || staffMembers.length === 0) {
-      console.log('BookingPage: No staff members available:', staffMembers)
+      console.log('📆 BookingPage: No staff members available:', staffMembers)
       return []
     }
     const nonAdminStaff = staffMembers.filter(s => !s.isAdmin)
-    console.log('BookingPage: Non-admin staff members:', nonAdminStaff)
+    console.log('📆 BookingPage: Non-admin staff members:', nonAdminStaff)
+    console.log('📆 BookingPage: Staff names:', nonAdminStaff.map(s => s.name))
     return nonAdminStaff.map(s => s.name)
   }, [staffMembers])
 
   useEffect(() => {
-    console.log('BookingPage: staffMembers loaded:', staffMembers)
-    console.log('BookingPage: stylistNames computed:', stylistNames)
+    console.log('📆 BookingPage: staffMembers loaded:', staffMembers?.length || 0, 'members')
+    console.log('📆 BookingPage: stylistNames computed:', stylistNames)
+    if (staffMembers && staffMembers.length > 0) {
+      staffMembers.forEach(staff => {
+        if (!staff.isAdmin) {
+          console.log(`📆 BookingPage: ${staff.name} has ${staff.availableServices?.length || 0} services:`, staff.availableServices)
+        }
+      })
+    }
   }, [staffMembers, stylistNames])
 
   useEffect(() => {
@@ -152,19 +160,23 @@ export function BookingPage() {
 
   const availableServices = useMemo(() => {
     if (!formData.stylist || formData.stylist === "Any Available" || !staffMembers) {
+      console.log('📆 BookingPage: Showing all service categories (no specific stylist selected)')
       return serviceCategories
     }
 
     const staff = staffMembers.find(s => s.name === formData.stylist)
     if (!staff || !staff.availableServices || staff.availableServices.length === 0) {
+      console.log('📆 BookingPage: Staff member not found or has no services, showing all categories')
       return serviceCategories
     }
 
+    console.log(`📆 BookingPage: Filtering services for ${formData.stylist}, they offer ${staff.availableServices.length} services`)
     const filteredCategories = serviceCategories.map(category => ({
       ...category,
       items: category.items.filter(item => staff.availableServices!.includes(item))
     })).filter(category => category.items.length > 0)
 
+    console.log(`📆 BookingPage: Filtered to ${filteredCategories.length} categories with services`)
     return filteredCategories
   }, [formData.stylist, staffMembers, serviceCategories])
 

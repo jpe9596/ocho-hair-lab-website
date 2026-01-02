@@ -85,17 +85,25 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
   const stylistNames = useMemo(() => {
     if (!staffMembers || staffMembers.length === 0) {
-      console.log('BookingDialog: No staff members available:', staffMembers)
+      console.log('📅 BookingDialog: No staff members available:', staffMembers)
       return []
     }
     const nonAdminStaff = staffMembers.filter(s => !s.isAdmin)
-    console.log('BookingDialog: Non-admin staff members:', nonAdminStaff)
+    console.log('📅 BookingDialog: Non-admin staff members:', nonAdminStaff)
+    console.log('📅 BookingDialog: Staff names:', nonAdminStaff.map(s => s.name))
     return nonAdminStaff.map(s => s.name)
   }, [staffMembers])
 
   useEffect(() => {
-    console.log('BookingDialog: staffMembers loaded:', staffMembers)
-    console.log('BookingDialog: stylistNames computed:', stylistNames)
+    console.log('📅 BookingDialog: staffMembers loaded:', staffMembers?.length || 0, 'members')
+    console.log('📅 BookingDialog: stylistNames computed:', stylistNames)
+    if (staffMembers && staffMembers.length > 0) {
+      staffMembers.forEach(staff => {
+        if (!staff.isAdmin) {
+          console.log(`📅 BookingDialog: ${staff.name} has ${staff.availableServices?.length || 0} services:`, staff.availableServices)
+        }
+      })
+    }
   }, [staffMembers, stylistNames])
 
   const serviceCategories = useMemo(() => {
@@ -117,19 +125,24 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
   const availableServicesForStylist = useMemo(() => {
     if (!formData.stylist || formData.stylist === "Any Available") {
+      console.log('📅 BookingDialog: Showing all service categories (no specific stylist selected)')
       return serviceCategories
     }
     
     const selectedStaff = staffMembers?.find(s => s.name === formData.stylist)
     if (!selectedStaff || !selectedStaff.availableServices || selectedStaff.availableServices.length === 0) {
+      console.log('📅 BookingDialog: Staff member not found or has no services, showing all categories')
       return serviceCategories
     }
 
     const availableServicesList = selectedStaff.availableServices
-    return serviceCategories.map(category => ({
+    console.log(`📅 BookingDialog: Filtering services for ${formData.stylist}, they offer ${availableServicesList.length} services`)
+    const filtered = serviceCategories.map(category => ({
       ...category,
       items: category.items.filter(service => availableServicesList.includes(service))
     })).filter(category => category.items.length > 0)
+    console.log(`📅 BookingDialog: Filtered to ${filtered.length} categories with services`)
+    return filtered
   }, [formData.stylist, staffMembers, serviceCategories])
 
   useEffect(() => {
