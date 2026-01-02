@@ -1,5 +1,5 @@
 import { InstagramLogo, MapPin } from "@phosphor-icons/react"
-import contactImg from "@/assets/images/alex.png"
+import contactImg from "@/assets/images/Screenshot_2026-01-01_at_8.47.42_PM.png"
 
 export function Contact() {
   return (
@@ -61,11 +61,6 @@ export function Contact() {
                   </div>
                 </div>
 
-                <div className="pt-6 text-xs leading-relaxed text-foreground/70">
-                  OUR SALONS ARE FULLY ACCESSIBLE.<br />
-                  PLEASE REACH OUT FOR FURTHER<br />
-                  ACCOMMODATIONS.
-                </div>
               </div>
             </div>
           </div>
