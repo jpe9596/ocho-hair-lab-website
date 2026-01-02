@@ -124,16 +124,6 @@ export function BookingPage() {
     }
   }, [customerAccounts])
 
-  const availableTimeSlots = useMemo(() => {
-    if (!date || !formData.stylist || !schedules) return timeSlots
-    
-    if (formData.stylist === "Any Available") {
-      const allAvailableSlots = new Set<string>()
-      stylistNames.forEach(stylist => {
-        const slots = getAvailableTimeSlots(date, stylist, schedules, appointments || [])
-        slots.forEach(slot => allAvailableSlots.add(slot))
-      })
-      return Array.from(allAvailableSlots).sort((a, b) => {
         const parseTime = (time: string) => {
           const [t, period] = time.split(' ')
           let [hours, mins] = t.split(':').map(Number)
