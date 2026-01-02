@@ -1,7 +1,7 @@
 import { motion } from "framer-motion"
 import { useKV } from "@github/spark/hooks"
 import tinteImg from "@/assets/images/Screenshot_2026-01-01_at_7.40.24_PM.png"
-import corteImg from "@/assets/images/Screenshot_2026-01-01_at_7.42.16_PM.png"
+import corteImg from "@/assets/images/Screenshot_2026-01-01_at_7.45.41_PM.png"
 import bespokeImg from "@/assets/images/Screenshot_2026-01-01_at_7.43.29_PM.png"
 import treatmentsImg from "@/assets/images/Screenshot_2026-01-01_at_7.45.20_PM.png"
 

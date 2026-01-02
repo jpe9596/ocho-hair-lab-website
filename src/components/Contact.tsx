@@ -1,4 +1,5 @@
 import { InstagramLogo, MapPin } from "@phosphor-icons/react"
+import contactImg from "@/assets/images/Screenshot_2026-01-01_at_7.42.16_PM.png"
 
 export function Contact() {
   return (
@@ -7,7 +8,7 @@ export function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/5] bg-muted rounded-lg overflow-hidden">
             <img 
-              src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=800&q=80" 
+              src={contactImg} 
               alt="Professional hair styling" 
               className="w-full h-full object-cover"
             />
