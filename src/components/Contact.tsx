@@ -1,74 +1,83 @@
-import { MapPin, Phone, Envelope, InstagramLogo, Clock } from "@phosphor-icons/react"
+import { Phone, Envelope, InstagramLogo, FacebookLogo, TwitterLogo } from "@phosphor-icons/react"
 
 export function Contact() {
   return (
-    <section id="contact" className="py-20 md:py-32 px-6 md:px-8 bg-gradient-to-br from-accent via-primary to-accent text-primary-foreground">
+    <section id="contact" className="py-20 md:py-32 px-6 md:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-display)' }}>
-            Visit Us
-          </h2>
-          <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto">
-            We can't wait to welcome you to Ocho Hair Lab
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="text-center">
-            <div className="inline-flex p-4 bg-primary-foreground/10 rounded-full mb-4">
-              <MapPin size={32} weight="duotone" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Location</h3>
-            <p className="text-primary-foreground/80">
-              Urbox Plaza<br />
-              Río Hudson 414, Del Valle<br />
-              66220 San Pedro Garza García, N.L.
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="relative aspect-[4/5] bg-muted rounded-lg overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=800&q=80" 
+              alt="Professional hair styling" 
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          <div className="text-center">
-            <div className="inline-flex p-4 bg-primary-foreground/10 rounded-full mb-4">
-              <Phone size={32} weight="duotone" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Phone</h3>
-            <a href="tel:+528116153747" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-              81 1615 3747
-            </a>
-          </div>
+          <div className="flex items-center justify-center">
+            <div className="border-4 border-foreground p-12 md:p-16 max-w-lg">
+              <h2 
+                className="text-5xl md:text-6xl font-light text-center mb-12 tracking-wider" 
+                style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, letterSpacing: '0.05em' }}
+              >
+                CONTACT US
+              </h2>
 
-          <div className="text-center">
-            <div className="inline-flex p-4 bg-primary-foreground/10 rounded-full mb-4">
-              <Envelope size={32} weight="duotone" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Email</h3>
-            <a href="mailto:hello@ochohairlab.com" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-              hello@ochohairlab.com
-            </a>
-          </div>
+              <div className="space-y-8 text-center">
+                <div>
+                  <h3 className="text-sm font-semibold tracking-widest mb-2">PHONE</h3>
+                  <a 
+                    href="tel:+528116153747" 
+                    className="text-foreground hover:text-foreground/70 transition-colors"
+                  >
+                    (81) 1615-3747
+                  </a>
+                </div>
 
-          <div className="text-center">
-            <div className="inline-flex p-4 bg-primary-foreground/10 rounded-full mb-4">
-              <Clock size={32} weight="duotone" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Hours</h3>
-            <p className="text-primary-foreground/80">
-              Tue-Fri: 10am-7pm<br />
-              Sat: 9am-6pm<br />
-              Sun-Mon: Closed
-            </p>
-          </div>
-        </div>
+                <div>
+                  <h3 className="text-sm font-semibold tracking-widest mb-2">EMAIL</h3>
+                  <a 
+                    href="mailto:hello@ochohairlab.com" 
+                    className="text-foreground hover:text-foreground/70 transition-colors uppercase text-sm"
+                  >
+                    HELLO@OCHOHAIRLAB.COM
+                  </a>
+                </div>
 
-        <div className="mt-16 text-center">
-          <a 
-            href="https://www.instagram.com/ochohairlab/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors text-lg"
-          >
-            <InstagramLogo size={24} weight="fill" />
-            Follow us @ochohairlab
-          </a>
+                <div>
+                  <h3 className="text-sm font-semibold tracking-widest mb-4">SOCIAL</h3>
+                  <div className="flex items-center justify-center gap-4">
+                    <button 
+                      className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+                      aria-label="Facebook"
+                    >
+                      <FacebookLogo size={20} weight="fill" />
+                    </button>
+                    <button 
+                      className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+                      aria-label="Twitter"
+                    >
+                      <TwitterLogo size={20} weight="fill" />
+                    </button>
+                    <a 
+                      href="https://www.instagram.com/ochohairlab/?hl=en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+                      aria-label="Instagram"
+                    >
+                      <InstagramLogo size={20} weight="fill" />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="pt-6 text-xs leading-relaxed text-foreground/70">
+                  OUR SALONS ARE FULLY ACCESSIBLE.<br />
+                  PLEASE REACH OUT FOR FURTHER<br />
+                  ACCOMMODATIONS.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
