@@ -34,16 +34,29 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
     setIsLoading(true)
 
     setTimeout(() => {
+      console.log('🔐 Staff Login Attempt:')
+      console.log('   - Username entered:', username)
+      console.log('   - Password entered:', password ? '***' : '(empty)')
+      console.log('   - Available staff:', staffMembers?.length || 0)
+      
+      if (staffMembers && staffMembers.length > 0) {
+        staffMembers.forEach(s => {
+          console.log(`   - ${s.name}: username="${s.username}", isAdmin=${s.isAdmin}`)
+        })
+      }
+      
       const staff = staffMembers?.find(
         s => s.username.toLowerCase() === username.toLowerCase().trim() && s.password === password
       )
       
       if (!staff) {
+        console.log('❌ Login failed: No matching staff member')
         toast.error("Invalid username or password")
         setIsLoading(false)
         return
       }
 
+      console.log(`✅ Login successful: ${staff.name} (${staff.role})`)
       toast.success(`Welcome back, ${staff.name}!`)
       onLogin({
         username: staff.username,

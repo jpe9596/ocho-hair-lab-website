@@ -81,27 +81,34 @@ export function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const stylistNames = useMemo(() => {
+    console.log('📆 BookingPage.stylistNames - Computing...')
     if (!staffMembers || staffMembers.length === 0) {
-      console.log('📆 BookingPage: No staff members available:', staffMembers)
+      console.log('📆 BookingPage.stylistNames - No staff members available')
       return []
     }
     const nonAdminStaff = staffMembers.filter(s => !s.isAdmin)
-    console.log('📆 BookingPage: Non-admin staff members:', nonAdminStaff)
-    console.log('📆 BookingPage: Staff names:', nonAdminStaff.map(s => s.name))
-    return nonAdminStaff.map(s => s.name)
+    console.log('📆 BookingPage.stylistNames - Non-admin staff:', nonAdminStaff.length)
+    nonAdminStaff.forEach(s => {
+      console.log(`   - ${s.name} (${s.username}): ${s.availableServices?.length || 0} services`)
+    })
+    const names = nonAdminStaff.map(s => s.name)
+    console.log('📆 BookingPage.stylistNames - Names array:', names)
+    return names
   }, [staffMembers])
 
   useEffect(() => {
-    console.log('📆 BookingPage: staffMembers loaded:', staffMembers?.length || 0, 'members')
-    console.log('📆 BookingPage: stylistNames computed:', stylistNames)
+    console.log('📆 BookingPage.useEffect - Data loaded')
+    console.log('   - staffMembers:', staffMembers?.length || 0, 'members')
+    console.log('   - services:', services?.length || 0, 'services')
+    console.log('   - stylistNames:', stylistNames.length, 'names')
     if (staffMembers && staffMembers.length > 0) {
       staffMembers.forEach(staff => {
         if (!staff.isAdmin) {
-          console.log(`📆 BookingPage: ${staff.name} has ${staff.availableServices?.length || 0} services:`, staff.availableServices)
+          console.log(`   - ${staff.name} (${staff.username}): ${staff.availableServices?.length || 0} services`)
         }
       })
     }
-  }, [staffMembers, stylistNames])
+  }, [staffMembers, stylistNames, services])
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('customerEmail')

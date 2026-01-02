@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useKV } from "@github/spark/hooks"
 
 interface StaffMember {
@@ -64,93 +64,126 @@ const DEFAULT_SERVICES: Service[] = [
 export function useSeedData() {
   const [staffMembers, setStaffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [services, setServices] = useKV<Service[]>("salon-services", [])
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
+    if (initialized) return
+    
     const initializeData = async () => {
-      console.log('✅ Initializing seed data...')
+      console.log('🌱 SEED DATA: Starting initialization...')
       
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 300))
 
       const allServiceNames = DEFAULT_SERVICES.map(s => s.name)
-      console.log(`✅ All service names (${allServiceNames.length}):`, allServiceNames)
+      console.log(`🌱 SEED DATA: ${allServiceNames.length} service names available`)
 
-      if (!staffMembers || staffMembers.length === 0) {
-        console.log('✅ Seeding initial staff members with all services...')
-        const staffWithServices = DEFAULT_STAFF.map(staff => ({
-          ...staff,
-          availableServices: staff.isAdmin ? undefined : allServiceNames
-        }))
-        console.log('✅ Staff with services:', staffWithServices)
-        setStaffMembers(staffWithServices)
-      } else {
-        const hasOwner = staffMembers.some(s => s.username === "owner@ocholab.com")
-        const hasMaria = staffMembers.some(s => s.username === "maria")
-        const hasPaula = staffMembers.some(s => s.username === "paula")
-
-        let needsStaffUpdate = false
-        const updatedStaff = [...staffMembers]
+      try {
+        const currentStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
+        const currentServices = await window.spark.kv.get<Service[]>("salon-services")
         
-        if (!hasOwner) {
-          console.log('Restoring owner account...')
-          updatedStaff.push(DEFAULT_STAFF[0])
-          needsStaffUpdate = true
-        }
-        if (!hasMaria) {
-          console.log('Restoring Maria account...')
-          updatedStaff.push({
-            ...DEFAULT_STAFF[1],
-            availableServices: allServiceNames
-          })
-          needsStaffUpdate = true
-        }
-        if (!hasPaula) {
-          console.log('Restoring Paula account...')
-          updatedStaff.push({
-            ...DEFAULT_STAFF[2],
-            availableServices: allServiceNames
-          })
-          needsStaffUpdate = true
-        }
+        console.log(`🌱 SEED DATA: Current staff in KV: ${currentStaff?.length || 0}`)
+        console.log(`🌱 SEED DATA: Current services in KV: ${currentServices?.length || 0}`)
 
-        const needsServiceAssignment = updatedStaff.some(staff => {
-          if (staff.isAdmin) return false
-          const services = staff.availableServices || []
-          return services.length === 0
-        })
-
-        if (needsServiceAssignment) {
-          console.log('✅ Assigning all services to staff members without services...')
-          const staffWithAllServices = updatedStaff.map(s =>
-            s.isAdmin || (s.availableServices && s.availableServices.length > 0)
-              ? s 
-              : { ...s, availableServices: allServiceNames }
-          )
-          console.log('✅ Updated staff with services:', staffWithAllServices)
-          setStaffMembers(staffWithAllServices)
-        } else if (needsStaffUpdate) {
-          console.log('✅ Updating staff members:', updatedStaff)
-          setStaffMembers(updatedStaff)
+        if (!currentStaff || currentStaff.length === 0) {
+          console.log('🌱 SEED DATA: Initializing staff for first time...')
+          const staffWithServices: StaffMember[] = DEFAULT_STAFF.map(staff => ({
+            ...staff,
+            availableServices: staff.isAdmin ? undefined : allServiceNames
+          }))
+          
+          await window.spark.kv.set("staff-members", staffWithServices)
+          setStaffMembers(staffWithServices)
+          console.log('🌱 SEED DATA: Staff initialized:', staffWithServices.map(s => s.name).join(', '))
         } else {
-          console.log('✅ Staff members already configured correctly:', staffMembers.length, 'members')
-          console.log('✅ Maria services:', staffMembers.find(s => s.username === 'maria')?.availableServices?.length || 0)
-          console.log('✅ Paula services:', staffMembers.find(s => s.username === 'paula')?.availableServices?.length || 0)
+          const hasOwner = currentStaff.some(s => s.username === "owner@ocholab.com")
+          const hasMaria = currentStaff.some(s => s.username === "maria")
+          const hasPaula = currentStaff.some(s => s.username === "paula")
+
+          console.log(`🌱 SEED DATA: Checking staff - Owner: ${hasOwner}, Maria: ${hasMaria}, Paula: ${hasPaula}`)
+
+          let needsUpdate = false
+          const updatedStaff = [...currentStaff]
+          
+          if (!hasOwner) {
+            console.log('🌱 SEED DATA: Adding owner...')
+            updatedStaff.push(DEFAULT_STAFF[0])
+            needsUpdate = true
+          }
+          if (!hasMaria) {
+            console.log('🌱 SEED DATA: Adding Maria with all services...')
+            updatedStaff.push({
+              ...DEFAULT_STAFF[1],
+              availableServices: allServiceNames
+            })
+            needsUpdate = true
+          }
+          if (!hasPaula) {
+            console.log('🌱 SEED DATA: Adding Paula with all services...')
+            updatedStaff.push({
+              ...DEFAULT_STAFF[2],
+              availableServices: allServiceNames
+            })
+            needsUpdate = true
+          }
+
+          for (let i = 0; i < updatedStaff.length; i++) {
+            const staff = updatedStaff[i]
+            if (!staff.isAdmin && (!staff.availableServices || staff.availableServices.length === 0)) {
+              console.log(`🌱 SEED DATA: Fixing services for ${staff.name}...`)
+              updatedStaff[i] = { ...staff, availableServices: allServiceNames }
+              needsUpdate = true
+            }
+          }
+
+          if (needsUpdate) {
+            console.log('🌱 SEED DATA: Updating staff...')
+            await window.spark.kv.set("staff-members", updatedStaff)
+            setStaffMembers(updatedStaff)
+            updatedStaff.forEach(s => {
+              if (!s.isAdmin) {
+                console.log(`   ✅ ${s.name}: ${s.availableServices?.length || 0} services`)
+              }
+            })
+          } else {
+            console.log('🌱 SEED DATA: Staff already correct')
+            setStaffMembers(currentStaff)
+          }
         }
-      }
 
-      if (!services || services.length === 0) {
-        console.log('✅ Seeding services...')
-        setServices(DEFAULT_SERVICES)
-      } else {
-        console.log('✅ Services already seeded:', services.length, 'services')
-      }
+        if (!currentServices || currentServices.length === 0) {
+          console.log('🌱 SEED DATA: Initializing services...')
+          await window.spark.kv.set("salon-services", DEFAULT_SERVICES)
+          setServices(DEFAULT_SERVICES)
+          console.log(`🌱 SEED DATA: ${DEFAULT_SERVICES.length} services initialized`)
+        } else {
+          console.log(`🌱 SEED DATA: Services already present (${currentServices.length})`)
+          setServices(currentServices)
+        }
 
-      console.log('✅ Data seeding complete')
-      console.log('📊 Quick verification:')
-      console.log('   - Total services:', services?.length || 0, '(Expected: 14)')
-      console.log('   - Maria services:', staffMembers?.find(s => s.username === 'maria')?.availableServices?.length || 0, '(Expected: 14)')
-      console.log('   - Paula services:', staffMembers?.find(s => s.username === 'paula')?.availableServices?.length || 0, '(Expected: 14)')
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
+        const finalServices = await window.spark.kv.get<Service[]>("salon-services")
+        
+        console.log('🌱 SEED DATA: ✅ INITIALIZATION COMPLETE')
+        console.log(`   📊 Staff members: ${finalStaff?.length || 0}`)
+        console.log(`   📊 Services: ${finalServices?.length || 0}`)
+        if (finalStaff) {
+          finalStaff.forEach(s => {
+            if (!s.isAdmin) {
+              console.log(`   👤 ${s.name} (${s.username}): ${s.availableServices?.length || 0} services`)
+            } else {
+              console.log(`   👤 ${s.name} (${s.username}): Admin`)
+            }
+          })
+        }
+        
+        setInitialized(true)
+      } catch (error) {
+        console.error('🌱 SEED DATA: ❌ Error during initialization:', error)
+      }
     }
 
     initializeData()
-  }, [])
+  }, [initialized])
 }
