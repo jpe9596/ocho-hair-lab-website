@@ -1,14 +1,12 @@
 import { motion } from "framer-motion"
 import productsImg from "@/assets/images/natural.png"
 
-const OrganicIcon = () => (
+const PlantBasedIcon = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-    <path d="M24 12C24 12 18 16 18 24C18 28 20 32 24 32C28 32 30 28 30 24C30 16 24 12 24 12Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-    <path d="M24 12C24 12 30 16 30 24" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-    <ellipse cx="24" cy="24" rx="6" ry="8" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-    <line x1="20" y1="18" x2="28" y2="18" stroke="currentColor" strokeWidth="1.5"/>
-    <line x1="20" y1="30" x2="28" y2="30" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M24 32V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M24 20C24 20 20 18 16 20C14 21 13 24 15 26C17 28 24 26 24 26" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+    <path d="M24 20C24 20 28 18 32 20C34 21 35 24 33 26C31 28 24 26 24 26" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
   </svg>
 )
 
@@ -34,8 +32,8 @@ const EcoFriendlyIcon = () => (
 export function Products() {
   const features = [
     {
-      icon: OrganicIcon,
-      title: "ORGANIC",
+      icon: PlantBasedIcon,
+      title: "PLANT BASED",
     },
     {
       icon: NonToxicIcon,
@@ -67,7 +65,7 @@ export function Products() {
                 lineHeight: '1.3'
               }}
             >
-              productos a base de vegetales disponibles
+              Productos de Origen Vegetal Disponibles
             </h2>
             
             <div className="space-y-12">
