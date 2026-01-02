@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AdminAnalytics } from "@/components/AdminAnalytics"
@@ -6,12 +5,9 @@ import { StaffSchedule } from "@/components/StaffSchedule"
 import { SMSAnalyticsDashboard } from "@/components/SMSAnalyticsDashboard"
 import { StaffManagement } from "@/components/StaffManagement"
 import { ServicesManagement } from "@/components/ServicesManagement"
-import { DiagnosticTool } from "@/components/DiagnosticTool"
-import { ArrowLeft, ShieldCheck, Bug } from "@phosphor-icons/react"
+import { ArrowLeft, ShieldCheck } from "@phosphor-icons/react"
 
 export function AdminDashboard() {
-  const [showDiagnostics, setShowDiagnostics] = useState(false)
-
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b bg-card sticky top-0 z-50 shadow-sm">
@@ -29,13 +25,6 @@ export function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button 
-                variant="secondary" 
-                onClick={() => setShowDiagnostics(true)}
-              >
-                <Bug className="mr-2" size={18} />
-                Test System
-              </Button>
               <Button 
                 variant="outline" 
                 onClick={() => window.location.hash = ""}
@@ -79,10 +68,6 @@ export function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-
-      {showDiagnostics && (
-        <DiagnosticTool onClose={() => setShowDiagnostics(false)} />
-      )}
     </div>
   )
 }

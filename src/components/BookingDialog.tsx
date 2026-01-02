@@ -58,12 +58,6 @@ interface StaffMember {
   availableServices?: string[]
 }
 
-const DEFAULT_STAFF_MEMBERS: StaffMember[] = [
-  { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false, availableServices: [] },
-  { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false, availableServices: [] },
-  { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
-]
-
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
@@ -73,7 +67,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [customerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
-  const [staffMembers] = useKV<StaffMember[]>("staff-members", DEFAULT_STAFF_MEMBERS)
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [services] = useKV<Service[]>("salon-services", [])
   const [date, setDate] = useState<Date>()
   const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)

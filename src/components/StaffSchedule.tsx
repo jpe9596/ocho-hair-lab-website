@@ -37,12 +37,6 @@ interface StaffMember {
   availableServices?: string[]
 }
 
-const DEFAULT_STAFF_MEMBERS: StaffMember[] = [
-  { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false, availableServices: [] },
-  { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false, availableServices: [] },
-  { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
-]
-
 const DAYS_OF_WEEK = [
   "Monday",
   "Tuesday",
@@ -71,7 +65,7 @@ const DEFAULT_SCHEDULE: StaffSchedule["workingHours"] = {
 
 export function StaffSchedule() {
   const [schedules, setSchedules] = useKV<StaffSchedule[]>("staff-schedules", [])
-  const [staffMembers] = useKV<StaffMember[]>("staff-members", DEFAULT_STAFF_MEMBERS)
+  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [selectedStylist, setSelectedStylist] = useState<string>("")
   const [blockDateDialogOpen, setBlockDateDialogOpen] = useState(false)
   const [selectedBlockDates, setSelectedBlockDates] = useState<Date[]>([])

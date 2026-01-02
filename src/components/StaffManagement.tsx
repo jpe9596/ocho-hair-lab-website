@@ -31,11 +31,7 @@ interface CustomerAccount {
 }
 
 export function StaffManagement() {
-  const [staffMembers, setStaffMembers] = useKV<StaffMember[]>("staff-members", [
-    { username: "maria", password: "supersecret", name: "Maria", role: "Stylist", isAdmin: false, availableServices: [] },
-    { username: "paula", password: "supersecret", name: "Paula", role: "Stylist", isAdmin: false, availableServices: [] },
-    { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
-  ])
+  const [staffMembers, setStaffMembers] = useKV<StaffMember[]>("staff-members", [])
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [services] = useKV<Service[]>("salon-services", [])
   
