@@ -18,7 +18,7 @@ export function Contact() {
             <div className="border-4 border-foreground p-12 md:p-16 max-w-lg">
               <h2 
                 className="text-5xl md:text-6xl font-light text-center mb-12 tracking-wider" 
-                style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, letterSpacing: '0.05em' }}
+                style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 300, letterSpacing: '0.05em' }}
               >
                 CONTACT US
               </h2>

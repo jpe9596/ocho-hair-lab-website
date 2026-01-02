@@ -49,7 +49,7 @@ export function Navigation({ onBookClick }: NavigationProps) {
             <button 
               onClick={() => scrollToSection("home")}
               className="text-2xl font-bold tracking-tight text-primary hover:opacity-80 transition-opacity"
-              style={{ fontFamily: 'var(--font-display)' }}
+              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}
             >
               ocho
             </button>

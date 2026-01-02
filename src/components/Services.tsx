@@ -57,7 +57,7 @@ export function Services() {
         <div className="text-center mb-20">
           <h2 
             className="text-5xl md:text-6xl font-light tracking-wide text-foreground"
-            style={{ fontFamily: 'serif', fontWeight: 300 }}
+            style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 300 }}
           >
             Our Services
           </h2>
@@ -87,7 +87,7 @@ export function Services() {
                 <div className="p-6 text-center">
                   <h3 
                     className="text-xl md:text-2xl mb-6 text-foreground font-light"
-                    style={{ fontFamily: 'serif', fontWeight: 300, lineHeight: 1.3 }}
+                    style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 300, lineHeight: 1.3 }}
                   >
                     {category}
                   </h3>
@@ -101,13 +101,13 @@ export function Services() {
                         <div className="flex flex-col gap-0.5">
                           <span 
                             className="text-sm text-foreground/70 before:content-['•'] before:absolute before:left-0"
-                            style={{ fontFamily: 'sans-serif', letterSpacing: '0.05em' }}
+                            style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', letterSpacing: '0.05em' }}
                           >
                             {service.name}
                           </span>
                           <span 
                             className="text-xs text-foreground/50 font-medium"
-                            style={{ fontFamily: 'sans-serif' }}
+                            style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}
                           >
                             {service.price}
                           </span>

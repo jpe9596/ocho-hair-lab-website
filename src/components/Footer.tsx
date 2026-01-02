@@ -4,7 +4,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
-            <p className="text-2xl font-bold mb-2 text-primary" style={{ fontFamily: 'var(--font-display)' }}>
+            <p className="text-2xl font-bold mb-2 text-primary" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
               ocho
             </p>
             <p className="text-sm tracking-[0.2em] text-muted-foreground">

@@ -15,10 +15,10 @@ export function Hero({ onBookClick }: HeroProps) {
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
         <div className="inline-block mb-8 p-8 bg-secondary/40 backdrop-blur-sm rounded-2xl">
           <div className="space-y-2">
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-primary" style={{ fontFamily: 'var(--font-display)' }}>
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-primary" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
               ocho
             </h1>
-            <p className="text-xl md:text-2xl font-medium tracking-[0.3em] text-primary/90" style={{ fontFamily: 'var(--font-sans)' }}>
+            <p className="text-xl md:text-2xl font-medium tracking-[0.3em] text-primary/90" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
               HAIR LAB
             </p>
           </div>
