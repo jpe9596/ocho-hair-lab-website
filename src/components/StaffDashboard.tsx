@@ -22,6 +22,7 @@ interface Appointment {
   customerEmail: string
   stylist: string
   services: string[]
+  serviceDurations?: Record<string, number>
   date: string
   time: string
   status: "confirmed" | "completed" | "cancelled"

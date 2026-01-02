@@ -16,6 +16,7 @@ import { StaffSchedule } from "@/components/StaffSchedule"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Service } from "@/components/ServicesManagement"
 
 interface Appointment {
   id: string
@@ -25,6 +26,7 @@ interface Appointment {
   password: string
   service: string
   services: string[]
+  serviceDurations?: Record<string, number>
   stylist: string
   date: Date
   time: string
@@ -51,43 +53,6 @@ interface StaffMember {
   availableServices?: string[]
 }
 
-const serviceCategories = [
-  {
-    name: "Tinte",
-    items: [
-      "Retoque de Raiz",
-      "Full Head Tint",
-      "0% AMONIACO",
-      "Toner/Gloss"
-    ]
-  },
-  {
-    name: "Corte & Styling",
-    items: [
-      "Corte & Secado",
-      "Secado (short)",
-      "Secado (mm)",
-      "Secado (long)",
-      "Waves/peinado"
-    ]
-  },
-  {
-    name: "Bespoke Color",
-    items: [
-      "Balayage",
-      "Baby Lights",
-      "Selfie Contour"
-    ]
-  },
-  {
-    name: "Treatments",
-    items: [
-      "Posion Nº17",
-      "Posion Nº 8"
-    ]
-  }
-]
-
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
@@ -98,6 +63,7 @@ export function BookingPage() {
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
+  const [services] = useKV<Service[]>("salon-services", [])
   const [date, setDate] = useState<Date>()
   const [loggedInEmail, setLoggedInEmail] = useState<string>("")
   const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
@@ -173,6 +139,23 @@ export function BookingPage() {
     return available
   }, [date, formData.time, schedules, appointments, stylistNames])
 
+  const serviceCategories = useMemo(() => {
+    if (!services || services.length === 0) return []
+    
+    const categories = services.reduce((acc, service) => {
+      if (!acc[service.category]) {
+        acc[service.category] = []
+      }
+      acc[service.category].push(service.name)
+      return acc
+    }, {} as Record<string, string[]>)
+
+    return Object.entries(categories).map(([name, items]) => ({
+      name,
+      items
+    }))
+  }, [services])
+
   const availableServices = useMemo(() => {
     if (!formData.stylist || formData.stylist === "Any Available" || !staffMembers) {
       return serviceCategories
@@ -189,7 +172,7 @@ export function BookingPage() {
     })).filter(category => category.items.length > 0)
 
     return filteredCategories
-  }, [formData.stylist, staffMembers])
+  }, [formData.stylist, staffMembers, serviceCategories])
 
   useEffect(() => {
     if (formData.stylist && formData.stylist !== "Any Available" && staffMembers) {
@@ -247,6 +230,14 @@ export function BookingPage() {
       const customerPassword = loggedInAccount ? loggedInAccount.password : formData.password
       const normalizedEmail = customerEmail.toLowerCase().trim()
 
+      const serviceDurations: Record<string, number> = {}
+      formData.services.forEach(serviceName => {
+        const service = services?.find(s => s.name === serviceName)
+        if (service) {
+          serviceDurations[serviceName] = service.duration
+        }
+      })
+
       const newAppointment: Appointment = {
         id: Date.now().toString(),
         customerName,
@@ -255,6 +246,7 @@ export function BookingPage() {
         password: customerPassword,
         service: formData.services[0],
         services: formData.services,
+        serviceDurations,
         stylist: finalStylist,
         date,
         time: formData.time,

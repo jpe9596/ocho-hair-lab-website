@@ -4,6 +4,7 @@ import { AdminAnalytics } from "@/components/AdminAnalytics"
 import { StaffSchedule } from "@/components/StaffSchedule"
 import { SMSAnalyticsDashboard } from "@/components/SMSAnalyticsDashboard"
 import { StaffManagement } from "@/components/StaffManagement"
+import { ServicesManagement } from "@/components/ServicesManagement"
 import { ArrowLeft, ShieldCheck } from "@phosphor-icons/react"
 
 export function AdminDashboard() {
@@ -39,11 +40,12 @@ export function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full max-w-4xl grid-cols-4">
+          <TabsList className="grid w-full max-w-5xl grid-cols-5">
             <TabsTrigger value="analytics">Analytics & Appointments</TabsTrigger>
             <TabsTrigger value="sms-analytics">WhatsApp Analytics</TabsTrigger>
             <TabsTrigger value="schedules">Staff Schedules</TabsTrigger>
             <TabsTrigger value="staff-management">Staff & Accounts</TabsTrigger>
+            <TabsTrigger value="services">Services</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics" className="space-y-6">
@@ -60,6 +62,10 @@ export function AdminDashboard() {
 
           <TabsContent value="staff-management" className="space-y-6">
             <StaffManagement />
+          </TabsContent>
+
+          <TabsContent value="services" className="space-y-6">
+            <ServicesManagement />
           </TabsContent>
         </Tabs>
       </div>

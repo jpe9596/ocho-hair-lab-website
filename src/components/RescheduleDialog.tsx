@@ -20,6 +20,7 @@ interface Appointment {
   customerPhone: string
   service: string
   services?: string[]
+  serviceDurations?: Record<string, number>
   stylist: string
   date: Date | string
   time: string

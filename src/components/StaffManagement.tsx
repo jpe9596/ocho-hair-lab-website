@@ -12,6 +12,7 @@ import { Plus, Trash, Key, Users, UserCircle, ShieldCheck, Scissors } from "@pho
 import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Service } from "@/components/ServicesManagement"
 
 interface StaffMember {
   username: string
@@ -36,6 +37,7 @@ export function StaffManagement() {
     { username: "owner@ocholab.com", password: "owner123", name: "Admin", role: "Admin", isAdmin: true, availableServices: [] }
   ])
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
+  const [services] = useKV<Service[]>("salon-services", [])
   
   const [newStaff, setNewStaff] = useState({
     username: "",
@@ -60,22 +62,7 @@ export function StaffManagement() {
   const [deleteCustomerDialogOpen, setDeleteCustomerDialogOpen] = useState(false)
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null)
 
-  const allServices = [
-    "Retoque de Raiz",
-    "Full Head Tint",
-    "0% AMONIACO",
-    "Toner/Gloss",
-    "Corte & Secado",
-    "Secado (short)",
-    "Secado (mm)",
-    "Secado (long)",
-    "Waves/peinado",
-    "Balayage",
-    "Baby Lights",
-    "Selfie Contour",
-    "Posion Nº17",
-    "Posion Nº 8"
-  ]
+  const allServices = services?.map(s => s.name) || []
 
   const handleCreateStaff = () => {
     if (!newStaff.username || !newStaff.password || !newStaff.name || !newStaff.role) {

@@ -16,6 +16,7 @@ import { StaffSchedule } from "@/components/StaffSchedule"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Service } from "@/components/ServicesManagement"
 
 interface BookingDialogProps {
   open: boolean
@@ -37,6 +38,7 @@ interface Appointment {
   password?: string
   service: string
   services: string[]
+  serviceDurations?: Record<string, number>
   stylist: string
   date: Date
   time: string
@@ -56,43 +58,6 @@ interface StaffMember {
   availableServices?: string[]
 }
 
-const serviceCategories = [
-  {
-    name: "Tinte",
-    items: [
-      "Retoque de Raiz",
-      "Full Head Tint",
-      "0% AMONIACO",
-      "Toner/Gloss"
-    ]
-  },
-  {
-    name: "Corte & Styling",
-    items: [
-      "Corte & Secado",
-      "Secado (short)",
-      "Secado (mm)",
-      "Secado (long)",
-      "Waves/peinado"
-    ]
-  },
-  {
-    name: "Bespoke Color",
-    items: [
-      "Balayage",
-      "Baby Lights",
-      "Selfie Contour"
-    ]
-  },
-  {
-    name: "Treatments",
-    items: [
-      "Posion Nº17",
-      "Posion Nº 8"
-    ]
-  }
-]
-
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
@@ -103,6 +68,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
   const [customerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
   const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
   const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
+  const [services] = useKV<Service[]>("salon-services", [])
   const [date, setDate] = useState<Date>()
   const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
   const [formData, setFormData] = useState({
@@ -122,6 +88,23 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
     return staffMembers.filter(s => !s.isAdmin).map(s => s.name)
   }, [staffMembers])
 
+  const serviceCategories = useMemo(() => {
+    if (!services || services.length === 0) return []
+    
+    const categories = services.reduce((acc, service) => {
+      if (!acc[service.category]) {
+        acc[service.category] = []
+      }
+      acc[service.category].push(service.name)
+      return acc
+    }, {} as Record<string, string[]>)
+
+    return Object.entries(categories).map(([name, items]) => ({
+      name,
+      items
+    }))
+  }, [services])
+
   const availableServicesForStylist = useMemo(() => {
     if (!formData.stylist || formData.stylist === "Any Available") {
       return serviceCategories
@@ -137,7 +120,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       ...category,
       items: category.items.filter(service => availableServicesList.includes(service))
     })).filter(category => category.items.length > 0)
-  }, [formData.stylist, staffMembers])
+  }, [formData.stylist, staffMembers, serviceCategories])
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('customerEmail')
@@ -232,6 +215,14 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
 
     const servicesList = formData.services.join(", ")
 
+    const serviceDurations: Record<string, number> = {}
+    formData.services.forEach(serviceName => {
+      const service = services?.find(s => s.name === serviceName)
+      if (service) {
+        serviceDurations[serviceName] = service.duration
+      }
+    })
+
     const newAppointment: Appointment = {
       id: Date.now().toString(),
       customerName,
@@ -240,6 +231,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
       password: customerPassword,
       service: servicesList,
       services: formData.services,
+      serviceDurations,
       stylist: finalStylist,
       date: date,
       time: formData.time,
