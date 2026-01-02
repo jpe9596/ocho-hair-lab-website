@@ -1,47 +1,52 @@
 import { motion } from "framer-motion"
+import { useKV } from "@github/spark/hooks"
 
-const categoryData = [
-  {
-    category: "Tinte",
-    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=600&fit=crop&q=80",
-    services: [
-      "Retoque de Raiz",
-      "Full Head Tint",
-      "0% AMONIACO",
-      "Toner/Gloss"
-    ]
-  },
-  {
-    category: "Corte & Styling",
-    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=600&fit=crop&q=80",
-    services: [
-      "Corte & Secado",
-      "Secado (short)",
-      "Secado (mm)",
-      "Secado (long)",
-      "Waves/peinado"
-    ]
-  },
-  {
-    category: "Bespoke Color",
-    image: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&h=600&fit=crop&q=80",
-    services: [
-      "Balayage",
-      "Baby Lights",
-      "Selfie Contour"
-    ]
-  },
-  {
-    category: "Treatments",
-    image: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&h=600&fit=crop&q=80",
-    services: [
-      "Posion Nº17",
-      "Posion Nº 8"
-    ]
-  }
+interface Service {
+  id: string
+  name: string
+  duration: number
+  category: string
+  price: string
+}
+
+const categoryImages: Record<string, string> = {
+  "Tinte": "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=600&fit=crop&q=80",
+  "Corte & Styling": "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=600&fit=crop&q=80",
+  "Bespoke Color": "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&h=600&fit=crop&q=80",
+  "Treatments": "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&h=600&fit=crop&q=80"
+}
+
+const DEFAULT_SERVICES: Service[] = [
+  { id: "1", name: "Retoque de Raiz", duration: 90, category: "Tinte", price: "$1,150" },
+  { id: "2", name: "Full Head Tint", duration: 120, category: "Tinte", price: "$1,500" },
+  { id: "3", name: "0% AMONIACO", duration: 90, category: "Tinte", price: "from $1,000" },
+  { id: "4", name: "Toner/Gloss", duration: 60, category: "Tinte", price: "$450" },
+  { id: "5", name: "Corte & Secado", duration: 60, category: "Corte & Styling", price: "$900" },
+  { id: "6", name: "Secado (short)", duration: 30, category: "Corte & Styling", price: "$350" },
+  { id: "7", name: "Secado (mm)", duration: 45, category: "Corte & Styling", price: "$500" },
+  { id: "8", name: "Secado (long)", duration: 60, category: "Corte & Styling", price: "$700" },
+  { id: "9", name: "Waves/peinado", duration: 45, category: "Corte & Styling", price: "from $350" },
+  { id: "10", name: "Balayage", duration: 180, category: "Bespoke Color", price: "from $2,500" },
+  { id: "11", name: "Baby Lights", duration: 150, category: "Bespoke Color", price: "from $3,500" },
+  { id: "12", name: "Selfie Contour", duration: 120, category: "Bespoke Color", price: "$1,800" },
+  { id: "13", name: "Posion Nº17", duration: 90, category: "Treatments", price: "$300" },
+  { id: "14", name: "Posion Nº 8", duration: 60, category: "Treatments", price: "$900" }
 ]
 
 export function Services() {
+  const [services] = useKV<Service[]>("salon-services", DEFAULT_SERVICES)
+  
+  const groupedServices = services?.reduce((acc, service) => {
+    if (!acc[service.category]) {
+      acc[service.category] = []
+    }
+    acc[service.category].push(service)
+    return acc
+  }, {} as Record<string, Service[]>) || {}
+
+  const categoryOrder = ["Tinte", "Corte & Styling", "Bespoke Color", "Treatments"]
+  const orderedCategories = categoryOrder.filter(cat => groupedServices[cat])
+
   return (
     <section id="services" className="py-20 md:py-32 px-6 md:px-8 bg-[#f5f3f0]">
       <div className="max-w-7xl mx-auto">
@@ -55,9 +60,9 @@ export function Services() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          {categoryData.map((category, index) => (
+          {orderedCategories.map((category, index) => (
             <motion.div
-              key={index}
+              key={category}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -68,8 +73,8 @@ export function Services() {
                 <div className="p-4 border-b-2 border-foreground/20">
                   <div className="aspect-square overflow-hidden">
                     <img 
-                      src={category.image} 
-                      alt={category.category}
+                      src={categoryImages[category]} 
+                      alt={category}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
@@ -80,17 +85,29 @@ export function Services() {
                     className="text-xl md:text-2xl mb-6 text-foreground font-light"
                     style={{ fontFamily: 'serif', fontWeight: 300, lineHeight: 1.3 }}
                   >
-                    {category.category}
+                    {category}
                   </h3>
                   
-                  <ul className="space-y-2 text-left">
-                    {category.services.map((service, serviceIndex) => (
+                  <ul className="space-y-3 text-left">
+                    {groupedServices[category].map((service) => (
                       <li 
-                        key={serviceIndex}
-                        className="text-sm text-foreground/70 pl-4 relative before:content-['•'] before:absolute before:left-0"
-                        style={{ fontFamily: 'sans-serif', letterSpacing: '0.05em' }}
+                        key={service.id}
+                        className="pl-4 relative"
                       >
-                        {service}
+                        <div className="flex flex-col gap-0.5">
+                          <span 
+                            className="text-sm text-foreground/70 before:content-['•'] before:absolute before:left-0"
+                            style={{ fontFamily: 'sans-serif', letterSpacing: '0.05em' }}
+                          >
+                            {service.name}
+                          </span>
+                          <span 
+                            className="text-xs text-foreground/50 font-medium"
+                            style={{ fontFamily: 'sans-serif' }}
+                          >
+                            {service.price}
+                          </span>
+                        </div>
                       </li>
                     ))}
                   </ul>
