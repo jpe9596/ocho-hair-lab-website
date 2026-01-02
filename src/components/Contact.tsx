@@ -1,5 +1,5 @@
 import { InstagramLogo, MapPin } from "@phosphor-icons/react"
-import contactImg from "@/assets/images/Screenshot_2026-01-01_at_7.42.16_PM.png"
+import contactImg from "@/assets/images/face.png"
 
 export function Contact() {
   return (
@@ -31,16 +31,6 @@ export function Contact() {
                     className="text-foreground hover:text-foreground/70 transition-colors"
                   >
                     (81) 1615-3747
-                  </a>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold tracking-widest mb-2">EMAIL</h3>
-                  <a 
-                    href="mailto:hello@ochohairlab.com" 
-                    className="text-foreground hover:text-foreground/70 transition-colors uppercase text-sm"
-                  >
-                    HELLO@OCHOHAIRLAB.COM
                   </a>
                 </div>
 
