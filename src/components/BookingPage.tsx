@@ -124,15 +124,9 @@ export function BookingPage() {
     }
   }, [customerAccounts])
 
-        const parseTime = (time: string) => {
-          const [t, period] = time.split(' ')
-          let [hours, mins] = t.split(':').map(Number)
-          if (period === 'PM' && hours !== 12) hours += 12
-          if (period === 'AM' && hours === 12) hours = 0
-          return hours * 60 + mins
-        }
-        return parseTime(a) - parseTime(b)
-      })
+  const availableTimeSlots = useMemo(() => {
+    if (!date || !formData.stylist) {
+      return []
     }
     
     return getAvailableTimeSlots(date, formData.stylist, schedules, appointments || [])
