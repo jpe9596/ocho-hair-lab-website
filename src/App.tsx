@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { Navigation } from "@/components/Navigation"
 import { Hero } from "@/components/Hero"
+import { Products } from "@/components/Products"
 import { Services } from "@/components/Services"
 import { Contact } from "@/components/Contact"
 import { Footer } from "@/components/Footer"
@@ -173,6 +174,7 @@ function App() {
     <div id="home" className="min-h-screen">
       <Navigation />
       <Hero />
+      <Products />
       <Services />
       <Contact />
       <Footer />
