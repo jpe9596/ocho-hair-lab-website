@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Trash, Clock, Scissors } from "@phosphor-icons/react"
+import { Plus, Trash, Clock, Scissors, CurrencyDollar } from "@phosphor-icons/react"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -15,6 +15,7 @@ export interface Service {
   name: string
   duration: number
   category: string
+  price: string
 }
 
 interface Appointment {
@@ -45,27 +46,28 @@ const serviceCategories = [
 
 export function ServicesManagement() {
   const [services, setServices] = useKV<Service[]>("salon-services", [
-    { id: "1", name: "Retoque de Raiz", duration: 90, category: "Tinte" },
-    { id: "2", name: "Full Head Tint", duration: 120, category: "Tinte" },
-    { id: "3", name: "0% AMONIACO", duration: 90, category: "Tinte" },
-    { id: "4", name: "Toner/Gloss", duration: 60, category: "Tinte" },
-    { id: "5", name: "Corte & Secado", duration: 60, category: "Corte & Styling" },
-    { id: "6", name: "Secado (short)", duration: 30, category: "Corte & Styling" },
-    { id: "7", name: "Secado (mm)", duration: 45, category: "Corte & Styling" },
-    { id: "8", name: "Secado (long)", duration: 60, category: "Corte & Styling" },
-    { id: "9", name: "Waves/peinado", duration: 45, category: "Corte & Styling" },
-    { id: "10", name: "Balayage", duration: 180, category: "Bespoke Color" },
-    { id: "11", name: "Baby Lights", duration: 150, category: "Bespoke Color" },
-    { id: "12", name: "Selfie Contour", duration: 120, category: "Bespoke Color" },
-    { id: "13", name: "Posion Nº17", duration: 90, category: "Treatments" },
-    { id: "14", name: "Posion Nº 8", duration: 60, category: "Treatments" }
+    { id: "1", name: "Retoque de Raiz", duration: 90, category: "Tinte", price: "$1,150" },
+    { id: "2", name: "Full Head Tint", duration: 120, category: "Tinte", price: "$1,500" },
+    { id: "3", name: "0% AMONIACO", duration: 90, category: "Tinte", price: "from $1,000" },
+    { id: "4", name: "Toner/Gloss", duration: 60, category: "Tinte", price: "$450" },
+    { id: "5", name: "Corte & Secado", duration: 60, category: "Corte & Styling", price: "$900" },
+    { id: "6", name: "Secado (short)", duration: 30, category: "Corte & Styling", price: "$350" },
+    { id: "7", name: "Secado (mm)", duration: 45, category: "Corte & Styling", price: "$500" },
+    { id: "8", name: "Secado (long)", duration: 60, category: "Corte & Styling", price: "$700" },
+    { id: "9", name: "Waves/peinado", duration: 45, category: "Corte & Styling", price: "from $350" },
+    { id: "10", name: "Balayage", duration: 180, category: "Bespoke Color", price: "from $2,500" },
+    { id: "11", name: "Baby Lights", duration: 150, category: "Bespoke Color", price: "from $3,500" },
+    { id: "12", name: "Selfie Contour", duration: 120, category: "Bespoke Color", price: "$1,800" },
+    { id: "13", name: "Posion Nº17", duration: 90, category: "Treatments", price: "$300" },
+    { id: "14", name: "Posion Nº 8", duration: 60, category: "Treatments", price: "$900" }
   ])
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   
   const [newService, setNewService] = useState({
     name: "",
     duration: 60,
-    category: ""
+    category: "",
+    price: ""
   })
   
   const [editingService, setEditingService] = useState<Service | null>(null)
@@ -74,8 +76,21 @@ export function ServicesManagement() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
+  useEffect(() => {
+    if (services && services.length > 0) {
+      const needsMigration = services.some(s => !(s as any).price)
+      if (needsMigration) {
+        const migratedServices = services.map(s => ({
+          ...s,
+          price: (s as any).price || "Contact for pricing"
+        }))
+        setServices(migratedServices)
+      }
+    }
+  }, [])
+
   const handleCreateService = () => {
-    if (!newService.name || !newService.category) {
+    if (!newService.name || !newService.category || !newService.price) {
       toast.error("Please fill in all fields")
       return
     }
@@ -96,18 +111,19 @@ export function ServicesManagement() {
       id,
       name: newService.name,
       duration: newService.duration,
-      category: newService.category
+      category: newService.category,
+      price: newService.price
     }])
 
     toast.success(`Service "${newService.name}" created successfully`)
-    setNewService({ name: "", duration: 60, category: "" })
+    setNewService({ name: "", duration: 60, category: "", price: "" })
     setCreateDialogOpen(false)
   }
 
   const handleUpdateService = () => {
     if (!editingService) return
 
-    if (!editingService.name || !editingService.category) {
+    if (!editingService.name || !editingService.category || !editingService.price) {
       toast.error("Please fill in all fields")
       return
     }
@@ -218,7 +234,7 @@ export function ServicesManagement() {
                 <Scissors size={24} />
                 Services Management
               </CardTitle>
-              <CardDescription>Manage salon services and their durations</CardDescription>
+              <CardDescription>Manage salon services, durations, and pricing</CardDescription>
             </div>
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
@@ -277,6 +293,18 @@ export function ServicesManagement() {
                       Recommended: 15-600 minutes
                     </p>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-service-price">Price</Label>
+                    <Input
+                      id="new-service-price"
+                      placeholder="e.g., $1,500 or from $2,500"
+                      value={newService.price}
+                      onChange={(e) => setNewService({ ...newService, price: e.target.value })}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Can include ranges (e.g., "from $500") or fixed prices (e.g., "$1,200")
+                    </p>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
@@ -304,6 +332,7 @@ export function ServicesManagement() {
                       <TableRow>
                         <TableHead>Service Name</TableHead>
                         <TableHead>Duration</TableHead>
+                        <TableHead>Price</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -316,6 +345,9 @@ export function ServicesManagement() {
                               <Clock size={16} className="text-muted-foreground" />
                               {formatDuration(service.duration)}
                             </div>
+                          </TableCell>
+                          <TableCell className="font-semibold text-primary">
+                            {service.price}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-2 justify-end">
@@ -404,6 +436,18 @@ export function ServicesManagement() {
                 />
                 <p className="text-xs text-muted-foreground">
                   Changes to duration will update all future appointments
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-service-price">Price</Label>
+                <Input
+                  id="edit-service-price"
+                  placeholder="e.g., $1,500 or from $2,500"
+                  value={editingService.price}
+                  onChange={(e) => setEditingService({ ...editingService, price: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Can include ranges (e.g., "from $500") or fixed prices (e.g., "$1,200")
                 </p>
               </div>
             </div>
