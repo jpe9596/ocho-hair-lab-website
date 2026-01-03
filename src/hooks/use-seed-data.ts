@@ -52,18 +52,26 @@ const DEFAULT_STAFF: StaffMember[] = [
     isAdmin: true
   },
   {
-    username: "maria",
-    password: "supersecret",
-    name: "Maria",
-    role: "Senior Stylist",
+    username: "test1",
+    password: "test1",
+    name: "test1",
+    role: "Stylist",
     isAdmin: false,
     availableServices: []
   },
   {
-    username: "paula",
-    password: "supersecret",
-    name: "Paula",
-    role: "Senior Stylist",
+    username: "test2",
+    password: "test2",
+    name: "test2",
+    role: "Stylist",
+    isAdmin: false,
+    availableServices: []
+  },
+  {
+    username: "test3",
+    password: "test3",
+    name: "test3",
+    role: "Stylist",
     isAdmin: false,
     availableServices: []
   }
@@ -105,9 +113,18 @@ export function useSeedData() {
         console.log(`🌱 SEED DATA: Current services in KV: ${currentServices?.length || 0}`)
         console.log(`🌱 SEED DATA: Current schedules in KV: ${currentSchedules?.length || 0}`)
 
-        const needsStaffSeed = !currentStaff || currentStaff.length === 0
+        // Check if we need to migrate from old staff (Maria/Paula) to new staff (test1/test2/test3)
+        const hasMariaPaula = currentStaff?.some(s => s.username === "maria" || s.username === "paula")
+        const hasTestStaff = currentStaff?.some(s => s.username === "test1" || s.username === "test2" || s.username === "test3")
+        const needsMigration = hasMariaPaula && !hasTestStaff
+        
+        if (needsMigration) {
+          console.log('🌱 SEED DATA: Migration needed - replacing Maria/Paula with test1/test2/test3')
+        }
+
+        const needsStaffSeed = !currentStaff || currentStaff.length === 0 || needsMigration
         const needsServiceSeed = !currentServices || currentServices.length === 0
-        const needsScheduleSeed = !currentSchedules || currentSchedules.length === 0
+        const needsScheduleSeed = !currentSchedules || currentSchedules.length === 0 || needsMigration
 
         if (needsStaffSeed || needsServiceSeed || needsScheduleSeed) {
           console.log('🌱 SEED DATA: Missing data detected, seeding...')
@@ -119,6 +136,9 @@ export function useSeedData() {
 
           if (needsStaffSeed) {
             console.log('🌱 SEED DATA: Seeding staff members...')
+            if (needsMigration) {
+              console.log('🌱 SEED DATA: ⚠️  MIGRATION: Replacing old staff with new staff')
+            }
             await window.spark.kv.set("staff-members", staffWithServices)
             console.log('🌱 SEED DATA: Staff set:', staffWithServices.map(s => `${s.name} (${s.username})`).join(', '))
             
@@ -145,13 +165,19 @@ export function useSeedData() {
             console.log('🌱 SEED DATA: Seeding staff schedules...')
             const defaultSchedules: StaffSchedule[] = [
               {
-                stylistName: "Maria",
+                stylistName: "test1",
                 workingHours: DEFAULT_WORKING_HOURS,
                 blockedDates: [],
                 breakTimes: [{ startTime: "12:00 PM", endTime: "1:00 PM" }]
               },
               {
-                stylistName: "Paula",
+                stylistName: "test2",
+                workingHours: DEFAULT_WORKING_HOURS,
+                blockedDates: [],
+                breakTimes: [{ startTime: "12:00 PM", endTime: "1:00 PM" }]
+              },
+              {
+                stylistName: "test3",
                 workingHours: DEFAULT_WORKING_HOURS,
                 blockedDates: [],
                 breakTimes: [{ startTime: "12:00 PM", endTime: "1:00 PM" }]
@@ -175,8 +201,9 @@ export function useSeedData() {
           console.log(`   📊 Schedules verified: ${finalSchedules?.length || 0}`)
           console.log('   🔑 LOGIN CREDENTIALS:')
           console.log('      Admin: username="admin" password="admin"')
-          console.log('      Maria: username="maria" password="supersecret"')
-          console.log('      Paula: username="paula" password="supersecret"')
+          console.log('      test1: username="test1" password="test1"')
+          console.log('      test2: username="test2" password="test2"')
+          console.log('      test3: username="test3" password="test3"')
           
           if (finalStaff && finalStaff.length > 0) {
             finalStaff.forEach(s => {
