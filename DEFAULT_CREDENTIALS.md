@@ -6,8 +6,8 @@ This document contains all default login credentials for the Ocho Hair Lab appli
 
 **Access:** Click "Staff Login" in the footer, then login with admin credentials to access the Admin Dashboard.
 
-- **Username:** `owner@ocholab.com`
-- **Password:** `owner123`
+- **Username:** `admin`
+- **Password:** `admin`
 - **Role:** Owner
 - **Permissions:** Full admin access to all features including:
   - Analytics & Appointments
@@ -20,21 +20,27 @@ This document contains all default login credentials for the Ocho Hair Lab appli
 
 **Access:** Click "Staff Login" in the footer, then login with staff credentials to access Staff Dashboard.
 
-### Maria
-- **Username:** `maria`
-- **Password:** `supersecret`
-- **Role:** Senior Stylist
+### test1
+- **Username:** `test1`
+- **Password:** `test1`
+- **Role:** Stylist
 - **Services:** All services are available by default
 
-### Paula
-- **Username:** `paula`
-- **Password:** `supersecret`
-- **Role:** Senior Stylist
+### test2
+- **Username:** `test2`
+- **Password:** `test2`
+- **Role:** Stylist
+- **Services:** All services are available by default
+
+### test3
+- **Username:** `test3`
+- **Password:** `test3`
+- **Role:** Stylist
 - **Services:** All services are available by default
 
 ## Default Services
 
-All staff members (Maria and Paula) are configured to provide all available services:
+All staff members (test1, test2, and test3) are configured to provide all available services:
 
 ### Tinte
 - Retoque de Raiz (90 min, $1,150)
