@@ -17,6 +17,32 @@ interface Service {
   price: string
 }
 
+interface StaffSchedule {
+  stylistName: string
+  workingHours: {
+    [key: string]: {
+      isWorking: boolean
+      startTime: string
+      endTime: string
+    }
+  }
+  blockedDates: string[]
+  breakTimes: {
+    startTime: string
+    endTime: string
+  }[]
+}
+
+const DEFAULT_WORKING_HOURS = {
+  Monday: { isWorking: true, startTime: "9:00 AM", endTime: "6:00 PM" },
+  Tuesday: { isWorking: true, startTime: "9:00 AM", endTime: "6:00 PM" },
+  Wednesday: { isWorking: true, startTime: "9:00 AM", endTime: "6:00 PM" },
+  Thursday: { isWorking: true, startTime: "9:00 AM", endTime: "6:00 PM" },
+  Friday: { isWorking: true, startTime: "9:00 AM", endTime: "6:00 PM" },
+  Saturday: { isWorking: true, startTime: "9:00 AM", endTime: "5:00 PM" },
+  Sunday: { isWorking: false, startTime: "9:00 AM", endTime: "5:00 PM" }
+}
+
 const DEFAULT_STAFF: StaffMember[] = [
   {
     username: "admin",
@@ -73,14 +99,17 @@ export function useSeedData() {
       try {
         const currentStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
         const currentServices = await window.spark.kv.get<Service[]>("salon-services")
+        const currentSchedules = await window.spark.kv.get<StaffSchedule[]>("staff-schedules")
         
         console.log(`🌱 SEED DATA: Current staff in KV: ${currentStaff?.length || 0}`)
         console.log(`🌱 SEED DATA: Current services in KV: ${currentServices?.length || 0}`)
+        console.log(`🌱 SEED DATA: Current schedules in KV: ${currentSchedules?.length || 0}`)
 
         const needsStaffSeed = !currentStaff || currentStaff.length === 0
         const needsServiceSeed = !currentServices || currentServices.length === 0
+        const needsScheduleSeed = !currentSchedules || currentSchedules.length === 0
 
-        if (needsStaffSeed || needsServiceSeed) {
+        if (needsStaffSeed || needsServiceSeed || needsScheduleSeed) {
           console.log('🌱 SEED DATA: Missing data detected, seeding...')
           
           const staffWithServices: StaffMember[] = DEFAULT_STAFF.map(staff => ({
@@ -112,14 +141,38 @@ export function useSeedData() {
             console.log('🌱 SEED DATA: Services already exist, skipping service seed')
           }
 
-          await new Promise(resolve => setTimeout(resolve, 500))
+          if (needsScheduleSeed) {
+            console.log('🌱 SEED DATA: Seeding staff schedules...')
+            const defaultSchedules: StaffSchedule[] = [
+              {
+                stylistName: "Maria",
+                workingHours: DEFAULT_WORKING_HOURS,
+                blockedDates: [],
+                breakTimes: [{ startTime: "12:00 PM", endTime: "1:00 PM" }]
+              },
+              {
+                stylistName: "Paula",
+                workingHours: DEFAULT_WORKING_HOURS,
+                blockedDates: [],
+                breakTimes: [{ startTime: "12:00 PM", endTime: "1:00 PM" }]
+              }
+            ]
+            await window.spark.kv.set("staff-schedules", defaultSchedules)
+            console.log(`🌱 SEED DATA: ${defaultSchedules.length} schedules set`)
+          } else {
+            console.log('🌱 SEED DATA: Schedules already exist, skipping schedule seed')
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 1000))
           
           const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
           const finalServices = await window.spark.kv.get<Service[]>("salon-services")
+          const finalSchedules = await window.spark.kv.get<StaffSchedule[]>("staff-schedules")
           
           console.log('🌱 SEED DATA: ✅ INITIALIZATION COMPLETE')
           console.log(`   📊 Staff members verified: ${finalStaff?.length || 0}`)
           console.log(`   📊 Services verified: ${finalServices?.length || 0}`)
+          console.log(`   📊 Schedules verified: ${finalSchedules?.length || 0}`)
           console.log('   🔑 LOGIN CREDENTIALS:')
           console.log('      Admin: username="admin" password="admin"')
           console.log('      Maria: username="maria" password="supersecret"')
@@ -132,13 +185,24 @@ export function useSeedData() {
           } else {
             console.error('   ❌ WARNING: No staff members found after seed!')
           }
+          
+          if (finalSchedules && finalSchedules.length > 0) {
+            finalSchedules.forEach(s => {
+              console.log(`   📅 ${s.stylistName} schedule created`)
+            })
+          } else {
+            console.error('   ❌ WARNING: No schedules found after seed!')
+          }
         } else {
           console.log('🌱 SEED DATA: ✅ Data already exists')
           console.log(`   📊 Staff members: ${currentStaff.length}`)
           console.log(`   📊 Services: ${currentServices.length}`)
+          console.log(`   📊 Schedules: ${currentSchedules.length}`)
           currentStaff.forEach(s => {
             if (!s.isAdmin) {
               console.log(`   👤 ${s.name} (username: ${s.username}, services: ${s.availableServices?.length || 0})`)
+            } else {
+              console.log(`   👤 ${s.name} (username: ${s.username}, admin: true)`)
             }
           })
         }
@@ -146,12 +210,12 @@ export function useSeedData() {
         setInitialized(true)
       } catch (error) {
         console.error('🌱 SEED DATA: ❌ Error during initialization:', error)
+        setInitialized(true)
       }
     }
 
     if (!initialized) {
-      const timer = setTimeout(initializeData, 100)
-      return () => clearTimeout(timer)
+      initializeData()
     }
   }, [initialized])
 }
