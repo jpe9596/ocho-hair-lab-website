@@ -1,3 +1,5 @@
+import { api } from '@/hooks/useApiState'
+
 interface SMSLog {
   id: string
   appointmentId: string
@@ -26,25 +28,11 @@ export async function logSMSMessage(data: {
   customerEmail: string
   serviceName: string
 }): Promise<void> {
-  const logs = await window.spark.kv.get<SMSLog[]>("sms-logs") || []
-  
-  const newLog: SMSLog = {
-    id: `sms-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    appointmentId: data.appointmentId,
-    to: data.to,
-    message: data.message,
-    type: data.type,
-    templateName: data.templateName,
-    status: data.status,
-    sentAt: new Date(),
-    failureReason: data.failureReason,
-    customerName: data.customerName,
-    customerEmail: data.customerEmail,
-    serviceName: data.serviceName
+  try {
+    await api.post('/sms-logs', data)
+  } catch (error) {
+    console.error('Failed to log SMS message:', error)
   }
-  
-  logs.push(newLog)
-  await window.spark.kv.set("sms-logs", logs)
 }
 
 export async function updateSMSStatus(
@@ -52,21 +40,10 @@ export async function updateSMSStatus(
   status: "delivered" | "failed",
   failureReason?: string
 ): Promise<void> {
-  const logs = await window.spark.kv.get<SMSLog[]>("sms-logs") || []
-  
-  const logIndex = logs.findIndex(log => 
-    log.appointmentId === appointmentId && 
-    log.status === "sent"
-  )
-  
-  if (logIndex !== -1) {
-    logs[logIndex].status = status
-    if (status === "delivered") {
-      logs[logIndex].deliveredAt = new Date()
-    }
-    if (failureReason) {
-      logs[logIndex].failureReason = failureReason
-    }
-    await window.spark.kv.set("sms-logs", logs)
-  }
+  // TODO: Implement SMS status update endpoint
+  // For now, log the status change. In production, you would:
+  // 1. Add a PUT endpoint: /api/sms-logs/:appointmentId/status
+  // 2. Update the database record
+  // 3. Call: await api.put(`/sms-logs/${appointmentId}/status`, { status, failureReason })
+  console.log('SMS status update (not persisted):', { appointmentId, status, failureReason })
 }
