@@ -6,22 +6,21 @@ Staff members can now log in to view their appointments by clicking the "Staff L
 
 ## Staff Credentials
 
-Each staff member can log in using their first name (lowercase) as the username.
+Each staff member can log in using their username.
 
 ### Staff Login Information
 
 | Staff Member | Username | Password | Role |
 |--------------|----------|----------|------|
-| Maria Rodriguez | `maria` | `supersecret` | Owner & Master Stylist |
-| Jessica Chen | `jessica` | `supersecret` | Senior Stylist |
-| Alex Thompson | `alex` | `supersecret` | Color Specialist |
-| Sophia Martinez | `sophia` | `supersecret` | Stylist |
+| test1 | `test1` | `test1` | Stylist |
+| test2 | `test2` | `test2` | Stylist |
+| test3 | `test3` | `test3` | Stylist |
 
 ### Admin/Owner Access
 
 | Name | Username | Password | Role |
 |------|----------|----------|------|
-| Admin | `owner@ocholab.com` | `owner123` | Owner |
+| Admin | `admin` | `admin` | Owner |
 
 ## Features
 
@@ -45,13 +44,13 @@ When staff members log in, they can see:
 
 ## Admin Access
 
-When logging in as admin (`owner@ocholab.com`), you will be redirected to the full admin dashboard with analytics, staff management, and all appointments.
+When logging in as admin (`admin`), you will be redirected to the full admin dashboard with analytics, staff management, and all appointments.
 
 ## How to Access
 
 1. Click "Staff Login" in the navigation menu
-2. Enter your username (first name lowercase)
-3. Enter password: `supersecret`
+2. Enter your username
+3. Enter your password
 4. Click "Sign In"
 
 ## Security Note
