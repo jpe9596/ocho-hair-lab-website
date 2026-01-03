@@ -39,6 +39,13 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
       console.log('   - Password entered:', password ? '***' : '(empty)')
       console.log('   - Available staff:', staffMembers?.length || 0)
       
+      if (!staffMembers || staffMembers.length === 0) {
+        console.log('❌ Login failed: No staff members loaded')
+        toast.error("System is still loading. Please wait a moment and try again.")
+        setIsLoading(false)
+        return
+      }
+      
       if (staffMembers && staffMembers.length > 0) {
         staffMembers.forEach(s => {
           console.log(`   - ${s.name}: username="${s.username}", isAdmin=${s.isAdmin}`)

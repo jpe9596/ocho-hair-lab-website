@@ -413,7 +413,7 @@ export function BookingDialog({ open, onOpenChange }: BookingDialogProps) {
                   <SelectItem value="Any Available">Any Available</SelectItem>
                   {stylistNames.length === 0 ? (
                     <div className="p-2 text-sm text-muted-foreground text-center">
-                      No stylists available. Please contact admin.
+                      Loading stylists... If this persists, please refresh the page.
                     </div>
                   ) : (
                     stylistNames.map((stylist) => {
