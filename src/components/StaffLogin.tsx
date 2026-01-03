@@ -49,9 +49,26 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
       console.log('   - Password entered:', password ? '(provided)' : '(empty)')
       console.log('   - Available staff:', staffMembers?.length || 0)
       
+      // Hardcoded admin credentials check - always works regardless of KV store state
+      const trimmedUsername = username.toLowerCase().trim()
+      const trimmedPassword = password.trim()
+      
+      if (trimmedUsername === "admin" && trimmedPassword === "admin") {
+        console.log('✅ Admin login successful (hardcoded credentials)')
+        toast.success('Welcome back, Administrator!')
+        onLogin({
+          username: "admin",
+          name: "Administrator",
+          role: "Owner",
+          isAdmin: true
+        })
+        setIsLoading(false)
+        return
+      }
+      
       if (!staffMembers || staffMembers.length === 0) {
-        console.log('❌ Login failed: No staff members loaded')
-        toast.error("System is initializing. Please wait a moment and try again.")
+        console.log('❌ Login failed: No staff members loaded and not admin credentials')
+        toast.error("Invalid username or password")
         setIsLoading(false)
         return
       }
@@ -61,13 +78,13 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
       })
       
       const staff = staffMembers.find(
-        s => s.username.toLowerCase().trim() === username.toLowerCase().trim() && s.password === password.trim()
+        s => s.username.toLowerCase().trim() === trimmedUsername && s.password === trimmedPassword
       )
       
       if (!staff) {
         console.log('❌ Login failed: No matching credentials')
-        console.log(`   - Tried username: "${username.toLowerCase().trim()}"`)
-        console.log(`   - Tried password: "${password.trim()}"`)
+        console.log(`   - Tried username: "${trimmedUsername}"`)
+        console.log(`   - Tried password: "${trimmedPassword}"`)
         toast.error("Invalid username or password")
         setIsLoading(false)
         return
@@ -106,13 +123,7 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
           <CardDescription className="text-center">
             Enter your credentials to access your dashboard
           </CardDescription>
-          {(!staffMembers || staffMembers.length === 0) && (
-            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-              <p className="text-xs text-yellow-800 text-center">
-                System is loading... Please wait a moment.
-              </p>
-            </div>
-          )}
+
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -143,7 +154,7 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isLoading || !staffMembers || staffMembers.length === 0}
+              disabled={isLoading}
             >
               <SignIn className="mr-2" size={18} />
               {isLoading ? "Signing in..." : "Sign In"}
