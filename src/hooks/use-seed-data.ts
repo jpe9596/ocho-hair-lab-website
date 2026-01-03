@@ -64,8 +64,6 @@ export function useSeedData() {
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    if (initialized) return
-    
     const initializeData = async () => {
       console.log('🌱 SEED DATA: Starting initialization...')
       
@@ -79,46 +77,70 @@ export function useSeedData() {
         console.log(`🌱 SEED DATA: Current staff in KV: ${currentStaff?.length || 0}`)
         console.log(`🌱 SEED DATA: Current services in KV: ${currentServices?.length || 0}`)
 
-        const staffWithServices: StaffMember[] = DEFAULT_STAFF.map(staff => ({
-          ...staff,
-          availableServices: staff.isAdmin ? undefined : allServiceNames
-        }))
+        const needsStaffSeed = !currentStaff || currentStaff.length === 0
+        const needsServiceSeed = !currentServices || currentServices.length === 0
 
-        console.log('🌱 SEED DATA: Force-seeding staff members...')
-        await window.spark.kv.set("staff-members", staffWithServices)
-        console.log('🌱 SEED DATA: Staff set:', staffWithServices.map(s => `${s.name} (${s.username})`).join(', '))
-        
-        staffWithServices.forEach(s => {
-          if (!s.isAdmin) {
-            console.log(`   ✅ ${s.name} - username: ${s.username} - password: ${s.password} - ${s.availableServices?.length || 0} services`)
+        if (needsStaffSeed || needsServiceSeed) {
+          console.log('🌱 SEED DATA: Missing data detected, seeding...')
+          
+          const staffWithServices: StaffMember[] = DEFAULT_STAFF.map(staff => ({
+            ...staff,
+            availableServices: staff.isAdmin ? undefined : allServiceNames
+          }))
+
+          if (needsStaffSeed) {
+            console.log('🌱 SEED DATA: Seeding staff members...')
+            await window.spark.kv.set("staff-members", staffWithServices)
+            console.log('🌱 SEED DATA: Staff set:', staffWithServices.map(s => `${s.name} (${s.username})`).join(', '))
+            
+            staffWithServices.forEach(s => {
+              if (!s.isAdmin) {
+                console.log(`   ✅ ${s.name} - username: ${s.username} - password: ${s.password} - ${s.availableServices?.length || 0} services`)
+              } else {
+                console.log(`   ✅ ${s.name} - username: ${s.username} - password: ${s.password} - Admin`)
+              }
+            })
           } else {
-            console.log(`   ✅ ${s.name} - username: ${s.username} - password: ${s.password} - Admin`)
+            console.log('🌱 SEED DATA: Staff already exists, skipping staff seed')
           }
-        })
 
-        console.log('🌱 SEED DATA: Force-seeding services...')
-        await window.spark.kv.set("salon-services", DEFAULT_SERVICES)
-        console.log(`🌱 SEED DATA: ${DEFAULT_SERVICES.length} services set`)
+          if (needsServiceSeed) {
+            console.log('🌱 SEED DATA: Seeding services...')
+            await window.spark.kv.set("salon-services", DEFAULT_SERVICES)
+            console.log(`🌱 SEED DATA: ${DEFAULT_SERVICES.length} services set`)
+          } else {
+            console.log('🌱 SEED DATA: Services already exist, skipping service seed')
+          }
 
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
-        const finalServices = await window.spark.kv.get<Service[]>("salon-services")
-        
-        console.log('🌱 SEED DATA: ✅ INITIALIZATION COMPLETE')
-        console.log(`   📊 Staff members verified: ${finalStaff?.length || 0}`)
-        console.log(`   📊 Services verified: ${finalServices?.length || 0}`)
-        console.log('   🔑 LOGIN CREDENTIALS:')
-        console.log('      Admin: username="admin" password="admin"')
-        console.log('      Maria: username="maria" password="supersecret"')
-        console.log('      Paula: username="paula" password="supersecret"')
-        
-        if (finalStaff && finalStaff.length > 0) {
-          finalStaff.forEach(s => {
-            console.log(`   👤 ${s.name} (username: ${s.username}, password: ${s.password}, isAdmin: ${s.isAdmin})`)
-          })
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
+          const finalServices = await window.spark.kv.get<Service[]>("salon-services")
+          
+          console.log('🌱 SEED DATA: ✅ INITIALIZATION COMPLETE')
+          console.log(`   📊 Staff members verified: ${finalStaff?.length || 0}`)
+          console.log(`   📊 Services verified: ${finalServices?.length || 0}`)
+          console.log('   🔑 LOGIN CREDENTIALS:')
+          console.log('      Admin: username="admin" password="admin"')
+          console.log('      Maria: username="maria" password="supersecret"')
+          console.log('      Paula: username="paula" password="supersecret"')
+          
+          if (finalStaff && finalStaff.length > 0) {
+            finalStaff.forEach(s => {
+              console.log(`   👤 ${s.name} (username: ${s.username}, password: ${s.password}, isAdmin: ${s.isAdmin}, services: ${s.availableServices?.length || 'N/A'})`)
+            })
+          } else {
+            console.error('   ❌ WARNING: No staff members found after seed!')
+          }
         } else {
-          console.error('   ❌ WARNING: No staff members found after seed!')
+          console.log('🌱 SEED DATA: ✅ Data already exists')
+          console.log(`   📊 Staff members: ${currentStaff.length}`)
+          console.log(`   📊 Services: ${currentServices.length}`)
+          currentStaff.forEach(s => {
+            if (!s.isAdmin) {
+              console.log(`   👤 ${s.name} (username: ${s.username}, services: ${s.availableServices?.length || 0})`)
+            }
+          })
         }
         
         setInitialized(true)
@@ -127,7 +149,9 @@ export function useSeedData() {
       }
     }
 
-    const timer = setTimeout(initializeData, 100)
-    return () => clearTimeout(timer)
+    if (!initialized) {
+      const timer = setTimeout(initializeData, 100)
+      return () => clearTimeout(timer)
+    }
   }, [initialized])
 }
