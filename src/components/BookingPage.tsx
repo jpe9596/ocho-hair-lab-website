@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Service } from "@/components/ServicesManagement"
+import { DEFAULT_STAFF, DEFAULT_SERVICES, DEFAULT_SCHEDULES } from "@/lib/defaults"
 
 interface Appointment {
   id: string
@@ -61,9 +62,9 @@ const timeSlots = [
 export function BookingPage() {
   const [appointments, setAppointments] = useKV<Appointment[]>("appointments", [])
   const [customerAccounts, setCustomerAccounts] = useKV<CustomerAccount[]>("customer-accounts", [])
-  const [schedules] = useKV<StaffSchedule[]>("staff-schedules", [])
-  const [staffMembers] = useKV<StaffMember[]>("staff-members", [])
-  const [services] = useKV<Service[]>("salon-services", [])
+  const [kvSchedules] = useKV<StaffSchedule[]>("staff-schedules", [])
+  const [kvStaffMembers] = useKV<StaffMember[]>("staff-members", [])
+  const [kvServices] = useKV<Service[]>("salon-services", [])
   const [date, setDate] = useState<Date>()
   const [loggedInEmail, setLoggedInEmail] = useState<string>("")
   const [loggedInAccount, setLoggedInAccount] = useState<CustomerAccount | null>(null)
@@ -79,6 +80,11 @@ export function BookingPage() {
     notes: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Use defaults if KV store returns empty (e.g., in vite preview mode)
+  const staffMembers = kvStaffMembers && kvStaffMembers.length > 0 ? kvStaffMembers : DEFAULT_STAFF
+  const services = kvServices && kvServices.length > 0 ? kvServices : DEFAULT_SERVICES
+  const schedules = kvSchedules && kvSchedules.length > 0 ? kvSchedules : DEFAULT_SCHEDULES
 
   const stylistNames = useMemo(() => {
     console.log('📆 BookingPage.stylistNames - Computing...')
