@@ -95,16 +95,26 @@ This is a **standalone application** that runs without GitHub Spark dependencies
 
 ## 🚢 Production Deployment
 
-For deployment to an EC2 t3.micro instance (or any Ubuntu 24.04 server):
+For deployment to an EC2 t3.micro instance (or any Ubuntu 24.04 server), choose one of two approaches:
 
-1. Follow the comprehensive guide in [DEPLOYMENT.md](./DEPLOYMENT.md)
-2. The guide includes:
-   - Server setup and configuration
-   - nginx reverse proxy setup
-   - systemd service configuration
-   - SSL certificate installation
-   - Database backups
-   - Security best practices
+### Option 1: Local Build + SCP (Recommended) ⚡
+- **[DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md)** - Build locally and deploy with `scp`
+- ✅ Faster deployment
+- ✅ Lower server resource usage
+- ✅ No git clone needed on EC2
+- ✅ Includes automated deployment script
+
+### Option 2: Build on Server 🔨
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Traditional git clone and build on EC2
+- Good for learning and simple setups
+
+Both guides include:
+- Server setup and configuration
+- nginx reverse proxy setup
+- systemd service configuration
+- SSL certificate installation
+- Database backups
+- Security best practices
 
 ## 🔧 Configuration
 

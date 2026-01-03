@@ -2,6 +2,34 @@
 
 This guide provides step-by-step instructions for deploying the Ocho Hair Lab website on an EC2 t3.micro instance running Ubuntu 24.04.
 
+## 🚀 Deployment Options
+
+There are **two ways** to deploy this application:
+
+### Option 1: Local Build + SCP (Recommended)
+**Best for**: Faster deployments, limited EC2 resources, production environments
+
+- ✅ Build the frontend **locally** on your development machine
+- ✅ Transfer built files to EC2 using `scp`
+- ✅ **No git clone needed on EC2**
+- ✅ Lower CPU/memory usage on server
+- ✅ Faster deployment process
+- ✅ Automated deployment script included
+
+**📖 See:** [DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md) for complete instructions
+
+### Option 2: Git Clone + Build on Server (This Guide)
+**Best for**: Simple setup, learning purposes, when you have adequate server resources
+
+- Build everything directly on the EC2 instance
+- Requires git clone on the server
+- Uses more server resources during build
+- Traditional deployment approach
+
+**This guide below covers Option 2.** For the faster local build approach, see [DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md).
+
+---
+
 ## Overview
 
 The application consists of:
