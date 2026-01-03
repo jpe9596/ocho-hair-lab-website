@@ -6,8 +6,8 @@
 # ============================================================
 # CONFIGURATION - Update these values for your setup
 # ============================================================
-SERVER_IP="${SERVER_IP:-YOUR_SERVER_IP}"
-SSH_KEY="${SSH_KEY:-your-key.pem}"
+SERVER_IP="${SERVER_IP:-REPLACE_WITH_YOUR_SERVER_IP}"
+SSH_KEY="${SSH_KEY:-REPLACE_WITH_YOUR_KEY_PATH}"
 SSH_USER="${SSH_USER:-ubuntu}"
 REMOTE_USER="${REMOTE_USER:-ocho}"
 REMOTE_PATH="/home/${REMOTE_USER}/ocho-hair-lab-website"
@@ -46,13 +46,13 @@ print_info() {
 }
 
 check_config() {
-    if [ "$SERVER_IP" == "YOUR_SERVER_IP" ]; then
+    if [[ "$SERVER_IP" == "REPLACE_WITH_YOUR_SERVER_IP" || "$SERVER_IP" == "YOUR_SERVER_IP" ]]; then
         print_error "Please configure SERVER_IP in the script or set as environment variable"
         echo "Example: export SERVER_IP=54.123.45.67"
         exit 1
     fi
 
-    if [ "$SSH_KEY" == "your-key.pem" ]; then
+    if [[ "$SSH_KEY" == "REPLACE_WITH_YOUR_KEY_PATH" || "$SSH_KEY" == "your-key.pem" ]]; then
         print_error "Please configure SSH_KEY in the script or set as environment variable"
         echo "Example: export SSH_KEY=~/.ssh/my-ec2-key.pem"
         exit 1
@@ -64,7 +64,7 @@ check_config() {
     fi
 
     # Check SSH key permissions
-    local perms=$(stat -c %a "$SSH_KEY" 2>/dev/null || stat -f %A "$SSH_KEY" 2>/dev/null)
+    local perms=$(stat -c %a "$SSH_KEY" 2>/dev/null || stat -f %Lp "$SSH_KEY" 2>/dev/null)
     if [ "$perms" != "400" ] && [ "$perms" != "600" ]; then
         print_warning "SSH key permissions should be 400 or 600"
         print_info "Running: chmod 400 $SSH_KEY"
@@ -108,6 +108,12 @@ build_frontend() {
         print_error "dist/ directory not found after build"
         exit 1
     fi
+    
+    # Check if dist directory has files
+    if [ -z "$(ls -A dist)" ]; then
+        print_error "dist/ directory is empty after build"
+        exit 1
+    fi
 
     print_success "Build completed successfully"
     du -sh dist
@@ -122,7 +128,8 @@ transfer_files() {
     local temp_dir=$(ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" "ls -td ~/temp-dist-* | head -1")
     
     print_info "Transferring dist/ to $SERVER_IP:$temp_dir"
-    scp -i "$SSH_KEY" -r dist/* "$SSH_USER@$SERVER_IP":"$temp_dir/"
+    # Use -r with dist/ to handle all files including hidden files
+    scp -i "$SSH_KEY" -r dist/. "$SSH_USER@$SERVER_IP":"$temp_dir/"
 
     if [ $? -ne 0 ]; then
         print_error "File transfer failed!"
@@ -137,31 +144,43 @@ deploy_files() {
     local temp_dir=$1
     print_header "Deploying Files on Server"
     
+    # Validate paths don't contain special characters
+    if [[ "$REMOTE_PATH" =~ [\'\"\\] ]]; then
+        print_error "REMOTE_PATH contains unsafe characters: $REMOTE_PATH"
+        exit 1
+    fi
+    
+    if [[ "$REMOTE_USER" =~ [\'\"\\] ]]; then
+        print_error "REMOTE_USER contains unsafe characters: $REMOTE_USER"
+        exit 1
+    fi
+    
     print_info "Backing up current dist/ directory..."
-    ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << EOF
+    ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" bash << EOF
+        set -e
         # Create backup directory if it doesn't exist
-        sudo mkdir -p ${REMOTE_PATH}/dist-backups
+        sudo mkdir -p '${REMOTE_PATH}/dist-backups'
         
         # Backup current dist with timestamp
-        if [ -d "${REMOTE_PATH}/dist" ] && [ "\$(ls -A ${REMOTE_PATH}/dist)" ]; then
-            sudo tar -czf ${REMOTE_PATH}/dist-backups/dist-backup-\$(date +%Y%m%d-%H%M%S).tar.gz -C ${REMOTE_PATH} dist
+        if [ -d '${REMOTE_PATH}/dist' ] && [ "\$(ls -A '${REMOTE_PATH}/dist')" ]; then
+            sudo tar -czf '${REMOTE_PATH}/dist-backups/dist-backup-\$(date +%Y%m%d-%H%M%S).tar.gz' -C '${REMOTE_PATH}' dist
             echo "✓ Backup created"
         fi
         
         # Remove old dist files
-        sudo rm -rf ${REMOTE_PATH}/dist/*
+        sudo rm -rf '${REMOTE_PATH}/dist'/*
         
         # Move new files
-        sudo mv $temp_dir/* ${REMOTE_PATH}/dist/
+        sudo mv '$temp_dir'/* '${REMOTE_PATH}/dist/'
         
         # Set proper ownership
-        sudo chown -R ${REMOTE_USER}:${REMOTE_USER} ${REMOTE_PATH}/dist
+        sudo chown -R '${REMOTE_USER}:${REMOTE_USER}' '${REMOTE_PATH}/dist'
         
         # Cleanup temp directory
-        rm -rf $temp_dir
+        rm -rf '$temp_dir'
         
         # Verify files
-        ls -lh ${REMOTE_PATH}/dist/ | head -10
+        ls -lh '${REMOTE_PATH}/dist/' | head -10
 EOF
 
     if [ $? -ne 0 ]; then
