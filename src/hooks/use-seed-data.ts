@@ -60,6 +60,11 @@ const DEFAULT_SERVICES: Service[] = [
   { id: "14", name: "Posion Nº 8", duration: 60, category: "Treatments", price: "$900" }
 ]
 
+// Configuration constants for seed data initialization timing
+// These can be adjusted for different deployment environments
+const SEED_INIT_DELAY_MS = 200  // Initial delay to ensure Spark KV is ready
+const SEED_VERIFY_DELAY_MS = 500  // Delay before final verification (increased for slower VMs)
+
 export function useSeedData() {
   const [initialized, setInitialized] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -72,7 +77,7 @@ export function useSeedData() {
       setLoading(true)
       
       // Small delay to ensure Spark KV is ready
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise(resolve => setTimeout(resolve, SEED_INIT_DELAY_MS))
 
       const allServiceNames = DEFAULT_SERVICES.map(s => s.name)
       console.log(`🌱 SEED DATA: ${allServiceNames.length} service names available`)
@@ -108,8 +113,8 @@ export function useSeedData() {
           console.log(`🌱 SEED DATA: Services already present (${currentServices.length})`)
         }
 
-        // Longer wait to ensure KV store is fully updated
-        await new Promise(resolve => setTimeout(resolve, 500))
+        // Wait to ensure KV store is fully updated before verification
+        await new Promise(resolve => setTimeout(resolve, SEED_VERIFY_DELAY_MS))
         
         const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
         const finalServices = await window.spark.kv.get<Service[]>("salon-services")
