@@ -24,7 +24,7 @@ function App() {
   const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(null)
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
   
-  useSeedData()
+  const { loading: seedDataLoading, initialized: seedDataInitialized } = useSeedData()
   useAppointmentReminders()
 
   useEffect(() => {
@@ -65,6 +65,19 @@ function App() {
     window.addEventListener("hashchange", handleHashChange)
     return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
+
+  // Show loading screen while seed data is initializing
+  if (seedDataLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-accent/10">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-lg font-medium text-foreground">Loading Ocho Hair Lab...</p>
+          <p className="text-sm text-muted-foreground">Initializing system data</p>
+        </div>
+      </div>
+    )
+  }
 
   if (currentView === "customer-login") {
     return (

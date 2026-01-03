@@ -62,14 +62,17 @@ const DEFAULT_SERVICES: Service[] = [
 
 export function useSeedData() {
   const [initialized, setInitialized] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (initialized) return
     
     const initializeData = async () => {
       console.log('🌱 SEED DATA: Starting initialization...')
+      setLoading(true)
       
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Small delay to ensure Spark KV is ready
+      await new Promise(resolve => setTimeout(resolve, 200))
 
       const allServiceNames = DEFAULT_SERVICES.map(s => s.name)
       console.log(`🌱 SEED DATA: ${allServiceNames.length} service names available`)
@@ -105,7 +108,8 @@ export function useSeedData() {
           console.log(`🌱 SEED DATA: Services already present (${currentServices.length})`)
         }
 
-        await new Promise(resolve => setTimeout(resolve, 300))
+        // Longer wait to ensure KV store is fully updated
+        await new Promise(resolve => setTimeout(resolve, 500))
         
         const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
         const finalServices = await window.spark.kv.get<Service[]>("salon-services")
@@ -124,11 +128,15 @@ export function useSeedData() {
         }
         
         setInitialized(true)
+        setLoading(false)
       } catch (error) {
         console.error('🌱 SEED DATA: ❌ Error during initialization:', error)
+        setLoading(false)
       }
     }
 
     initializeData()
   }, [initialized])
+
+  return { loading, initialized }
 }
