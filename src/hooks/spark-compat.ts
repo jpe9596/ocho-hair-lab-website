@@ -18,8 +18,14 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
 if (typeof window !== 'undefined') {
   (window as any).spark = {
     user: async () => {
+      // SECURITY NOTE: This uses sessionStorage for admin authentication.
+      // For production, implement proper server-side authentication with:
+      // - JWT tokens or secure session cookies
+      // - Backend validation on protected routes
+      // - Password hashing (bcrypt)
+      // - HTTPS to prevent token interception
+      
       // Check if there's an admin session
-      // For now, we'll use sessionStorage to track admin login
       const adminUser = sessionStorage.getItem('adminUser');
       
       if (adminUser) {

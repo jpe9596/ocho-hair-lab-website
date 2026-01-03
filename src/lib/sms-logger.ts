@@ -40,7 +40,10 @@ export async function updateSMSStatus(
   status: "delivered" | "failed",
   failureReason?: string
 ): Promise<void> {
-  // Note: This would require a custom endpoint to update SMS status
-  // For now, we'll just log it
-  console.log('SMS status update:', { appointmentId, status, failureReason })
+  // TODO: Implement SMS status update endpoint
+  // For now, log the status change. In production, you would:
+  // 1. Add a PUT endpoint: /api/sms-logs/:appointmentId/status
+  // 2. Update the database record
+  // 3. Call: await api.put(`/sms-logs/${appointmentId}/status`, { status, failureReason })
+  console.log('SMS status update (not persisted):', { appointmentId, status, failureReason })
 }
