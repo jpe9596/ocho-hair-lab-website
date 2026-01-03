@@ -69,8 +69,6 @@ export function useSeedData() {
     const initializeData = async () => {
       console.log('🌱 SEED DATA: Starting initialization...')
       
-      await new Promise(resolve => setTimeout(resolve, 100))
-
       const allServiceNames = DEFAULT_SERVICES.map(s => s.name)
       console.log(`🌱 SEED DATA: ${allServiceNames.length} service names available`)
 
@@ -86,41 +84,37 @@ export function useSeedData() {
           availableServices: staff.isAdmin ? undefined : allServiceNames
         }))
 
-        console.log('🌱 SEED DATA: Force-setting staff members...')
+        console.log('🌱 SEED DATA: Setting staff members...')
         await window.spark.kv.set("staff-members", staffWithServices)
-        console.log('🌱 SEED DATA: Staff initialized:', staffWithServices.map(s => s.name).join(', '))
+        console.log('🌱 SEED DATA: Staff set:', staffWithServices.map(s => `${s.name} (${s.username})`).join(', '))
+        
         staffWithServices.forEach(s => {
           if (!s.isAdmin) {
-            console.log(`   ✅ ${s.name} (${s.username}): ${s.availableServices?.length || 0} services`)
+            console.log(`   ✅ ${s.name} - password: ${s.password} - ${s.availableServices?.length || 0} services`)
           } else {
-            console.log(`   ✅ ${s.name} (${s.username}): Admin`)
+            console.log(`   ✅ ${s.name} - password: ${s.password} - Admin`)
           }
         })
 
-        if (!currentServices || currentServices.length === 0) {
-          console.log('🌱 SEED DATA: Initializing services...')
-          await window.spark.kv.set("salon-services", DEFAULT_SERVICES)
-          console.log(`🌱 SEED DATA: ${DEFAULT_SERVICES.length} services initialized`)
-        } else {
-          console.log(`🌱 SEED DATA: Services already present (${currentServices.length})`)
-        }
+        console.log('🌱 SEED DATA: Setting services...')
+        await window.spark.kv.set("salon-services", DEFAULT_SERVICES)
+        console.log(`🌱 SEED DATA: ${DEFAULT_SERVICES.length} services set`)
 
-        await new Promise(resolve => setTimeout(resolve, 300))
+        await new Promise(resolve => setTimeout(resolve, 500))
         
         const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
         const finalServices = await window.spark.kv.get<Service[]>("salon-services")
         
         console.log('🌱 SEED DATA: ✅ INITIALIZATION COMPLETE')
-        console.log(`   📊 Staff members: ${finalStaff?.length || 0}`)
-        console.log(`   📊 Services: ${finalServices?.length || 0}`)
-        if (finalStaff) {
+        console.log(`   📊 Staff members verified: ${finalStaff?.length || 0}`)
+        console.log(`   📊 Services verified: ${finalServices?.length || 0}`)
+        
+        if (finalStaff && finalStaff.length > 0) {
           finalStaff.forEach(s => {
-            if (!s.isAdmin) {
-              console.log(`   👤 ${s.name} (${s.username}): ${s.availableServices?.length || 0} services`)
-            } else {
-              console.log(`   👤 ${s.name} (${s.username}): Admin`)
-            }
+            console.log(`   👤 ${s.name} (username: ${s.username}, password: ${s.password})`)
           })
+        } else {
+          console.error('   ❌ WARNING: No staff members found after seed!')
         }
         
         setInitialized(true)

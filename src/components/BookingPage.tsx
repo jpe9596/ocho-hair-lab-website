@@ -497,13 +497,19 @@ export function BookingPage() {
                   }}
                 >
                   <SelectTrigger id="stylist">
-                    <SelectValue placeholder="Select a stylist first" />
+                    <SelectValue placeholder={
+                      staffMembers && staffMembers.length === 0 
+                        ? "Loading stylists..." 
+                        : "Select a stylist first"
+                    } />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Any Available">Any Available</SelectItem>
                     {stylistNames.length === 0 ? (
                       <div className="p-2 text-sm text-muted-foreground text-center">
-                        No stylists available. Please contact admin.
+                        {!staffMembers || staffMembers.length === 0 
+                          ? "Loading..." 
+                          : "No stylists available. Please contact admin."}
                       </div>
                     ) : (
                       stylistNames.map((stylist) => (

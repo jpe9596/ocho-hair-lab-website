@@ -28,6 +28,16 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  
+  useEffect(() => {
+    console.log('👤 StaffLogin: Component mounted')
+    console.log('👤 StaffLogin: Staff members loaded:', staffMembers?.length || 0)
+    if (staffMembers && staffMembers.length > 0) {
+      staffMembers.forEach(s => {
+        console.log(`   - ${s.name}: username="${s.username}", password="${s.password}", isAdmin=${s.isAdmin}`)
+      })
+    }
+  }, [staffMembers])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,21 +46,28 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
     setTimeout(() => {
       console.log('🔐 Staff Login Attempt:')
       console.log('   - Username entered:', username)
-      console.log('   - Password entered:', password ? '***' : '(empty)')
+      console.log('   - Password entered:', password ? '(provided)' : '(empty)')
       console.log('   - Available staff:', staffMembers?.length || 0)
       
-      if (staffMembers && staffMembers.length > 0) {
-        staffMembers.forEach(s => {
-          console.log(`   - ${s.name}: username="${s.username}", isAdmin=${s.isAdmin}`)
-        })
+      if (!staffMembers || staffMembers.length === 0) {
+        console.log('❌ Login failed: No staff members loaded')
+        toast.error("System is initializing. Please wait a moment and try again.")
+        setIsLoading(false)
+        return
       }
       
-      const staff = staffMembers?.find(
-        s => s.username.toLowerCase() === username.toLowerCase().trim() && s.password === password
+      staffMembers.forEach(s => {
+        console.log(`   - Checking ${s.name}: username="${s.username}", password="${s.password}", isAdmin=${s.isAdmin}`)
+      })
+      
+      const staff = staffMembers.find(
+        s => s.username.toLowerCase().trim() === username.toLowerCase().trim() && s.password === password.trim()
       )
       
       if (!staff) {
-        console.log('❌ Login failed: No matching staff member')
+        console.log('❌ Login failed: No matching credentials')
+        console.log(`   - Tried username: "${username.toLowerCase().trim()}"`)
+        console.log(`   - Tried password: "${password.trim()}"`)
         toast.error("Invalid username or password")
         setIsLoading(false)
         return
@@ -89,6 +106,13 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
           <CardDescription className="text-center">
             Enter your credentials to access your dashboard
           </CardDescription>
+          {(!staffMembers || staffMembers.length === 0) && (
+            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-xs text-yellow-800 text-center">
+                System is loading... Please wait a moment.
+              </p>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -116,7 +140,11 @@ export function StaffLogin({ onLogin, onBack }: StaffLoginProps) {
                 autoComplete="current-password"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading || !staffMembers || staffMembers.length === 0}
+            >
               <SignIn className="mr-2" size={18} />
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
