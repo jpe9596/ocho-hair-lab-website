@@ -43,6 +43,12 @@ const DEFAULT_WORKING_HOURS = {
   Sunday: { isWorking: false, startTime: "9:00 AM", endTime: "5:00 PM" }
 }
 
+// Staff usernames for migration detection
+const OLD_STAFF_USERNAMES = ["maria", "paula"]
+const NEW_STAFF_USERNAMES = ["test1", "test2", "test3"]
+
+// NOTE: These credentials are intentionally simple (username = password) as per user requirements
+// for testing purposes on Ubuntu 24.04 VM. In production, these MUST be changed to strong passwords.
 const DEFAULT_STAFF: StaffMember[] = [
   {
     username: "admin",
@@ -113,13 +119,13 @@ export function useSeedData() {
         console.log(`🌱 SEED DATA: Current services in KV: ${currentServices?.length || 0}`)
         console.log(`🌱 SEED DATA: Current schedules in KV: ${currentSchedules?.length || 0}`)
 
-        // Check if we need to migrate from old staff (Maria/Paula) to new staff (test1/test2/test3)
-        const hasMariaPaula = currentStaff?.some(s => s.username === "maria" || s.username === "paula")
-        const hasTestStaff = currentStaff?.some(s => s.username === "test1" || s.username === "test2" || s.username === "test3")
+        // Check if we need to migrate from old staff to new staff
+        const hasMariaPaula = currentStaff?.some(s => OLD_STAFF_USERNAMES.includes(s.username))
+        const hasTestStaff = currentStaff?.some(s => NEW_STAFF_USERNAMES.includes(s.username))
         const needsMigration = hasMariaPaula && !hasTestStaff
         
         if (needsMigration) {
-          console.log('🌱 SEED DATA: Migration needed - replacing Maria/Paula with test1/test2/test3')
+          console.log('🌱 SEED DATA: Migration needed - replacing old staff with new staff')
         }
 
         const needsStaffSeed = !currentStaff || currentStaff.length === 0 || needsMigration
