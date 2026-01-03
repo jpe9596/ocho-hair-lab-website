@@ -16,6 +16,7 @@ import { StaffSchedule } from "@/components/StaffSchedule"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { DiagnosticPanel } from "@/components/DiagnosticPanel"
 import type { Service } from "@/components/ServicesManagement"
 
 interface Appointment {
@@ -79,6 +80,7 @@ export function BookingPage() {
     notes: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showDiagnostics, setShowDiagnostics] = useState(false)
 
   const stylistNames = useMemo(() => {
     console.log('📆 BookingPage.stylistNames - Computing...')
@@ -393,17 +395,27 @@ export function BookingPage() {
         backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, oklch(0.15 0 0 / 0.03) 35px, oklch(0.15 0 0 / 0.03) 70px)`
       }} />
       
+      {showDiagnostics && <DiagnosticPanel />}
+      
       <div className="relative z-10 max-w-4xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => {
-            window.location.hash = ""
-          }}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2" size={20} />
-          Home
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              window.location.hash = ""
+            }}
+          >
+            <ArrowLeft className="mr-2" size={20} />
+            Home
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDiagnostics(!showDiagnostics)}
+          >
+            {showDiagnostics ? "Hide" : "Show"} Diagnostics
+          </Button>
+        </div>
 
         <Card className="shadow-2xl">
           <CardHeader className="text-center pb-4">
