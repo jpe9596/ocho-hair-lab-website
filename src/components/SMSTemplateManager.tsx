@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { useKV } from "@github/spark/hooks"
+import { useKV } from "@/hooks/spark-compat"
 import { Copy, ArrowCounterClockwise } from "@phosphor-icons/react"
 import { SMS_TEMPLATES, getServiceCategory } from "@/lib/sms-templates"
 
