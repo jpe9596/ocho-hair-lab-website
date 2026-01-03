@@ -19,9 +19,9 @@ interface Service {
 
 const DEFAULT_STAFF: StaffMember[] = [
   {
-    username: "owner@ocholab.com",
-    password: "owner123",
-    name: "Owner",
+    username: "admin",
+    password: "admin",
+    name: "Administrator",
     role: "Owner",
     isAdmin: true
   },
@@ -84,23 +84,23 @@ export function useSeedData() {
           availableServices: staff.isAdmin ? undefined : allServiceNames
         }))
 
-        console.log('🌱 SEED DATA: Setting staff members...')
+        console.log('🌱 SEED DATA: Force-seeding staff members...')
         await window.spark.kv.set("staff-members", staffWithServices)
         console.log('🌱 SEED DATA: Staff set:', staffWithServices.map(s => `${s.name} (${s.username})`).join(', '))
         
         staffWithServices.forEach(s => {
           if (!s.isAdmin) {
-            console.log(`   ✅ ${s.name} - password: ${s.password} - ${s.availableServices?.length || 0} services`)
+            console.log(`   ✅ ${s.name} - username: ${s.username} - password: ${s.password} - ${s.availableServices?.length || 0} services`)
           } else {
-            console.log(`   ✅ ${s.name} - password: ${s.password} - Admin`)
+            console.log(`   ✅ ${s.name} - username: ${s.username} - password: ${s.password} - Admin`)
           }
         })
 
-        console.log('🌱 SEED DATA: Setting services...')
+        console.log('🌱 SEED DATA: Force-seeding services...')
         await window.spark.kv.set("salon-services", DEFAULT_SERVICES)
         console.log(`🌱 SEED DATA: ${DEFAULT_SERVICES.length} services set`)
 
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
         const finalStaff = await window.spark.kv.get<StaffMember[]>("staff-members")
         const finalServices = await window.spark.kv.get<Service[]>("salon-services")
@@ -108,10 +108,14 @@ export function useSeedData() {
         console.log('🌱 SEED DATA: ✅ INITIALIZATION COMPLETE')
         console.log(`   📊 Staff members verified: ${finalStaff?.length || 0}`)
         console.log(`   📊 Services verified: ${finalServices?.length || 0}`)
+        console.log('   🔑 LOGIN CREDENTIALS:')
+        console.log('      Admin: username="admin" password="admin"')
+        console.log('      Maria: username="maria" password="supersecret"')
+        console.log('      Paula: username="paula" password="supersecret"')
         
         if (finalStaff && finalStaff.length > 0) {
           finalStaff.forEach(s => {
-            console.log(`   👤 ${s.name} (username: ${s.username}, password: ${s.password})`)
+            console.log(`   👤 ${s.name} (username: ${s.username}, password: ${s.password}, isAdmin: ${s.isAdmin})`)
           })
         } else {
           console.error('   ❌ WARNING: No staff members found after seed!')
@@ -123,6 +127,7 @@ export function useSeedData() {
       }
     }
 
-    initializeData()
+    const timer = setTimeout(initializeData, 100)
+    return () => clearTimeout(timer)
   }, [initialized])
 }
