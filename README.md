@@ -90,6 +90,7 @@ This is a **standalone application** that runs without GitHub Spark dependencies
 ## 📚 Documentation
 
 ### Essential Guides
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - **Start here** for troubleshooting quick fixes
 - **[DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md)** - **Recommended** deployment guide (local build + SCP)
 - **[TROUBLESHOOTING_500_ERROR.md](./TROUBLESHOOTING_500_ERROR.md)** - Comprehensive troubleshooting for 500 errors
 - **[DATABASE_SETUP.md](./DATABASE_SETUP.md)** - Database schema, API endpoints, and data management

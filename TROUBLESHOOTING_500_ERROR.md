@@ -2,6 +2,8 @@
 
 This guide provides comprehensive troubleshooting steps for resolving 500 Internal Server Error issues when deploying the Ocho Hair Lab website following the [DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md) guide.
 
+> 🚀 **Need a quick fix?** See [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) for common solutions and quick diagnostic commands.
+
 ## 📋 Quick Diagnosis Checklist
 
 Before diving into detailed troubleshooting, check these common issues:
