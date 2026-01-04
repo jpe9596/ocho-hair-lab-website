@@ -625,7 +625,23 @@ sudo crontab -e
 
 ## Troubleshooting
 
-### Build Fails Locally
+### 🚨 500 Internal Server Error?
+
+If you're experiencing a 500 Internal Server Error, see the comprehensive troubleshooting guide:
+
+📖 **[TROUBLESHOOTING_500_ERROR.md](./TROUBLESHOOTING_500_ERROR.md)** - Complete step-by-step troubleshooting for 500 errors
+
+This guide covers:
+- ✅ Quick diagnosis checklist
+- ✅ 12-step detailed troubleshooting process
+- ✅ Common scenarios and solutions
+- ✅ Log analysis patterns
+- ✅ Quick recovery commands
+- ✅ End-to-end verification tests
+
+### Quick Troubleshooting Tips
+
+#### Build Fails Locally
 
 ```bash
 # Clean install
@@ -634,7 +650,7 @@ npm install
 npm run build
 ```
 
-### SCP Transfer Fails
+#### SCP Transfer Fails
 
 ```bash
 # Check SSH connection
@@ -647,7 +663,7 @@ chmod 400 your-key.pem
 scp -v -i your-key.pem -r dist/* ubuntu@YOUR_SERVER_IP:~/temp-dist/
 ```
 
-### Frontend Not Loading
+#### Frontend Not Loading
 
 ```bash
 # SSH into server
@@ -663,7 +679,7 @@ sudo tail -f /var/log/nginx/error.log
 sudo nginx -t
 ```
 
-### Backend Won't Start
+#### Backend Won't Start
 
 ```bash
 # Check logs
