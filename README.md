@@ -89,24 +89,33 @@ This is a **standalone application** that runs without GitHub Spark dependencies
 
 ## 📚 Documentation
 
+### Essential Guides
+- **[DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md)** - **Recommended** deployment guide (local build + SCP)
+- **[TROUBLESHOOTING_500_ERROR.md](./TROUBLESHOOTING_500_ERROR.md)** - Comprehensive troubleshooting for 500 errors
 - **[DATABASE_SETUP.md](./DATABASE_SETUP.md)** - Database schema, API endpoints, and data management
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Complete production deployment guide for Ubuntu 24.04
 - **[TWILIO_SETUP.md](./TWILIO_SETUP.md)** - WhatsApp messaging configuration
+
+### Alternative Deployment
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Alternative: Build on server (git clone method)
 
 ## 🚢 Production Deployment
 
 For deployment to an EC2 t3.micro instance (or any Ubuntu 24.04 server), choose one of two approaches:
 
-### Option 1: Local Build + SCP (Recommended) ⚡
-- **[DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md)** - Build locally and deploy with `scp`
+### Option 1: Local Build + SCP (⭐ Recommended)
+**[DEPLOYMENT_LOCAL_BUILD.md](./DEPLOYMENT_LOCAL_BUILD.md)** - Build locally and deploy with `scp`
 - ✅ Faster deployment
-- ✅ Lower server resource usage
+- ✅ Lower server resource usage  
 - ✅ No git clone needed on EC2
 - ✅ Includes automated deployment script
+- ✅ Comprehensive troubleshooting guide included
 
-### Option 2: Build on Server 🔨
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Traditional git clone and build on EC2
+**Having issues?** See **[TROUBLESHOOTING_500_ERROR.md](./TROUBLESHOOTING_500_ERROR.md)** for step-by-step diagnosis
+
+### Option 2: Build on Server
+**[DEPLOYMENT.md](./DEPLOYMENT.md)** - Traditional git clone and build on EC2
 - Good for learning and simple setups
+- Builds directly on the server
 
 Both guides include:
 - Server setup and configuration
